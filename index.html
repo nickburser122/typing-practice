@@ -736,16 +736,14 @@ th .rst { padding: 0; }
 .scact { font-size: 34px; font-weight: 500; line-height: 1.25; }
 .sckeys { min-height: 44px; display: flex; align-items: center; }
 .sckeys .kcap { height: 42px; min-width: 44px; font-size: 16px; }
-.scopts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 100%; }
-.scopt { appearance: none; border: 1px solid var(--line); background: var(--raised); border-radius: var(--r-m); padding: 16px 18px; min-height: 64px; display: flex; align-items: center; justify-content: flex-start; text-align: start; color: var(--ink); font-weight: 500; }
-.scopt:hover { border-color: var(--line-strong); background: var(--thumb); }
-.scoptl { font-size: 17px; }
 .tablewrap.flat { border: 0; box-shadow: none; padding: 0; background: transparent; margin-top: 8px; }
 .sctable { min-width: 0; }
 .sctable td { padding: 10px 8px; }
 .sctable td.kc { text-align: end; }
 .sctable td.stc { color: var(--mute); text-align: end; font-size: 13px; }
-@media (max-width: 560px) { .scopts { grid-template-columns: minmax(0, 1fr); } .scact { font-size: 26px; } }
+.scq { height: 36px; min-width: 220px; padding: 0 12px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); border-radius: var(--r-m); font: inherit; }
+.scgh { color: var(--mute); font-size: 13px; margin: 18px 0 2px; }
+@media (max-width: 560px) { .scact { font-size: 26px; } .scq { min-width: 0; flex: 1 1 100%; } }
 
 .top, .cfg, .hintline, .place, .thist, .strip, .meta { transition: opacity 160ms ease-out; }
 .shell.typing .top, .shell.typing .cfg, .shell.typing .hintline, .shell.typing .place, .shell.typing .thist, .shell.typing .strip, .shell.typing .meta { opacity: 0.2; }
@@ -1154,7 +1152,8 @@ const SCHEMA = [
   { id: "scOS", sec: "shortcuts", type: "seg", def: "auto", opts: ["auto", "win", "mac"], hidden: true },
   { id: "codeSet", sec: "code", type: "seg", def: "mix", opts: ["mix"].concat(CODE_IDS), hidden: true },
   { id: "codeTimer", sec: "code", type: "seg", def: "after", opts: ["off", "after", "15", "30", "60"], hidden: true },
-  { id: "scCat", sec: "shortcuts", type: "seg", def: "all", opts: ["all", "edit", "editor", "browser", "system"], hidden: true },
+  { id: "scCat", sec: "shortcuts", type: "seg", def: "all", opts: ["all", "edit", "excel", "word", "gdocs", "ppt", "editor", "browser", "terminal", "system"], hidden: true },
+  { id: "scView", sec: "shortcuts", type: "seg", def: "practice", opts: ["practice", "cheat"], hidden: true },
   { id: "ui", sec: "display", type: "seg", def: "auto", opts: ["auto", "en", "ar"] },
   { id: "theme", sec: "display", type: "seg", def: "system", opts: ["system", "light", "dark"] },
   { id: "font", help: true, sec: "display", type: "select", def: "sans", opts: ["sans", "mono", "naskh", "vazir", "system"] },
@@ -3245,12 +3244,16 @@ function runSelfTest() {
     const banned = new RegExp(["fe" + "tch\\(", "XMLHttp" + "Request", "send" + "Beacon", "Web" + "Socket"].join("|"));
     add("the page source contains no network calls", !banned.test(document.documentElement.outerHTML));
 
-    const chordRe = /^(Key[A-Z]|Digit\d|Arrow(Left|Right|Up|Down)|Backspace|Delete|Home|End|Escape|Tab|Space|Period|Comma|Slash|Backslash|BracketLeft|BracketRight|Backquote|Minus|Equal)$/;
+    const chordRe = /^(Key[A-Z]|Digit\d|Arrow(Left|Right|Up|Down)|Backspace|Delete|Home|End|Escape|Tab|Space|Period|Comma|Slash|Backslash|BracketLeft|BracketRight|Backquote|Minus|Equal|Semicolon|Enter|PageUp|PageDown|F\d+)$/;
     const badChord = [];
     SC_DATA.forEach(d => [d[3], d[4]].forEach(cs => (cs || []).forEach(c => { if (!chordRe.test(scParse(c).code)) badChord.push(c); })));
     add("every shortcut resolves to a real key code", !badChord.length, badChord.join(", "));
     add("shortcut ids fit the saved-data key format and are unique", SC_DATA.every(d => /^[a-z]{2,12}$/.test(d[0])) && new Set(SC_DATA.map(d => d[0])).size === SC_DATA.length);
-    add("the code editor group has shortcuts on both systems", scItems("win", "editor").length === 8 && scItems("mac", "editor").length === 8 && sanitizeSettings({ scCat: "editor" }).scCat === "editor");
+    add("the code editor group has shortcuts on both systems", scItems("win", "editor").length >= 8 && scItems("mac", "editor").length >= 8 && sanitizeSettings({ scCat: "editor" }).scCat === "editor");
+    add("every app group has shortcuts on both systems", SC_CATS.every(c => scItems("win", c).length >= 4 && scItems("mac", c).length >= 4) && SC_CATS.every(c => sanitizeSettings({ scCat: c }).scCat === c));
+    add("shortcut practice is never multiple choice", ["win", "mac"].every(o => scItems(o, "all").every(i => i.mode === "press" || i.mode === "recall")) && !document.querySelector(".scopt"));
+    add("reserved shortcuts are recalled and capturable ones are pressed", scMode("win", ["Win+D"]) === "recall" && scMode("win", ["Ctrl+W"]) === "recall" && scMode("mac", ["Cmd+Q"]) === "recall" && scMode("win", ["Ctrl+C"]) === "press" && scMode("win", ["F2"]) === "press");
+    add("the shortcut view setting accepts only practice or cheat", sanitizeSettings({ scView: "cheat" }).scView === "cheat" && sanitizeSettings({ scView: "quiz" }).scView === "practice");
     const evt = (code, o) => Object.assign({ code, ctrlKey: false, shiftKey: false, altKey: false, metaKey: false }, o);
     add("editor shortcuts match the keys they describe", scMatch(evt("Slash", { ctrlKey: true }), ["Ctrl+/"]) && scMatch(evt("ArrowDown", { shiftKey: true, altKey: true }), ["Shift+Alt+Down"]) && !scMatch(evt("Slash"), ["Ctrl+/"]));
 
@@ -3362,6 +3365,7 @@ function runSelfTest() {
 
     add("the app never suggests a break", typeof breakText === "undefined" && !T["note.break"]);
     add("no message anywhere suggests rest or comments on speed", Object.keys(T).every(k => !/take a (short )?(break|rest)|have a rest|good moment|slow down|speed up|well done|great job|nice work|keep it up|congrat/i.test(T[k][0])));
+    add("shortcut strings stay neutral in both languages", Object.keys(T).filter(k => k.indexOf("sc.") === 0).every(k => !/wrong|awesome|perfect|keep it up|almost|oops|take a (short )?(break|rest)|well done|great job|أحسنت|ممتاز|رائع|خطأ فادح|حاول مرة أخرى/i.test(T[k][0] + " " + T[k][1])));
     S.sess = null;
 
     const ddPicked = [];
@@ -3798,7 +3802,7 @@ Object.assign(T, {
   "sc.mac": ["macOS", "ماك"],
   "sc.all": ["All", "الكل"],
   "sc.edit": ["Editing", "التحرير"],
-  "sc.editor": ["Code editor", "محرر الأكواد"],
+  "sc.editor": ["VS Code", "VS Code"],
   "nav.code": ["Code", "الأكواد"],
   "code.set": ["Practice text", "نص التمرين"],
   "code.mix": ["Everything", "كل شيء"],
@@ -3850,13 +3854,23 @@ Object.assign(T, {
   "sc.browser": ["Browser", "المتصفح"],
   "sc.system": ["System", "النظام"],
   "sc.press": ["Press the shortcut", "اضغط الاختصار"],
-  "sc.pick": ["Choose the shortcut", "اختر الاختصار"],
-  "sc.which": ["Choose the action", "اختر الإجراء"],
   "sc.skip": ["Skip", "تخطَّ"],
   "sc.show": ["Show", "أظهر"],
   "sc.progress": ["Settled", "مستقر"],
   "sc.items": ["All shortcuts", "كل الاختصارات"],
-  "sc.note": ["System shortcuts are shown as choices so nothing on your computer is triggered.", "تُعرض اختصارات النظام كخيارات حتى لا يُنفَّذ أي شيء على جهازك."],
+  "sc.note": ["This shortcut is reserved by your system, so it is recalled instead of pressed.", "هذا الاختصار محجوز للنظام، لذا يُستحضر من الذاكرة بدل الضغط عليه."],
+  "sc.recall": ["Recall the shortcut", "استحضر الاختصار"],
+  "sc.knew": ["I remembered", "تذكرتُه"],
+  "sc.again": ["Show again soon", "أعد عرضه قريبًا"],
+  "sc.practice": ["Practice", "تمرين"],
+  "sc.cheat": ["Cheat sheet", "ورقة مرجعية"],
+  "sc.search": ["Search shortcuts", "ابحث في الاختصارات"],
+  "sc.nomatch": ["No shortcuts match.", "لا توجد اختصارات مطابقة."],
+  "sc.excel": ["Excel", "إكسل"],
+  "sc.word": ["Word", "وورد"],
+  "sc.ppt": ["PowerPoint", "باوربوينت"],
+  "sc.gdocs": ["Google Docs", "مستندات جوجل"],
+  "sc.terminal": ["Terminal", "الطرفية"],
   "sc.none": ["No shortcuts in this group for this system.", "لا توجد اختصارات في هذه المجموعة لهذا النظام."],
   "note.nextLesson": ["Applies to the next lesson", "يُطبَّق في الدرس التالي"],
   "note.otherTab": ["Updated from another tab", "تم التحديث من علامة تبويب أخرى"],
@@ -3865,64 +3879,178 @@ Object.assign(T, {
 });
 
 const SC_DATA = [
-  ["copy", "Copy", "نسخ", ["Ctrl+C"], ["Cmd+C"], "edit", "press"],
-  ["cut", "Cut", "قص", ["Ctrl+X"], ["Cmd+X"], "edit", "press"],
-  ["paste", "Paste", "لصق", ["Ctrl+V"], ["Cmd+V"], "edit", "press"],
-  ["undo", "Undo", "تراجع", ["Ctrl+Z"], ["Cmd+Z"], "edit", "press"],
-  ["redo", "Redo", "إعادة", ["Ctrl+Y", "Ctrl+Shift+Z"], ["Cmd+Shift+Z"], "edit", "press"],
-  ["selall", "Select all", "تحديد الكل", ["Ctrl+A"], ["Cmd+A"], "edit", "press"],
-  ["wnext", "Move to the next word", "الانتقال إلى الكلمة التالية", ["Ctrl+Right"], ["Option+Right"], "edit", "press"],
-  ["wprev", "Move to the previous word", "الانتقال إلى الكلمة السابقة", ["Ctrl+Left"], ["Option+Left"], "edit", "press"],
-  ["swnext", "Select to the next word", "تحديد حتى الكلمة التالية", ["Ctrl+Shift+Right"], ["Option+Shift+Right"], "edit", "press"],
-  ["swprev", "Select to the previous word", "تحديد حتى الكلمة السابقة", ["Ctrl+Shift+Left"], ["Option+Shift+Left"], "edit", "press"],
-  ["dwback", "Delete the previous word", "حذف الكلمة السابقة", ["Ctrl+Backspace"], ["Option+Backspace"], "edit", "press"],
-  ["dwfwd", "Delete the next word", "حذف الكلمة التالية", ["Ctrl+Delete"], null, "edit", "press"],
-  ["lstart", "Go to the start of the line", "الانتقال إلى بداية السطر", ["Home"], ["Cmd+Left"], "edit", "press"],
-  ["lend", "Go to the end of the line", "الانتقال إلى نهاية السطر", ["End"], ["Cmd+Right"], "edit", "press"],
-  ["dstart", "Go to the start of the document", "الانتقال إلى بداية المستند", ["Ctrl+Home"], ["Cmd+Up"], "edit", "press"],
-  ["dend", "Go to the end of the document", "الانتقال إلى نهاية المستند", ["Ctrl+End"], ["Cmd+Down"], "edit", "press"],
-  ["slstart", "Select to the start of the line", "تحديد حتى بداية السطر", ["Shift+Home"], ["Cmd+Shift+Left"], "edit", "press"],
-  ["slend", "Select to the end of the line", "تحديد حتى نهاية السطر", ["Shift+End"], ["Cmd+Shift+Right"], "edit", "press"],
-  ["find", "Find", "بحث", ["Ctrl+F"], ["Cmd+F"], "edit", "press"],
-  ["save", "Save", "حفظ", ["Ctrl+S"], ["Cmd+S"], "edit", "press"],
-  ["comment", "Toggle the line comment", "تبديل تعليق السطر", ["Ctrl+/"], ["Cmd+/"], "editor", "press"],
-  ["indent", "Indent the line", "إزاحة السطر للداخل", ["Ctrl+]"], ["Cmd+]"], "editor", "recognize"],
-  ["outdent", "Outdent the line", "إزاحة السطر للخارج", ["Ctrl+["], ["Cmd+["], "editor", "recognize"],
-  ["moveline", "Move the line up", "نقل السطر للأعلى", ["Alt+Up"], ["Option+Up"], "editor", "press"],
-  ["dupline", "Duplicate the line", "تكرار السطر", ["Shift+Alt+Down"], ["Shift+Option+Down"], "editor", "press"],
-  ["nextmatch", "Select the next match", "تحديد التطابق التالي", ["Ctrl+D"], ["Cmd+D"], "editor", "press"],
-  ["palette", "Open the command palette", "فتح لوحة الأوامر", ["Ctrl+Shift+P"], ["Cmd+Shift+P"], "editor", "recognize"],
-  ["gotofile", "Go to a file", "الانتقال إلى ملف", ["Ctrl+P"], ["Cmd+P"], "editor", "press"],
-  ["addr", "Focus the address bar", "الانتقال إلى شريط العنوان", ["Ctrl+L"], ["Cmd+L"], "browser", "press"],
-  ["reload", "Reload the page", "إعادة تحميل الصفحة", ["Ctrl+R"], ["Cmd+R"], "browser", "press"],
-  ["reopen", "Reopen the closed tab", "إعادة فتح علامة التبويب المغلقة", ["Ctrl+Shift+T"], ["Cmd+Shift+T"], "browser", "recognize"],
-  ["newtab", "Open a new tab", "فتح علامة تبويب جديدة", ["Ctrl+T"], ["Cmd+T"], "browser", "recognize"],
-  ["closetab", "Close the tab", "إغلاق علامة التبويب", ["Ctrl+W"], ["Cmd+W"], "browser", "recognize"],
-  ["nexttab", "Switch to the next tab", "التبديل إلى علامة التبويب التالية", ["Ctrl+Tab"], ["Ctrl+Tab"], "browser", "recognize"],
-  ["desktop", "Show the desktop", "إظهار سطح المكتب", ["Win+D"], null, "system", "recognize"],
-  ["files", "Open File Explorer", "فتح مستكشف الملفات", ["Win+E"], null, "system", "recognize"],
-  ["lock", "Lock the computer", "قفل الجهاز", ["Win+L"], ["Ctrl+Cmd+Q"], "system", "recognize"],
-  ["clip", "Open the clipboard history", "فتح سجل الحافظة", ["Win+V"], null, "system", "recognize"],
-  ["snip", "Capture part of the screen", "التقاط جزء من الشاشة", ["Win+Shift+S"], ["Cmd+Shift+4"], "system", "recognize"],
-  ["emoji", "Open the emoji panel", "فتح لوحة الرموز التعبيرية", ["Win+."], ["Ctrl+Cmd+Space"], "system", "recognize"],
-  ["snapl", "Snap the window to the left", "تثبيت النافذة على اليسار", ["Win+Left"], null, "system", "recognize"],
-  ["snapr", "Snap the window to the right", "تثبيت النافذة على اليمين", ["Win+Right"], null, "system", "recognize"],
-  ["switch", "Switch between windows", "التبديل بين النوافذ", ["Alt+Tab"], ["Cmd+Tab"], "system", "recognize"],
-  ["tasks", "Open the task manager", "فتح مدير المهام", ["Ctrl+Shift+Esc"], ["Cmd+Option+Esc"], "system", "recognize"],
-  ["settings", "Open settings", "فتح الإعدادات", ["Win+I"], ["Cmd+,"], "system", "recognize"],
-  ["view", "Show all open windows", "عرض كل النوافذ المفتوحة", ["Win+Tab"], ["Ctrl+Up"], "system", "recognize"],
-  ["spot", "Open search", "فتح البحث", ["Win+S"], ["Cmd+Space"], "system", "recognize"],
-  ["quit", "Quit the app", "إنهاء التطبيق", null, ["Cmd+Q"], "system", "recognize"],
-  ["hide", "Hide the app", "إخفاء التطبيق", null, ["Cmd+H"], "system", "recognize"]
+  ["copy", "Copy", "نسخ", ["Ctrl+C"], ["Cmd+C"], "edit"],
+  ["cut", "Cut", "قص", ["Ctrl+X"], ["Cmd+X"], "edit"],
+  ["paste", "Paste", "لصق", ["Ctrl+V"], ["Cmd+V"], "edit"],
+  ["undo", "Undo", "تراجع", ["Ctrl+Z"], ["Cmd+Z"], "edit"],
+  ["redo", "Redo", "إعادة", ["Ctrl+Y", "Ctrl+Shift+Z"], ["Cmd+Shift+Z"], "edit"],
+  ["selall", "Select all", "تحديد الكل", ["Ctrl+A"], ["Cmd+A"], "edit"],
+  ["wnext", "Move to the next word", "الانتقال إلى الكلمة التالية", ["Ctrl+Right"], ["Option+Right"], "edit"],
+  ["wprev", "Move to the previous word", "الانتقال إلى الكلمة السابقة", ["Ctrl+Left"], ["Option+Left"], "edit"],
+  ["swnext", "Select to the next word", "تحديد حتى الكلمة التالية", ["Ctrl+Shift+Right"], ["Option+Shift+Right"], "edit"],
+  ["swprev", "Select to the previous word", "تحديد حتى الكلمة السابقة", ["Ctrl+Shift+Left"], ["Option+Shift+Left"], "edit"],
+  ["dwback", "Delete the previous word", "حذف الكلمة السابقة", ["Ctrl+Backspace"], ["Option+Backspace"], "edit"],
+  ["dwfwd", "Delete the next word", "حذف الكلمة التالية", ["Ctrl+Delete"], null, "edit"],
+  ["lstart", "Go to the start of the line", "الانتقال إلى بداية السطر", ["Home"], ["Cmd+Left"], "edit"],
+  ["lend", "Go to the end of the line", "الانتقال إلى نهاية السطر", ["End"], ["Cmd+Right"], "edit"],
+  ["dstart", "Go to the start of the document", "الانتقال إلى بداية المستند", ["Ctrl+Home"], ["Cmd+Up"], "edit"],
+  ["dend", "Go to the end of the document", "الانتقال إلى نهاية المستند", ["Ctrl+End"], ["Cmd+Down"], "edit"],
+  ["slstart", "Select to the start of the line", "تحديد حتى بداية السطر", ["Shift+Home"], ["Cmd+Shift+Left"], "edit"],
+  ["slend", "Select to the end of the line", "تحديد حتى نهاية السطر", ["Shift+End"], ["Cmd+Shift+Right"], "edit"],
+  ["find", "Find", "بحث", ["Ctrl+F"], ["Cmd+F"], "edit"],
+  ["save", "Save", "حفظ", ["Ctrl+S"], ["Cmd+S"], "edit"],
+  ["comment", "Toggle the line comment", "تبديل تعليق السطر", ["Ctrl+/"], ["Cmd+/"], "editor"],
+  ["indent", "Indent the line", "إزاحة السطر للداخل", ["Ctrl+]"], ["Cmd+]"], "editor"],
+  ["outdent", "Outdent the line", "إزاحة السطر للخارج", ["Ctrl+["], ["Cmd+["], "editor"],
+  ["moveline", "Move the line up", "نقل السطر للأعلى", ["Alt+Up"], ["Option+Up"], "editor"],
+  ["dupline", "Duplicate the line", "تكرار السطر", ["Shift+Alt+Down"], ["Shift+Option+Down"], "editor"],
+  ["nextmatch", "Select the next match", "تحديد التطابق التالي", ["Ctrl+D"], ["Cmd+D"], "editor"],
+  ["palette", "Open the command palette", "فتح لوحة الأوامر", ["Ctrl+Shift+P"], ["Cmd+Shift+P"], "editor"],
+  ["gotofile", "Go to a file", "الانتقال إلى ملف", ["Ctrl+P"], ["Cmd+P"], "editor"],
+  ["addr", "Focus the address bar", "الانتقال إلى شريط العنوان", ["Ctrl+L"], ["Cmd+L"], "browser"],
+  ["reload", "Reload the page", "إعادة تحميل الصفحة", ["Ctrl+R"], ["Cmd+R"], "browser"],
+  ["reopen", "Reopen the closed tab", "إعادة فتح علامة التبويب المغلقة", ["Ctrl+Shift+T"], ["Cmd+Shift+T"], "browser"],
+  ["newtab", "Open a new tab", "فتح علامة تبويب جديدة", ["Ctrl+T"], ["Cmd+T"], "browser"],
+  ["closetab", "Close the tab", "إغلاق علامة التبويب", ["Ctrl+W"], ["Cmd+W"], "browser"],
+  ["nexttab", "Switch to the next tab", "التبديل إلى علامة التبويب التالية", ["Ctrl+Tab"], ["Ctrl+Tab"], "browser"],
+  ["desktop", "Show the desktop", "إظهار سطح المكتب", ["Win+D"], null, "system"],
+  ["files", "Open File Explorer", "فتح مستكشف الملفات", ["Win+E"], null, "system"],
+  ["lock", "Lock the computer", "قفل الجهاز", ["Win+L"], ["Ctrl+Cmd+Q"], "system"],
+  ["clip", "Open the clipboard history", "فتح سجل الحافظة", ["Win+V"], null, "system"],
+  ["snip", "Capture part of the screen", "التقاط جزء من الشاشة", ["Win+Shift+S"], ["Cmd+Shift+4"], "system"],
+  ["emoji", "Open the emoji panel", "فتح لوحة الرموز التعبيرية", ["Win+."], ["Ctrl+Cmd+Space"], "system"],
+  ["snapl", "Snap the window to the left", "تثبيت النافذة على اليسار", ["Win+Left"], null, "system"],
+  ["snapr", "Snap the window to the right", "تثبيت النافذة على اليمين", ["Win+Right"], null, "system"],
+  ["switch", "Switch between windows", "التبديل بين النوافذ", ["Alt+Tab"], ["Cmd+Tab"], "system"],
+  ["tasks", "Open the task manager", "فتح مدير المهام", ["Ctrl+Shift+Esc"], ["Cmd+Option+Esc"], "system"],
+  ["settings", "Open settings", "فتح الإعدادات", ["Win+I"], ["Cmd+,"], "system"],
+  ["view", "Show all open windows", "عرض كل النوافذ المفتوحة", ["Win+Tab"], ["Ctrl+Up"], "system"],
+  ["spot", "Open search", "فتح البحث", ["Win+S"], ["Cmd+Space"], "system"],
+  ["quit", "Quit the app", "إنهاء التطبيق", null, ["Cmd+Q"], "system"],
+  ["hide", "Hide the app", "إخفاء التطبيق", null, ["Cmd+H"], "system"],
+  ["xlsum", "Insert AutoSum", "إدراج الجمع التلقائي", ["Alt+="], ["Cmd+Shift+T"], "excel"],
+  ["xledit", "Edit the active cell", "تحرير الخلية النشطة", ["F2"], ["Ctrl+U"], "excel"],
+  ["xlfilld", "Fill down", "التعبئة للأسفل", ["Ctrl+D"], ["Cmd+D"], "excel"],
+  ["xlfillr", "Fill right", "التعبئة لليمين", ["Ctrl+R"], ["Cmd+R"], "excel"],
+  ["xlnewline", "Start a new line in a cell", "سطر جديد داخل الخلية", ["Alt+Enter"], ["Ctrl+Option+Enter"], "excel"],
+  ["xlcol", "Select the column", "تحديد العمود", ["Ctrl+Space"], ["Ctrl+Space"], "excel"],
+  ["xlrow", "Select the row", "تحديد الصف", ["Shift+Space"], ["Shift+Space"], "excel"],
+  ["xledge", "Jump to the edge of the data", "الانتقال إلى حافة البيانات", ["Ctrl+Down"], ["Cmd+Down"], "excel"],
+  ["xlseledge", "Select to the edge of the data", "تحديد حتى حافة البيانات", ["Ctrl+Shift+Down"], ["Cmd+Shift+Down"], "excel"],
+  ["xlabs", "Cycle absolute references", "تبديل المراجع المطلقة", ["F4"], ["Cmd+T"], "excel"],
+  ["xlformat", "Format cells", "تنسيق الخلايا", ["Ctrl+1"], ["Cmd+1"], "excel"],
+  ["xldate", "Insert today's date", "إدراج تاريخ اليوم", ["Ctrl+;"], ["Ctrl+;"], "excel"],
+  ["xldelcell", "Delete cells", "حذف الخلايا", ["Ctrl+-"], ["Cmd+-"], "excel"],
+  ["xlfilter", "Toggle filters", "تبديل المرشحات", ["Ctrl+Shift+L"], ["Cmd+Shift+F"], "excel"],
+  ["xlpastesp", "Open Paste Special", "فتح اللصق الخاص", ["Ctrl+Alt+V"], ["Ctrl+Cmd+V"], "excel"],
+  ["xlshowf", "Show formulas", "عرض الصيغ", ["Ctrl+`"], ["Ctrl+`"], "excel"],
+  ["xlnextsh", "Go to the next sheet", "الانتقال إلى الورقة التالية", ["Ctrl+PageDown"], ["Option+Right"], "excel"],
+  ["xlgoto", "Go to a cell", "الانتقال إلى خلية", ["F5"], ["Ctrl+G"], "excel"],
+  ["xlhome", "Go to cell A1", "الانتقال إلى الخلية A1", ["Ctrl+Home"], ["Ctrl+Home"], "excel"],
+  ["xllast", "Go to the last used cell", "الانتقال إلى آخر خلية مستخدمة", ["Ctrl+End"], ["Ctrl+End"], "excel"],
+  ["xlreplace", "Find and replace", "بحث واستبدال", ["Ctrl+H"], ["Ctrl+H"], "excel"],
+  ["xltable", "Create a table", "إنشاء جدول", ["Ctrl+T"], ["Ctrl+T"], "excel"],
+  ["wdbold", "Bold", "غامق", ["Ctrl+B"], ["Cmd+B"], "word"],
+  ["wditalic", "Italic", "مائل", ["Ctrl+I"], ["Cmd+I"], "word"],
+  ["wdunder", "Underline", "تسطير", ["Ctrl+U"], ["Cmd+U"], "word"],
+  ["wdleft", "Align left", "محاذاة لليسار", ["Ctrl+L"], ["Cmd+L"], "word"],
+  ["wdcenter", "Center the text", "توسيط النص", ["Ctrl+E"], ["Cmd+E"], "word"],
+  ["wdright", "Align right", "محاذاة لليمين", ["Ctrl+R"], ["Cmd+R"], "word"],
+  ["wdjustify", "Justify the text", "ضبط النص", ["Ctrl+J"], ["Cmd+J"], "word"],
+  ["wdheadone", "Apply Heading 1", "تطبيق العنوان 1", ["Ctrl+Alt+1"], ["Cmd+Option+1"], "word"],
+  ["wdheadtwo", "Apply Heading 2", "تطبيق العنوان 2", ["Ctrl+Alt+2"], ["Cmd+Option+2"], "word"],
+  ["wdlink", "Insert a link", "إدراج رابط", ["Ctrl+K"], ["Cmd+K"], "word"],
+  ["wdpagebrk", "Insert a page break", "إدراج فاصل صفحة", ["Ctrl+Enter"], ["Cmd+Enter"], "word"],
+  ["wdcopyfmt", "Copy the formatting", "نسخ التنسيق", ["Ctrl+Shift+C"], null, "word"],
+  ["wdpastefmt", "Paste the formatting", "لصق التنسيق", ["Ctrl+Shift+V"], null, "word"],
+  ["wdclear", "Clear the formatting", "مسح التنسيق", ["Ctrl+Space"], ["Ctrl+Space"], "word"],
+  ["wdcomment", "Add a comment", "إضافة تعليق", ["Ctrl+Alt+M"], ["Cmd+Option+A"], "word"],
+  ["wdtrack", "Turn on track changes", "تشغيل تتبع التغييرات", ["Ctrl+Shift+E"], ["Cmd+Shift+E"], "word"],
+  ["wdspell", "Check spelling", "التدقيق الإملائي", ["F7"], ["Cmd+Option+L"], "word"],
+  ["wdprint", "Print", "طباعة", ["Ctrl+P"], ["Cmd+P"], "word"],
+  ["wdopen", "Open a file", "فتح ملف", ["Ctrl+O"], ["Cmd+O"], "word"],
+  ["ppnew", "Add a new slide", "إضافة شريحة جديدة", ["Ctrl+M"], ["Cmd+Shift+N"], "ppt"],
+  ["ppstart", "Start from the first slide", "البدء من الشريحة الأولى", ["F5"], ["Cmd+Shift+Enter"], "ppt"],
+  ["ppfrom", "Start from this slide", "البدء من هذه الشريحة", ["Shift+F5"], ["Cmd+Enter"], "ppt"],
+  ["ppdup", "Duplicate the selection", "تكرار التحديد", ["Ctrl+D"], ["Cmd+D"], "ppt"],
+  ["ppgroup", "Group the objects", "تجميع العناصر", ["Ctrl+G"], ["Cmd+Option+G"], "ppt"],
+  ["ppungroup", "Ungroup the objects", "فك تجميع العناصر", ["Ctrl+Shift+G"], ["Cmd+Option+Shift+G"], "ppt"],
+  ["ppbold", "Bold the text", "تغميق النص", ["Ctrl+B"], ["Cmd+B"], "ppt"],
+  ["vsterm", "Toggle the terminal", "تبديل الطرفية", ["Ctrl+`"], ["Ctrl+`"], "editor"],
+  ["vsside", "Toggle the sidebar", "تبديل الشريط الجانبي", ["Ctrl+B"], ["Cmd+B"], "editor"],
+  ["vssearch", "Search across files", "البحث في كل الملفات", ["Ctrl+Shift+F"], ["Cmd+Shift+F"], "editor"],
+  ["vsrename", "Rename a symbol", "إعادة تسمية رمز", ["F2"], ["F2"], "editor"],
+  ["vsdefine", "Go to the definition", "الانتقال إلى التعريف", ["F12"], ["F12"], "editor"],
+  ["vsquick", "Show quick fixes", "عرض الإصلاحات السريعة", ["Ctrl+."], ["Cmd+."], "editor"],
+  ["vsdelline", "Delete the line", "حذف السطر", ["Ctrl+Shift+K"], ["Cmd+Shift+K"], "editor"],
+  ["vssplit", "Split the editor", "تقسيم المحرر", ["Ctrl+\\"], ["Cmd+\\"], "editor"],
+  ["vsgoline", "Go to a line", "الانتقال إلى سطر", ["Ctrl+G"], ["Ctrl+G"], "editor"],
+  ["vssymbol", "Go to a symbol", "الانتقال إلى رمز", ["Ctrl+Shift+O"], ["Cmd+Shift+O"], "editor"],
+  ["vscursor", "Add a cursor below", "إضافة مؤشر في الأسفل", ["Ctrl+Alt+Down"], ["Cmd+Option+Down"], "editor"],
+  ["vsallmatch", "Select all matches", "تحديد كل التطابقات", ["Ctrl+Shift+L"], ["Cmd+Shift+L"], "editor"],
+  ["vsexplorer", "Show the explorer", "عرض مستكشف الملفات", ["Ctrl+Shift+E"], ["Cmd+Shift+E"], "editor"],
+  ["vsformat", "Format the document", "تنسيق المستند", ["Shift+Alt+F"], ["Shift+Option+F"], "editor"],
+  ["bmark", "Bookmark the page", "إضافة الصفحة إلى المفضلة", ["Ctrl+D"], ["Cmd+D"], "browser"],
+  ["bhistory", "Open the history", "فتح السجل", ["Ctrl+H"], ["Cmd+Y"], "browser"],
+  ["bdevtools", "Open the developer tools", "فتح أدوات المطور", ["F12"], ["Cmd+Option+I"], "browser"],
+  ["bzoomin", "Zoom in", "تكبير", ["Ctrl+="], ["Cmd+="], "browser"],
+  ["bzoomout", "Zoom out", "تصغير", ["Ctrl+-"], ["Cmd+-"], "browser"],
+  ["bzoomrst", "Reset the zoom", "إعادة ضبط التكبير", ["Ctrl+0"], ["Cmd+0"], "browser"],
+  ["bhard", "Reload without the cache", "إعادة التحميل دون الذاكرة المؤقتة", ["Ctrl+Shift+R"], ["Cmd+Shift+R"], "browser"],
+  ["bdownload", "Open the downloads", "فتح التنزيلات", ["Ctrl+J"], ["Cmd+Shift+J"], "browser"],
+  ["tmcancel", "Cancel the running command", "إلغاء الأمر الجاري", ["Ctrl+C"], ["Ctrl+C"], "terminal"],
+  ["tmclear", "Clear the screen", "مسح الشاشة", ["Ctrl+L"], ["Ctrl+L"], "terminal"],
+  ["tmstart", "Go to the start of the line", "الانتقال إلى بداية السطر", ["Ctrl+A"], ["Ctrl+A"], "terminal"],
+  ["tmend", "Go to the end of the line", "الانتقال إلى نهاية السطر", ["Ctrl+E"], ["Ctrl+E"], "terminal"],
+  ["tmkill", "Delete to the end of the line", "الحذف حتى نهاية السطر", ["Ctrl+K"], ["Ctrl+K"], "terminal"],
+  ["tmkillb", "Delete to the start of the line", "الحذف حتى بداية السطر", ["Ctrl+U"], ["Ctrl+U"], "terminal"],
+  ["tmhist", "Search the command history", "البحث في سجل الأوامر", ["Ctrl+R"], ["Ctrl+R"], "terminal"],
+  ["tmdelw", "Delete the previous word", "حذف الكلمة السابقة", ["Ctrl+W"], ["Ctrl+W"], "terminal"],
+  ["tmexit", "Close the shell", "إغلاق الصدفة", ["Ctrl+D"], ["Ctrl+D"], "terminal"],
+  ["gdcomment", "Insert a comment", "إدراج تعليق", ["Ctrl+Alt+M"], ["Cmd+Option+M"], "gdocs"],
+  ["gdheadone", "Apply Heading 1", "تطبيق العنوان 1", ["Ctrl+Alt+1"], ["Cmd+Option+1"], "gdocs"],
+  ["gdheadtwo", "Apply Heading 2", "تطبيق العنوان 2", ["Ctrl+Alt+2"], ["Cmd+Option+2"], "gdocs"],
+  ["gdnormal", "Apply normal text", "تطبيق النص العادي", ["Ctrl+Alt+0"], ["Cmd+Option+0"], "gdocs"],
+  ["gdcopyfmt", "Copy the text formatting", "نسخ تنسيق النص", ["Ctrl+Alt+C"], ["Cmd+Option+C"], "gdocs"],
+  ["gdpastefmt", "Paste the text formatting", "لصق تنسيق النص", ["Ctrl+Alt+V"], ["Cmd+Option+V"], "gdocs"],
+  ["gdfootnote", "Insert a footnote", "إدراج حاشية سفلية", ["Ctrl+Alt+F"], ["Cmd+Option+F"], "gdocs"],
+  ["gdbullets", "Start a bulleted list", "بدء قائمة نقطية", ["Ctrl+Shift+8"], ["Cmd+Shift+8"], "gdocs"],
+  ["gdnumbers", "Start a numbered list", "بدء قائمة مرقمة", ["Ctrl+Shift+7"], ["Cmd+Shift+7"], "gdocs"],
+  ["gdlink", "Insert a link", "إدراج رابط", ["Ctrl+K"], ["Cmd+K"], "gdocs"],
+  ["gdcount", "Show the word count", "عرض عدد الكلمات", ["Ctrl+Shift+C"], ["Cmd+Shift+C"], "gdocs"],
+  ["gdmoveup", "Move the paragraph up", "نقل الفقرة للأعلى", ["Alt+Shift+Up"], ["Option+Shift+Up"], "gdocs"],
+  ["gdhelp", "Show the keyboard shortcuts", "عرض اختصارات لوحة المفاتيح", ["Ctrl+/"], ["Cmd+/"], "gdocs"],
+  ["wddate", "Insert the current date", "إدراج التاريخ الحالي", ["Shift+Alt+D"], ["Ctrl+Shift+D"], "word"],
+  ["wdrepeat", "Repeat the last action", "تكرار الإجراء الأخير", ["F4"], ["Cmd+Y"], "word"],
+  ["wdreveal", "Reveal the formatting", "كشف التنسيق", ["Shift+F1"], ["Shift+F1"], "word"],
+  ["wdnoparfmt", "Remove the paragraph formatting", "إزالة تنسيق الفقرة", ["Ctrl+Q"], null, "word"],
+  ["xlstrike", "Apply strikethrough", "تطبيق خط يتوسطه", ["Ctrl+5"], ["Cmd+Shift+X"], "excel"],
+  ["xlsaveas", "Open Save As", "فتح حفظ باسم", ["F12"], ["F12"], "excel"],
+  ["vsline", "Select the line", "تحديد السطر", ["Ctrl+L"], ["Cmd+L"], "editor"],
+  ["vsback", "Go back to the last location", "الرجوع إلى الموقع السابق", ["Alt+Left"], ["Ctrl+-"], "editor"],
+  ["minall", "Minimize all windows", "تصغير كل النوافذ", ["Win+M"], null, "system"],
+  ["quicklink", "Open the quick link menu", "فتح قائمة الروابط السريعة", ["Win+X"], null, "system"],
+  ["maxwin", "Maximize the window", "تكبير النافذة", ["Win+Up"], null, "system"],
+  ["runbox", "Open the Run box", "فتح مربع التشغيل", ["Win+R"], null, "system"],
+  ["newdesk", "Create a virtual desktop", "إنشاء سطح مكتب افتراضي", ["Win+Ctrl+D"], null, "system"],
+  ["closeapp", "Close the app", "إغلاق التطبيق", ["Alt+F4"], null, "system"],
+  ["mincur", "Minimize the window", "تصغير النافذة", null, ["Cmd+M"], "system"],
+  ["shots", "Open the screenshot tool", "فتح أداة لقطة الشاشة", null, ["Cmd+Shift+5"], "system"],
+  ["samewin", "Switch between the windows of the app", "التبديل بين نوافذ التطبيق", null, ["Cmd+`"], "system"],
+  ["newwin", "Open a new window", "فتح نافذة جديدة", null, ["Cmd+N"], "system"],
+  ["renamefile", "Rename the selected file", "إعادة تسمية الملف المحدد", ["F2"], null, "system"]
 ];
 
-const SC_CODES = { Left: "ArrowLeft", Right: "ArrowRight", Up: "ArrowUp", Down: "ArrowDown", Backspace: "Backspace", Delete: "Delete", Home: "Home", End: "End", Esc: "Escape", Tab: "Tab", Space: "Space", ".": "Period", ",": "Comma", "/": "Slash", "\\": "Backslash", "[": "BracketLeft", "]": "BracketRight", "`": "Backquote", "-": "Minus", "=": "Equal" };
+const SC_CODES = { Left: "ArrowLeft", Right: "ArrowRight", Up: "ArrowUp", Down: "ArrowDown", Backspace: "Backspace", Delete: "Delete", Home: "Home", End: "End", Esc: "Escape", Tab: "Tab", Space: "Space", ".": "Period", ",": "Comma", "/": "Slash", "\\": "Backslash", "[": "BracketLeft", "]": "BracketRight", "`": "Backquote", "-": "Minus", "=": "Equal", ";": "Semicolon" };
 for (let d = 0; d < 10; d++) SC_CODES[String(d)] = "Digit" + d;
-const SC_SYM = { Left: "←", Right: "→", Up: "↑", Down: "↓", Backspace: "⌫", Delete: "Del", Esc: "Esc" };
+const SC_SYM = { Left: "←", Right: "→", Up: "↑", Down: "↓", Backspace: "⌫", Delete: "Del", Esc: "Esc", PageUp: "PgUp", PageDown: "PgDn" };
 const SC_MAC = { Cmd: "⌘", Option: "⌥", Ctrl: "⌃", Shift: "⇧" };
 const SC_INTERVALS = [0, 2, 15, 1440, 4320, 10080];
 
-const SC = { item: null, opts: null, asked: 0, hadErr: false, shown: false, kind: "", last: null, timer: null };
+const SC_CATS = ["edit", "excel", "word", "gdocs", "ppt", "editor", "browser", "terminal", "system"];
+const SC_NAV = ["Home", "End", "PageUp", "PageDown", "Delete", "Backspace", "Insert", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].concat(Array.from({ length: 12 }, (_, i) => "F" + (i + 1)));
+const SC_HOLD = /^(Win\+|Ctrl\+(Shift\+)?Tab$|Ctrl\+(Shift\+)?[NTWQ]$|Ctrl\+[1-9]$|Ctrl\+Page(Up|Down)$|Alt\+(Tab|F4|Space)$|Ctrl\+Alt\+Delete$|Ctrl\+Shift\+(Esc|Delete|P)$|F11$|Cmd\+(Shift\+)?[QHMNTW]$|Cmd\+(Tab|Space|,|Option\+Esc)$|Cmd\+[1-9]$|Cmd\+Shift\+[345]$|Ctrl\+Cmd\+)/;
+const SC = { item: null, asked: 0, hadErr: false, shown: false, kind: "", last: null, timer: null };
 
 function scOS() {
   const o = S.settings.scOS;
@@ -3949,13 +4077,18 @@ function scTokens(str, os) {
   return str.split("+").map(p => (os === "mac" && SC_MAC[p]) || SC_SYM[p] || (p === "Win" ? "Win" : p));
 }
 
+function scMode(os, chords) {
+  const c = chords[0];
+  return SC_HOLD.test(c) || (os === "mac" && /^Ctrl\+(Up|Down|Left|Right)$/.test(c)) ? "recall" : "press";
+}
+
 function scItems(os, cat) {
   const out = [];
   SC_DATA.forEach(d => {
     const chords = os === "mac" ? d[4] : d[3];
     if (!chords) return;
     if (cat !== "all" && d[5] !== cat) return;
-    out.push({ id: d[0], en: d[1], ar: d[2], chords, cat: d[5], mode: d[6] });
+    out.push({ id: d[0], en: d[1], ar: d[2], chords, cat: d[5], mode: scMode(os, chords) });
   });
   return out;
 }
@@ -4018,16 +4151,6 @@ function scKeycaps(str, os, cls) {
   return h("span", { class: "kcaps" + (cls ? " " + cls : ""), dir: "ltr", lang: "en" }, scTokens(str, os).map((tk, i) => [i ? h("i", null, "+") : null, h("kbd", { class: "kcap" }, tk)]));
 }
 
-function scDistractors(os, item, n) {
-  const pool = scItems(os, "all").filter(i => i.id !== item.id && i.chords[0] !== item.chords[0]);
-  const same = pool.filter(i => i.cat === item.cat);
-  const src = same.length >= n ? same : pool;
-  const picks = [];
-  const copy = src.slice();
-  while (picks.length < n && copy.length) picks.push(copy.splice(rand(copy.length), 1)[0]);
-  return picks;
-}
-
 function scNext() {
   const os = scOS();
   const item = scPick(os, S.settings.scCat);
@@ -4035,20 +4158,6 @@ function scNext() {
   SC.hadErr = false;
   SC.shown = false;
   SC.t0 = performance.now();
-  SC.opts = null;
-  SC.kind = "";
-  if (item && item.mode === "recognize") {
-    SC.kind = Math.random() < 0.65 ? "chord" : "action";
-    const ds = scDistractors(os, item, 3);
-    const opts = ds.concat([item]);
-    for (let i = opts.length - 1; i > 0; i--) {
-      const j = rand(i + 1);
-      const tmp = opts[i];
-      opts[i] = opts[j];
-      opts[j] = tmp;
-    }
-    SC.opts = opts;
-  }
   if (SC.timer) clearTimeout(SC.timer);
   SC.timer = null;
   if (item && item.mode === "press") {
@@ -4079,18 +4188,29 @@ function scAnswer(ok) {
   renderShortcutList();
 }
 
+function scRecall(ok) {
+  const item = SC.item;
+  if (!item) return;
+  scRecord(scOS(), item, ok, 0);
+  SC.last = item.id;
+  scNext();
+  renderShortcutCard();
+  renderShortcutList();
+}
+
 function scOnKey(e) {
-  if (S.view !== "shortcuts" || !SC.item || SC.item.mode !== "press") return;
+  if (S.view !== "shortcuts" || S.settings.scView === "cheat" || !SC.item || SC.item.mode !== "press") return;
   const tg = e.target;
   if (tg && (tg.tagName === "INPUT" || tg.tagName === "SELECT" || tg.tagName === "TEXTAREA")) return;
   if (["Control", "Shift", "Alt", "Meta", "AltGraph", "CapsLock"].indexOf(e.key) >= 0) return;
   const mod = e.ctrlKey || e.metaKey || e.altKey;
-  const nav = ["Home", "End", "Delete", "Backspace", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].indexOf(e.code) >= 0;
-  if (!mod && !nav) return;
+  const hit = scMatch(e, SC.item.chords);
+  const nav = SC_NAV.indexOf(e.code) >= 0 && SC.item.chords.some(c => scParse(c).code === e.code);
+  if (!mod && !hit && !nav) return;
   e.preventDefault();
   e.stopPropagation();
   if (e.repeat) return;
-  scAnswer(scMatch(e, SC.item.chords));
+  scAnswer(hit);
 }
 
 function scLabel(item) {
@@ -4107,34 +4227,43 @@ function renderShortcutCard() {
     box.append(h("p", { class: "mute" }, t("sc.none")));
     return;
   }
-  if (item.mode === "press") {
+  const skip = h("button", { type: "button", class: "btn", onclick: () => { SC.last = item.id; scNext(); renderShortcutCard(); } }, t("sc.skip"));
+  const reveal = h("button", { type: "button", class: "btn", onclick: () => { SC.shown = true; renderShortcutCard(); } }, t("sc.show"));
+  if (item.mode === "recall") {
     box.append(
-      h("div", { class: "sl" }, t("sc.press")),
+      h("div", { class: "sl" }, t("sc.recall")),
       h("div", { class: "scact" }, scLabel(item)),
-      h("div", { class: "sckeys" + (SC.shown ? "" : " veil") }, SC.shown ? scKeycaps(item.chords[0], os, SC.hadErr ? "dim" : "") : h("button", { type: "button", class: "btn", onclick: () => { SC.shown = true; renderShortcutCard(); } }, t("sc.show"))),
-      h("div", { class: "acts" }, h("button", { type: "button", class: "btn", onclick: () => { SC.last = item.id; scNext(); renderShortcutCard(); } }, t("sc.skip"))));
+      h("div", { class: "sckeys" + (SC.shown ? "" : " veil") }, SC.shown ? scKeycaps(item.chords[0], os) : reveal),
+      h("div", { class: "acts" },
+        SC.shown ? h("button", { type: "button", class: "btn", onclick: () => scRecall(true) }, t("sc.knew")) : null,
+        SC.shown ? h("button", { type: "button", class: "btn", onclick: () => scRecall(false) }, t("sc.again")) : null,
+        skip),
+      h("div", { class: "acts" }, h("span", { class: "msg" }, t("sc.note"))));
     return;
   }
-  const askChord = SC.kind === "chord";
-  const opts = h("div", { class: "scopts" }, SC.opts.map((o, i) => h("button", {
-    type: "button", class: "scopt", "data-n": String(i + 1),
-    onclick: () => scAnswer(o.id === item.id)
-  }, askChord ? scKeycaps(o.chords[0], os) : h("span", { class: "scoptl" }, scLabel(o)))));
   box.append(
-    h("div", { class: "sl" }, askChord ? t("sc.pick") : t("sc.which")),
-    askChord ? h("div", { class: "scact" }, scLabel(item)) : h("div", { class: "sckeys" }, scKeycaps(item.chords[0], os)),
-    opts,
-    h("div", { class: "acts" }, h("span", { class: "msg" }, t("sc.note"))));
+    h("div", { class: "sl" }, t("sc.press")),
+    h("div", { class: "scact" }, scLabel(item)),
+    h("div", { class: "sckeys" + (SC.shown ? "" : " veil") }, SC.shown ? scKeycaps(item.chords[0], os, SC.hadErr ? "dim" : "") : reveal),
+    h("div", { class: "acts" }, skip));
+}
+
+function scStateLabels() {
+  return { sparse: t("st.new"), learning: t("st.learning"), steady: t("st.steady") };
 }
 
 function renderShortcutList() {
   const box = U.sclist;
   if (!box) return;
+  if (S.settings.scView === "cheat") {
+    renderCheatSheet();
+    return;
+  }
   const os = scOS();
   const items = scItems(os, S.settings.scCat);
   box.textContent = "";
   const steady = items.filter(i => scState(os, i.id) === "steady").length;
-  const lab = { sparse: t("st.new"), learning: t("st.learning"), steady: t("st.steady") };
+  const lab = scStateLabels();
   const rows = items.map(i => h("tr", null,
     h("td", null, scLabel(i)),
     h("td", { class: "kc" }, scKeycaps(i.chords[0], os)),
@@ -4144,29 +4273,48 @@ function renderShortcutList() {
     h("div", { class: "tablewrap flat" }, h("table", { class: "sctable" }, h("tbody", null, rows)))));
 }
 
+function renderCheatSheet() {
+  const box = U.sclist;
+  if (!box) return;
+  const os = scOS();
+  const q = (SC.q || "").trim().toLowerCase();
+  const items = scItems(os, S.settings.scCat).filter(i => !q || (i.en + " " + i.ar + " " + i.chords.join(" ")).toLowerCase().indexOf(q) >= 0);
+  const lab = scStateLabels();
+  box.textContent = "";
+  if (!items.length) {
+    box.append(h("p", { class: "mute" }, t(q ? "sc.nomatch" : "sc.none")));
+    return;
+  }
+  SC_CATS.forEach(c => {
+    const g = items.filter(i => i.cat === c);
+    if (!g.length) return;
+    box.append(
+      h("div", { class: "scgh" }, t("sc." + c)),
+      h("div", { class: "tablewrap flat" }, h("table", { class: "sctable" }, h("tbody", null, g.map(i => h("tr", null,
+        h("td", null, scLabel(i)),
+        h("td", { class: "kc" }, i.chords.map((c2, j) => [j ? " " : null, scKeycaps(c2, os)])),
+        h("td", { class: "stc" }, lab[scState(os, i.id)])))))));
+  });
+}
+
 function renderShortcuts() {
   const st = S.settings;
   const os = scOS();
+  const cheat = st.scView === "cheat";
   U.sccard = h("div", { class: "card sccard" });
   U.sclist = h("div", { class: "thist" });
+  const apps = [{ v: "all", l: t("sc.all") }].concat(SC_CATS.map(c => ({ v: c, l: t("sc." + c) })));
+  const search = h("input", { type: "search", class: "scq", dir: "auto", value: SC.q || "", placeholder: t("sc.search"), "aria-label": t("sc.search"), oninput: ev => { SC.q = ev.target.value; renderCheatSheet(); } });
   U.main.append(
     h("div", { class: "cfg" },
+      seg([{ v: "practice", l: t("sc.practice") }, { v: "cheat", l: t("sc.cheat") }], st.scView, v => { st.scView = v; scheduleSave(); render(); }),
       seg([{ v: "win", l: t("sc.win") }, { v: "mac", l: t("sc.mac") }], os, v => { st.scOS = v; scheduleSave(); SC.last = null; scNext(); render(); }),
-      seg([{ v: "all", l: t("sc.all") }, { v: "edit", l: t("sc.edit") }, { v: "editor", l: t("sc.editor") }, { v: "browser", l: t("sc.browser") }, { v: "system", l: t("sc.system") }], st.scCat, v => { st.scCat = v; scheduleSave(); SC.last = null; scNext(); render(); })),
-    U.sccard, U.sclist);
-  if (!SC.item || scItems(os, st.scCat).indexOf(SC.item) < 0 && !scItems(os, st.scCat).some(i => i.id === SC.item.id)) scNext();
-  renderShortcutCard();
+      cheat ? search : null),
+    h("div", { class: "cfg" }, seg(apps, st.scCat, v => { st.scCat = v; scheduleSave(); SC.last = null; scNext(); render(); })),
+    cheat ? null : U.sccard, U.sclist);
+  if (!cheat && (!SC.item || !scItems(os, st.scCat).some(i => i.id === SC.item.id))) scNext();
+  if (!cheat) renderShortcutCard();
   renderShortcutList();
-}
-
-function scOnNumber(e) {
-  if (S.view !== "shortcuts" || !SC.item || SC.item.mode !== "recognize") return;
-  if (e.ctrlKey || e.metaKey || e.altKey) return;
-  const n = Number(e.key);
-  if (n >= 1 && n <= 4 && SC.opts && SC.opts[n - 1]) {
-    e.preventDefault();
-    scAnswer(SC.opts[n - 1].id === SC.item.id);
-  }
 }
 
 const U = { main: null, typer: null, spans: [], kb: null, rows: [], nav: null, tools: null, memo: {}, tick: null, tword: [], tshown: null };
@@ -5123,7 +5271,6 @@ function onKeyDown(e) {
   }
   if (S.view === "shortcuts") {
     scOnKey(e);
-    scOnNumber(e);
     return;
   }
   if (S.view !== "practice" && S.view !== "test" && S.view !== "code") return;
