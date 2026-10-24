@@ -147,6 +147,8 @@ button { cursor: pointer; }
   user-select: none;
 }
 
+h1.brand { margin: 0; font-size: inherit; font-weight: inherit; line-height: inherit; }
+
 .mark { width: 30px; height: 30px; flex: none; }
 .mark rect:first-child { fill: var(--accent); }
 .mark rect:last-child { fill: var(--on-accent); }
@@ -3190,7 +3192,7 @@ function produceChars(e) {
     const source = trk === "numpad" ? "numpad" : S.settings.digitSource;
     if ((source === "row" && pad) || (source === "numpad" && row)) return "";
   }
-  if (e.code && e.code.indexOf("Numpad") === 0 && e.key && e.key.length === 1 && /[0-9+\-*\/.]/.test(e.key)) return e.key;
+  if (e.code && e.code.indexOf("Numpad") === 0 && e.key && e.key.length === 1 && /[0-9+\-*/.]/.test(e.key)) return e.key;
   const capsOn = !!(e.getModifierState && e.getModifierState("CapsLock"));
   const policy = S.settings.shiftPolicy;
   const shiftable = !!e.shiftKey && !!e.code && /^(Key|Digit|Minus|Equal|Bracket|Semicolon|Quote|Comma|Period|Slash|Backquote|Backslash|IntlBackslash)/.test(e.code);
@@ -3314,7 +3316,10 @@ function customBytes(s) {
 }
 
 function saveCustom(raw) {
-  let s = String(raw).replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, "");
+  let s = String(raw).split("").filter(c => {
+    const k = c.charCodeAt(0);
+    return k === 9 || k === 10 || (k > 31 && k !== 127);
+  }).join("");
   let truncated = false;
   if (customBytes(s) > CUSTOM_CAP) {
     let lo = 0;
@@ -4064,8 +4069,6 @@ function runSelfTest() {
     const sim = (lid, lessons) => {
       fresh(lid);
       newLesson();
-      const lex = ensureLex(LAYOUTS[lid].lang);
-      const real = new Set(lex.entries.map(e => e.w));
       const a = {};
       const hooks = { painted() {}, finished() { newLesson(); } };
       let ts = 1000;
@@ -4830,12 +4833,12 @@ function runSelfTest() {
     const flatTokens = r => [].concat.apply([], r.lessons.map(l => l.tokens));
     const allTypeable = r => flatTokens(r).every(x => typeableText(x.t) && x.t.length > 0);
     const rn = runBatch("en-qwerty", mxo(["digits"]), 21, 40);
-    add("numbers only produces digits and number patterns with no letters", allTypeable(rn) && flatTokens(rn).every(x => x.src === "numbers" && !lettersRe.test(x.t)) && flatTokens(rn).some(x => /[:\/.%-]/.test(x.t)) && flatTokens(rn).some(x => /^\d+$/.test(x.t)));
+    add("numbers only produces digits and number patterns with no letters", allTypeable(rn) && flatTokens(rn).every(x => x.src === "numbers" && !lettersRe.test(x.t)) && flatTokens(rn).some(x => /[:/.%-]/.test(x.t)) && flatTokens(rn).some(x => /^\d+$/.test(x.t)));
     const rc = runBatch("en-qwerty", mxo(["capitals"]), 22, 40);
     add("capitals only produces capitalised words", allTypeable(rc) && flatTokens(rc).every(x => x.src === "words" && x.t[0] === x.t[0].toUpperCase() && x.t[0] !== x.t[0].toLowerCase()));
     const rp = runBatch("en-qwerty", mxo(["punct"]), 23, 60);
     const carrierSet = carrierCtx().set;
-    add("punctuation only builds carriers from steady keys alone", allTypeable(rp) && flatTokens(rp).every(x => x.src === "punct" && x.t.split("").every(c => !/[a-z]/.test(c) || carrierSet.has(c))) && flatTokens(rp).some(x => /[.,?!;:"()'\/-]/.test(x.t)) && carrierSet.size === 12);
+    add("punctuation only builds carriers from steady keys alone", allTypeable(rp) && flatTokens(rp).every(x => x.src === "punct" && x.t.split("").every(c => !/[a-z]/.test(c) || carrierSet.has(c))) && flatTokens(rp).some(x => /[.,?!;:"()'/-]/.test(x.t)) && carrierSet.size === 12);
     const rs = runBatch("en-qwerty", mxo(["symbols"]), 24, 40);
     add("symbols only produces typeable coding symbols", allTypeable(rs) && flatTokens(rs).every(x => x.src === "symbols" && /[^a-z\s]/.test(x.t)));
     const rk = runBatch("en-qwerty", mxo(["code"]), 25, 40);
@@ -5668,7 +5671,6 @@ function runSelfTest() {
     render();
     const row = document.querySelector("[data-sid=wordLevel]");
     const radios = row ? Array.from(row.querySelectorAll("[role=radio]")) : [];
-    const secTitle = row ? row.closest("section, .card, .sec") : null;
     add("Settings shows Word difficulty among the always-visible basics with three options and Balanced selected", !!row && !row.closest("details") && radios.map(b => b.textContent).join("|") === "Common|Balanced|Wide" && radios.filter(b => b.getAttribute("aria-checked") === "true")[0].textContent === "Balanced" && !!T["s.wordLevel.h"][1]);
     applyFilter("rare");
     const foundEn = !document.querySelector("[data-sid=wordLevel]").hidden;
@@ -5851,7 +5853,6 @@ function runSelfTest() {
     const stepKeys = ["KeyF", "KeyJ"];
     stepKeys.forEach(c => window.dispatchEvent(new KeyboardEvent("keydown", { code: c, key: c.slice(3).toLowerCase(), bubbles: true, cancelable: true })));
     U.stepDelay = 0;
-    const atTwo = S.steps && S.steps.i === 1;
     Array.from(document.querySelectorAll(".stepactions button")).find(b => b.textContent === "Skip this step").click();
     const saved = sanitizeData(JSON.parse(JSON.stringify(S.data)));
     S.steps = null;
@@ -5869,6 +5870,27 @@ function runSelfTest() {
     S.data = keepData;
     S.view = keepV;
     S.lesson = keepL;
+    fresh("en-qwerty");
+    render();
+    }
+;
+
+    {
+    const keepV = S.view;
+    const keepSet = S.settings;
+    fresh("en-qwerty");
+    render();
+    const h1s = document.querySelectorAll("h1");
+    const wm = h1s[0] && h1s[0].textContent;
+    S.settings.ui = "ar";
+    render();
+    const h1ar = document.querySelectorAll("h1");
+    S.settings.ui = "en";
+    render();
+    const hs = h1s[0] ? getComputedStyle(document.querySelector("h1")) : null;
+    add("the page has one level-one heading, the wordmark, in both languages and it looks the same as before", h1s.length === 1 && wm.indexOf("Tarq") >= 0 && h1ar.length === 1 && hs && hs.fontWeight === getComputedStyle(document.querySelector("header")).fontWeight && hs.marginTop === "0px");
+    S.settings = keepSet;
+    S.view = keepV;
     fresh("en-qwerty");
     render();
     }
@@ -6534,7 +6556,7 @@ function applyChrome() {
 function mountShell() {
   const root = document.getElementById("app");
   root.className = "shell";
-  U.brand = h("span", { class: "brand", "aria-label": "Tarq" });
+  U.brand = h("h1", { class: "brand", "aria-label": "Tarq" });
   U.nav = h("nav", { class: "nav", "aria-label": "Tarq" });
   U.tools = h("div", { class: "tools" });
   root.append(h("header", { class: "top" }, U.brand, U.nav, U.tools));
@@ -8376,7 +8398,6 @@ function renderKeys() {
 function renderList() {
   const K = S.keysUI;
   const lid = S.settings.layout;
-  const P = S.derived;
   const L = layoutData(lid);
   const set = new Set(activeKeys());
   for (const ch in L.chars) if (L.chars[ch].a > 0) set.add(ch);
@@ -8466,7 +8487,6 @@ function extraToggles() {
 }
 
 function startRow() {
-  const lid = S.settings.layout;
   const row = h("div", { class: "srow", "data-label": t("s.start").toLowerCase() });
   const begin = confirmBtn(t("pl.begin"), () => beginAgain());
   const plain = h("button", { type: "button", class: "btn", onclick: () => beginAgain() }, t("pl.begin"));
