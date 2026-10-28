@@ -13,7 +13,7 @@ import { U, go, h, render, startPlacement, typingFade } from "./dom.js";
 import { seg } from "./stats.js";
 import { langSeg, onTestKey } from "./test.js";
 import {
-  buildKeyboard, buildStrip, caretLearn, paint, renderTyper, setHint, updateLive, updateMeta, updateStall,
+  buildKeyboard, buildStrip, caretLearn, paint, renderTyper, setHint, updateLive, updateMeta,
   updateWhy
 } from "./typer.js";
 
@@ -64,7 +64,6 @@ function renderPractice() {
     h("div", { class: "card pcard" },
       h("div", { class: "strip", id: "strip" }),
       h("button", { type: "button", class: "why", id: "why", hidden: true, "aria-expanded": "false", onmousedown: e => e.preventDefault(), onclick: () => { S.whyOpen = !S.whyOpen; updateWhy(); } }),
-      h("div", { class: "stall", id: "stall", hidden: true, role: "status" }),
       stage,
       h("div", { class: "meta", "aria-live": "off" }, h("span", { id: "result" }), h("span", { id: "live", class: "live" }))),
     kbwrap
@@ -77,7 +76,6 @@ function renderPractice() {
   renderTyper();
   updateMeta();
   updateWhy();
-  updateStall();
   updateLive();
   setHint();
 }
@@ -97,8 +95,7 @@ const hooks = {
       buildStrip();
       updateMeta();
       updateWhy();
-      updateStall();
-      updateLive();
+          updateLive();
       setHint();
     }
   }

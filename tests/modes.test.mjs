@@ -304,3 +304,24 @@ test("saved quote tests and rule bits survive a data round trip", () => {
   assert.equal(d.tests[1].ext, 112 | 3 | 4);
   assert.ok(d.pbs["t|" + LID + "|quote|2|1000|80"]);
 });
+
+test("quotes and interface strings stay neutral: no advice, praise, nudges or exclamations", async () => {
+  const { T } = await import("../src/i18n/strings.js");
+  const banned = /wrong|awesome|perfect|keep it up|keep going|keep showing|almost|oops|take a (short )?(break|rest)|well done|great job|streak|don't give up|you can do|try again|practice today|trust the|stay calm/i;
+  const quoteList = quotes.QUOTES.en.concat(quotes.QUOTES.ar);
+  for (const q of quoteList) {
+    assert.ok(!banned.test(q), q);
+    assert.ok(!/[!?؟]/.test(q), q);
+  }
+  for (const q of quotes.QUOTES.en) assert.ok(!/\b(you|your|yours|yourself|should|must|never|always|let's|we)\b/i.test(q), q);
+  for (const k of Object.keys(T)) {
+    assert.ok(!banned.test(T[k][0]) && !banned.test(T[k][1]), k);
+    if (k.indexOf("pg.") === 0 || k.indexOf("stall.") === 0 || k.indexOf("tt.") === 0 || k.indexOf("tr.fail") === 0) {
+      assert.ok(!/!/.test(T[k][0]) && !/!/.test(T[k][1]), k);
+    }
+  }
+  assert.equal(T["pg.today"], undefined);
+  assert.equal(T["pg.streak"], undefined);
+  assert.equal(T["stall.lowerWpm"], undefined);
+  assert.ok(!/fail/i.test(T["tr.failExpert"][0] + T["tr.failMaster"][0] + T["tr.failNote"][0]));
+});

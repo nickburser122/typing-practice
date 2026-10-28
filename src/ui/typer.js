@@ -4,7 +4,7 @@ import { model } from "../engine/model.js";
 import { keyModel, skillOf, statusOf } from "../engine/skill.js";
 import { charStat, layoutData } from "../engine/stats.js";
 import {
-  learnTrack, newLesson, setTrackK, stallInfo, trackActive, trackK, trackKeys
+  learnTrack, newLesson, setTrackK, trackActive, trackK, trackKeys
 } from "../engine/tracks.js";
 import { resultNodes } from "../features/code.js";
 import { fingerOf } from "../input/keys.js";
@@ -228,28 +228,6 @@ function updateWhy() {
   if (S.whyOpen) el.append(h("span", { class: "whyd" }, w.detail));
 }
 
-function updateStall() {
-  const el = document.getElementById("stall");
-  if (!el) return;
-  const s = S.lesson && !S.lesson.code && !S.lesson.free ? stallInfo() : null;
-  el.textContent = "";
-  el.hidden = !s;
-  if (!s) return;
-  const k = s.c ? iso(s.c) : "";
-  const text = s.kind === "speed"
-    ? fill(t("stall.speed"), { k, n: nf(s.n), ms: nf(s.ms), gate: nf(s.gate) })
-    : s.kind === "key"
-      ? fill(t("stall.acc"), { k, n: nf(s.n), acc: pct(s.acc), target: pct(s.target) })
-      : fill(t("stall.lessons"), { n: nf(s.n), acc: pct(s.acc), target: pct(s.target) });
-  const speed = s.kind === "speed";
-  const lower = () => {
-    if (speed) setSetting("targetWpm", Math.max(8, S.settings.targetWpm - 5));
-    else setSetting("targetAcc", Math.max(80, S.settings.targetAcc - 2));
-    render();
-  };
-  el.append(h("span", null, text), h("button", { type: "button", class: "btn stallbtn", onmousedown: e => e.preventDefault(), onclick: lower }, t(speed ? "stall.lowerWpm" : "stall.lowerAcc")));
-}
-
 function updateMeta() {
   const el = document.getElementById("result");
   if (!el) return;
@@ -272,5 +250,5 @@ function updateLive() {
 
 export {
   buildKeyboard, buildStrip, caretLearn, iso, paint, renderTyper, setHint, updateLive, updateMeta,
-  updateStall, updateWhy, whyInfo, whyRaw
+  updateWhy, whyInfo, whyRaw
 };

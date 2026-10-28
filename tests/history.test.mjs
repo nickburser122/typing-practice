@@ -146,25 +146,6 @@ test("beating a stored personal best raises it and reports a new best", () => {
   assert.ok(S.data.pbs[key].wpm > 60);
 });
 
-test("streaks stay alive until a full day is missed and track the longest run", () => {
-  fresh(LID);
-  setDays({ "2026-08-01": {}, "2026-08-02": {}, "2026-08-03": {}, "2026-08-10": {}, "2026-08-11": {}, "2026-08-12": {}, "2026-08-13": {}, "2026-08-14": {} });
-  let s = hist.streaks(at(2026, 8, 14, 9));
-  assert.deepEqual(s, { current: 5, longest: 5, activeToday: true });
-  s = hist.streaks(at(2026, 8, 15, 9));
-  assert.deepEqual(s, { current: 5, longest: 5, activeToday: false });
-  s = hist.streaks(at(2026, 8, 16, 9));
-  assert.deepEqual(s, { current: 0, longest: 5, activeToday: false });
-  fresh(LID);
-  assert.deepEqual(hist.streaks(at(2026, 8, 16)), { current: 0, longest: 0, activeToday: false });
-});
-
-test("streaks combine every layout", () => {
-  fresh(LID);
-  S.data.days = { [LID]: { "2026-08-01": { s: 1 } }, "ar-standard": { "2026-08-02": { s: 1 } } };
-  assert.equal(hist.streaks(at(2026, 8, 2)).current, 2);
-});
-
 test("summary compares this week with the week before and finds the best day", () => {
   fresh(LID);
   setDays({
@@ -181,6 +162,7 @@ test("summary compares this week with the week before and finds the best day", (
   assert.equal(sm.first, "2026-08-01");
   assert.equal(sm.all.s, 4);
   assert.equal(sm.all.ms, 240000);
+  assert.equal(sm.all.k, 1200);
 });
 
 test("rolling average weights days by session count", () => {

@@ -51,13 +51,11 @@ function tile(label, val, sub) {
 }
 
 function tiles(sm) {
-  const st = sm.streak;
-  const streakSub = st.current > 0 && !st.activeToday ? t("pg.today") : t("pg.longest").replace("{n}", nf(st.longest));
   let weekSub = t("pg.noprev");
   if (sm.delta != null) weekSub = t("pg.delta").replace("{d}", signed(sm.delta, true) + " " + t("wpm"));
   return h("div", { class: "stats pg-tiles" },
-    tile(t("pg.streak"), bdi(nf(st.current) + " " + t("pg.days")), streakSub),
     tile(t("pg.time"), bdi(dur(sm.all.ms)), t("pg.sessions").replace("{n}", nf(sm.all.s))),
+    tile(t("pg.chars"), bdi(nf(sm.all.k))),
     tile(t("pg.week").replace("{n}", nf(7)), sm.week.wpm != null ? bdi(nf(sm.week.wpm) + " " + t("wpm")) : "–", weekSub),
     tile(t("pg.active"), bdi(nf(sm.month.days) + " / " + nf(30)), t("pg.ofN").replace("{n}", nf(30))));
 }

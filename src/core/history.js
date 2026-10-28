@@ -196,36 +196,10 @@ function dayRows(lid) {
   });
 }
 
-function activeDaySet() {
-  const set = new Set();
-  const days = ensureHistory().days;
-  for (const lid of Object.keys(days)) for (const key of Object.keys(days[lid])) if (days[lid][key].s > 0) set.add(dayNum(key));
-  return set;
-}
-
-function streaks(todayTs) {
-  const set = activeDaySet();
-  if (!set.size) return { current: 0, longest: 0, activeToday: false };
-  const today = dayNum(dayKey(todayTs));
-  const sorted = Array.from(set).sort((a, b) => a - b);
-  let longest = 1;
-  let run = 1;
-  for (let i = 1; i < sorted.length; i++) {
-    run = sorted[i] === sorted[i - 1] + 1 ? run + 1 : 1;
-    if (run > longest) longest = run;
-  }
-  let cur = 0;
-  let at = set.has(today) ? today : today - 1;
-  while (set.has(at)) {
-    cur++;
-    at--;
-  }
-  return { current: cur, longest, activeToday: set.has(today) };
-}
-
 function windowStats(rows, fromNum, toNum) {
   let s = 0;
   let ms = 0;
+  let k = 0;
   let w = 0;
   let a = 0;
   let days = 0;
@@ -233,11 +207,12 @@ function windowStats(rows, fromNum, toNum) {
     if (r.n < fromNum || r.n > toNum) return;
     s += r.s;
     ms += r.ms;
+    k += r.k;
     w += r.wpm * r.s;
     a += r.acc * r.s;
     days++;
   });
-  return { s, ms, days, wpm: s ? w / s : null, acc: s ? a / s : null };
+  return { s, ms, k, days, wpm: s ? w / s : null, acc: s ? a / s : null };
 }
 
 function summary(lid, todayTs) {
@@ -254,7 +229,6 @@ function summary(lid, todayTs) {
   return {
     rows, all, week, before, month, best,
     delta: week.wpm != null && before.wpm != null ? week.wpm - before.wpm : null,
-    streak: streaks(todayTs),
     first: rows.length ? rows[0].key : null
   };
 }
@@ -304,6 +278,6 @@ function personalBests(lid) {
 
 export {
   DAY_CAP, PB_CAP, backfill, bestOf, codePbKey, dayKey, dayNum, dayRows, heatCells, lessonPbKey, notePb,
-  numToKey, pbOf, personalBests, recordSession, rolling, sanitizeDays, sanitizePbs, summary, streaks,
+  numToKey, pbOf, personalBests, recordSession, rolling, sanitizeDays, sanitizePbs, summary,
   testPbKey
 };

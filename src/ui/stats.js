@@ -5,9 +5,10 @@ import { keyModel, needOf, statusOf } from "../engine/skill.js";
 import {
   allCharsOfLayout, charStat, errRate, layoutData, legacyChars, median, mergedStat, slowestInto
 } from "../engine/stats.js";
+import { stallInfo } from "../engine/tracks.js";
 import { U, bdi, clamp01, glyph, h, pct, render } from "./dom.js";
 import { renderProgress } from "./progress.js";
-import { buildKeyboard } from "./typer.js";
+import { buildKeyboard, iso } from "./typer.js";
 
 function spark(vals, target, rel) {
   const W = 240;
@@ -201,6 +202,14 @@ function attentionLine() {
   return h("span", null, t("st.learning") + ": ", below.slice(0, 5).map((b, i) => [i ? " " : "", h("b", { lang: layoutInfo().lang }, glyph(b.ch))]));
 }
 
+function stallLine() {
+  const s = stallInfo();
+  if (!s) return null;
+  const k = s.c ? iso(s.c) : "";
+  const text = s.kind === "speed" ? t("stall.speed") : s.kind === "key" ? t("stall.acc") : t("stall.lessons");
+  return text.replace("{k}", k).replace("{ms}", nf(s.ms)).replace("{gate}", nf(s.gate)).replace("{acc}", pct(s.acc)).replace("{target}", pct(s.target));
+}
+
 function renderKeys() {
   const K = S.keysUI;
   const lay = layoutInfo();
@@ -237,6 +246,8 @@ function renderKeys() {
   }
   const attn = attentionLine();
   U.main.append(h("div", { class: "attn", "aria-live": "polite" }, attn));
+  const stalled = stallLine();
+  if (stalled) U.main.append(h("div", { class: "attn", id: "stallnote" }, stalled));
   const shc = layoutData(lid).sh;
   if (shc && shc.ok + shc.same > 0) U.main.append(h("div", { class: "attn", id: "shiftsum" }, t("d.shiftSum").replace("{a}", nf(shc.ok)).replace("{b}", nf(shc.same))));
   if (K.tab === "kb") {

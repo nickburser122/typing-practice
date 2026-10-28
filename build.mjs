@@ -52,6 +52,10 @@ async function main() {
   const file = path.join(root, dev ? "dev.html" : "index.html");
   fs.writeFileSync(file, html);
   console.log(path.basename(file), (Buffer.byteLength(html) / 1024).toFixed(0) + " KB");
+  if (!dev) {
+    fs.mkdirSync(path.join(root, "public"), { recursive: true });
+    fs.writeFileSync(path.join(root, "public", "index.html"), html);
+  }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();
