@@ -1,5 +1,5 @@
 import { rnd } from "../core/base.js";
-import { bestOf, notePb, pbOf, recordSession, testPbKey } from "../core/history.js";
+import { bestOf, notePb, pbOf, recordSession, recordTime, testPbKey } from "../core/history.js";
 import { S, layoutInfo, typeable } from "../core/state.js";
 import { customWords, scheduleSave } from "../core/storage.js";
 import { AR_MARKS, DIGITS } from "../data/layouts.js";
@@ -7,8 +7,10 @@ import { QUOTES, QUOTE_BUCKETS } from "../data/quotes.js";
 import { WORDS } from "../data/words.js";
 import { currentK, currentOrder } from "./order.js";
 import { recordTiming, ringPush } from "./session.js";
-import { rampMs, skillOf, wilsonLower } from "./skill.js";
-import { charStat, layoutData } from "./stats.js";
+import { pauseMs, rampMs, skillOf, wilsonLower } from "./skill.js";
+import { charStat, layoutData, stampPush } from "./stats.js";
+import { noteWork } from "./sessionlen.js";
+import { noteWords } from "./weak.js";
 import { rand } from "./words.js";
 
 const TEST_EXTRA = 8;
@@ -147,6 +149,8 @@ function testNew(repeat) {
     start: 0,
     end: 0,
     prevTs: null,
+    act: 0,
+    lastTs: null,
     prevCh: null,
     prevOk: false,
     ccWords: 0,
@@ -185,7 +189,7 @@ function testFeedKey(T, expected, ch, ok, ts) {
     per.e++;
     per.a++;
   } else if (ok && !seen) per.a++;
-  if (delta != null && delta >= 15 && delta <= P.pause) {
+  if (delta != null && delta >= 15 && delta <= pauseMs()) {
     per.n++;
     per.sum += delta;
   }
@@ -198,12 +202,14 @@ function testFeedKey(T, expected, ch, ok, ts) {
     if (!seen) {
       stt.a++;
       ringPush(stt.o, 0, 40);
+      stampPush(stt, "od", true);
       if (delta != null) recordTiming(T.lid, null, expected, T.prevCh, delta);
     }
   } else if (!seen) {
     stt.a++;
     stt.e++;
     ringPush(stt.o, 1, 40);
+    stampPush(stt, "od", true);
     const keys = Object.keys(stt.x);
     if (ch in stt.x || keys.length < 8) stt.x[ch] = (stt.x[ch] || 0) + 1;
   }
@@ -223,6 +229,8 @@ function testChar(ch, ts) {
     T.running = true;
     T.start = ts;
   }
+  if (T.lastTs != null) T.act += Math.max(0, Math.min(ts - T.lastTs, pauseMs()));
+  T.lastTs = ts;
   if (ch === " ") {
     const ok = T.typed === w;
     T.strokes++;
@@ -349,6 +357,9 @@ function testFinish(ts, failed) {
   T.failed = failed || "";
   testSnap(T, ts);
   const durMs = Math.max(1000, ts - T.start);
+  const tail = T.lastTs != null ? Math.max(0, Math.min(ts - T.lastTs, pauseMs())) : 0;
+  const activeMs = Math.max(1000, T.act + tail);
+  if (T.strokes > 0) noteWork(activeMs, T.strokes, T.bad);
   const min = durMs / 60000;
   const net = testNetNow(T);
   const raw = testRawNow(T);
@@ -404,7 +415,11 @@ function testFinish(ts, failed) {
       if (S.data.tests.length > 200) S.data.tests.splice(0, S.data.tests.length - 200);
       notePb(testPbKey(rec), rec.wpm, rec.acc, rec.ts);
     }
-    recordSession("t", T.lid, wpm, acc, durMs, T.strokes, rec.ts);
+    recordSession("t", T.lid, wpm, acc, activeMs, T.strokes, rec.ts);
+    noteWords(T.lid, T.committed.map((typed, i) => ({ w: T.words[i], bad: typed !== T.words[i] })));
+    scheduleSave();
+  } else if (T.strokes > 0) {
+    recordTime(T.lid, activeMs, T.strokes, rec.ts);
     scheduleSave();
   }
 }
@@ -438,7 +453,16 @@ function applyPlacement(T) {
   scheduleSave();
 }
 
+function missedWords(T) {
+  const out = [];
+  T.committed.forEach((typed, i) => {
+    const w = T.words[i];
+    if (typeof w === "string" && typed !== w && /^\p{L}{3,24}$/u.test(w) && out.indexOf(w) < 0) out.push(w);
+  });
+  return out.slice(0, 12);
+}
+
 export {
-  QUOTE_LENS, applyPlacement, consistency, genTestWords, testBackspace, testChar, testExt, testFinish, testHistory,
+  QUOTE_LENS, applyPlacement, consistency, genTestWords, missedWords, testBackspace, testChar, testExt, testFinish, testHistory,
   testNetNow, testNew, testRewind, testTick
 };

@@ -1,15 +1,17 @@
 import { VERSION } from "./base.js";
-import { defaultSettings } from "./settings.js";
+import { MIN_SAMPLES, defaultSettings } from "./settings.js";
 import { LAYOUTS } from "../data/layouts.js";
 import { T } from "../i18n/strings.js";
 
 const S = {
   settings: defaultSettings(),
   data: { v: VERSION, layouts: {}, lessons: [], tests: [], code: [], sc: {}, days: {}, pbs: {} },
-  view: "practice",
+  view: "learn",
   lesson: null,
   focused: false,
   storage: "unknown",
+  tab: null,
+  session: { ms: 0, chars: 0, errs: 0, shown: false },
   lastResult: null,
   keysUI: { tab: "kb", range: "90", metric: "need", layer: 0, sel: null, sort: "need", cls: "all" },
   derived: {}
@@ -56,7 +58,7 @@ function refreshDerived() {
   S.derived = {
     targetMs: 12000 / s.targetWpm,
     targetAcc: s.targetAcc / 100,
-    minS: s.minSamples
+    minS: MIN_SAMPLES
   };
 }
 

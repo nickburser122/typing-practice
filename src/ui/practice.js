@@ -1,7 +1,8 @@
 import { S, t } from "../core/state.js";
-import { scheduleSave } from "../core/storage.js";
+import { claimLease, scheduleSave } from "../core/storage.js";
 import { newCodeLesson } from "../engine/code.js";
-import { handleChar } from "../engine/session.js";
+import { startFromFirstKeys } from "../engine/order.js";
+import { handleChar, needsEscConfirm } from "../engine/session.js";
 import { layoutData } from "../engine/stats.js";
 import { learnTrack, newLesson, trackList } from "../engine/tracks.js";
 import { codeHooks, stopCodeClock, updateClock } from "../features/code.js";
@@ -9,7 +10,9 @@ import { codeMode, freeHooks, newFreeLesson, renderPreview } from "../features/f
 import { scOnKey } from "../features/shortcuts.js";
 import { extraToggles, startSteps, stepsOnKey } from "../features/steps.js";
 import { backspaceLesson, produceChars, shiftAccount } from "../input/keys.js";
-import { U, go, h, render, startPlacement, typingFade } from "./dom.js";
+import { isShortcut } from "../input/modifiers.js";
+import { U, go, h, quietNote, render, startPlacement, typingFade, zenActive, zenEsc } from "./dom.js";
+import { endSessionIfDue } from "./session.js";
 import { seg } from "./stats.js";
 import { langSeg, onTestKey } from "./test.js";
 import {
@@ -47,12 +50,7 @@ function renderPractice() {
     fresh ? h("div", { class: "place" },
       h("button", { type: "button", class: "btn", onclick: startSteps }, t(S.data.onboard === "steps" && S.data.onboardStep > 0 ? "fs.resume" : "fs.new")),
       h("button", { type: "button", class: "btn", onclick: () => {
-        S.settings.startKeys = 2;
-        S.settings.order = "position";
-        LP.k = 2;
-        LP.placed = true;
-        S.data.onboard = "done";
-        scheduleSave();
+        startFromFirstKeys();
         newLesson();
         render();
       } }, t("fs.first")),
@@ -89,6 +87,7 @@ const hooks = {
     updateLive();
   },
   finished() {
+    if (endSessionIfDue(newLesson)) return;
     newLesson();
     if (U.typer) {
       renderTyper();
@@ -108,7 +107,7 @@ function setFocused(v) {
 }
 
 function restartLesson() {
-  if (S.view === "free" && !codeMode()) {
+  if (S.view === "practice" && !codeMode()) {
     newFreeLesson();
     if (U.typer) {
       renderTyper();
@@ -119,7 +118,7 @@ function restartLesson() {
   }
   if (codeMode()) {
     stopCodeClock();
-    if (S.view === "free") newFreeLesson();
+    if (S.view === "practice") newFreeLesson();
     else newCodeLesson();
     if (U.typer) renderTyper();
     updateClock();
@@ -133,8 +132,16 @@ function restartLesson() {
   }
 }
 
+function noteHardware() {
+  if (S.data.hw) return;
+  S.data.hw = true;
+  scheduleSave();
+  const note = document.querySelector(".hwnote");
+  if (note) note.remove();
+}
+
 function hwNote() {
-  if (!window.matchMedia) return null;
+  if (S.data.hw || !window.matchMedia) return null;
   if (!window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(max-width: 520px)").matches) return null;
   return h("p", { class: "hwnote", role: "note" }, t("hw"));
 }
@@ -150,9 +157,10 @@ function onKeyDown(e) {
       box.dispatchEvent(new Event("input", { bubbles: true }));
       return;
     }
-    go(S.back || "practice");
+    go(S.back || "learn");
     return;
   }
+  if (S.view === "shortcuts" || S.view === "steps" || S.view === "learn" || S.view === "practice" || S.view === "test" || S.view === "code") claimLease();
   if (S.view === "shortcuts") {
     scOnKey(e);
     return;
@@ -161,7 +169,7 @@ function onKeyDown(e) {
     stepsOnKey(e);
     return;
   }
-  if (S.view !== "practice" && S.view !== "free" && S.view !== "test" && S.view !== "code") return;
+  if (S.view !== "learn" && S.view !== "practice" && S.view !== "test" && S.view !== "code") return;
   const tg = e.target;
   if (tg && (tg.tagName === "INPUT" || tg.tagName === "SELECT" || tg.tagName === "TEXTAREA")) return;
   if (U.tabbed && (e.key === " " || e.key === "Enter") && tg && (tg.tagName === "BUTTON" || tg.tagName === "SUMMARY" || tg.tagName === "A" || tg.tagName === "LABEL")) return;
@@ -172,10 +180,23 @@ function onKeyDown(e) {
   }
   if (e.key === "Escape") {
     e.preventDefault();
+    if (zenActive()) {
+      zenEsc();
+      return;
+    }
+    if (S.view === "learn" && needsEscConfirm(S.lesson)) {
+      const now = performance.now();
+      if (!(U.escAt && now - U.escAt < 2000)) {
+        U.escAt = now;
+        quietNote("lt.escAsk");
+        return;
+      }
+    }
+    U.escAt = 0;
     restartLesson();
     return;
   }
-  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (isShortcut(e)) return;
   if (e.key === "Backspace") {
     e.preventDefault();
     backspaceLesson();
@@ -183,6 +204,7 @@ function onKeyDown(e) {
   }
   const out = produceChars(e);
   if (!out) return;
+  noteHardware();
   if (!S.focused) setFocused(true);
   if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
   e.preventDefault();
@@ -190,7 +212,7 @@ function onKeyDown(e) {
   shiftAccount(e);
   typingFade();
   const ts = e.timeStamp || performance.now();
-  for (const ch of out.split("")) handleChar(ch, ts, codeMode() ? codeHooks : S.view === "free" ? freeHooks : hooks);
+  for (const ch of out.split("")) handleChar(ch, ts, codeMode() ? codeHooks : S.view === "practice" ? freeHooks : hooks);
 }
 
-export { hooks, hwNote, onKeyDown, renderPractice, setFocused };
+export { hooks, hwNote, noteHardware, onKeyDown, renderPractice, setFocused };

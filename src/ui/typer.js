@@ -136,10 +136,6 @@ function buildStrip() {
   const strip = document.getElementById("strip");
   if (!strip) return;
   strip.textContent = "";
-  if (!S.settings.strip) {
-    strip.hidden = true;
-    return;
-  }
   strip.hidden = false;
   const lid = S.settings.layout;
   const focus = S.lesson ? S.lesson.focus : null;
@@ -233,7 +229,7 @@ function updateMeta() {
   if (!el) return;
   const r = S.lastResult;
   el.textContent = "";
-  if (S.settings.result && r) el.append(...resultNodes(r));
+  if (r) el.append(...resultNodes(r));
 }
 
 function updateLive() {

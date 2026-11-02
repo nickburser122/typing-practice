@@ -9,6 +9,7 @@ import { compose, legacyMix } from "../engine/mix.js";
 import { codeClockLabel, codeOptions, dropdown, renderCodeRes, stopCodeClock } from "./code.js";
 import { applyKbFade } from "../input/keys.js";
 import { U, h, render } from "../ui/dom.js";
+import { endSessionIfDue } from "../ui/session.js";
 import { hwNote } from "../ui/practice.js";
 import { seg } from "../ui/stats.js";
 import { langSeg } from "../ui/test.js";
@@ -73,7 +74,7 @@ function codeOnly(m) {
 }
 
 function codeMode() {
-  return S.view === "code" || (S.view === "free" && codeOnly(practiceMix()));
+  return S.view === "code" || (S.view === "practice" && codeOnly(practiceMix()));
 }
 
 function mixSig(m) {
@@ -200,6 +201,7 @@ const freeHooks = {
     setHint();
   },
   finished() {
+    if (endSessionIfDue(newFreeLesson)) return;
     newFreeLesson();
     if (U.typer) {
       renderTyper();

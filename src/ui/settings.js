@@ -2,7 +2,8 @@ import { VERSION } from "../core/base.js";
 import { PREVIEW, SCHEMA, SCHEMA_BY_ID, defaultSettings } from "../core/settings.js";
 import { S, nf, refreshDerived, t, uiLang } from "../core/state.js";
 import {
-  CUSTOM_CAP, applyImport, buildExport, customBytes, customText, dataFootprint, eraseAll, saveNow,
+  CUSTOM_CAP, applyImport, buildExport, customBytes, customText, dataFootprint, eraseAll, hasBackup, restoreBackup,
+  saveNow,
   scheduleSave
 } from "../core/storage.js";
 import { LAYOUTS, LAYOUT_BY_LANG } from "../data/layouts.js";
@@ -11,17 +12,22 @@ import { EXTRAS, extrasRow, startRow, stepsRow } from "../features/steps.js";
 import { T } from "../i18n/strings.js";
 import { U, applyChrome, h, quietNote, render, renderNav } from "./dom.js";
 
-const BASIC = ["lang", "layout", "inputMode", "targetWpm", "targetAcc", "wordLevel", "theme", "font", "keyboard"];
+const ESSENTIALS = [
+  ["keyboard", ["lang", "layout", "inputMode"]],
+  ["goal", ["targetWpm", "targetAcc", "sessionLen"]],
+  ["typing", ["onError", "backspace", "hideErrors", "focusLevel", "wordLen", "wordLevel"]],
+  ["look", ["ui", "theme", "font", "fontSize", "caretStyle", "caretSmooth", "textWidth", "keyboard", "liveWpm", "liveAcc", "numerals"]],
+  ["zen", ["zen"]]
+];
+const SHOWN = [].concat(...ESSENTIALS.map(g => g[1]));
 
-const REGEN = ["wordLevel", "reviewRate", "digitSource", "lang", "layout", "order", "startKeys", "targetWpm", "targetAcc", "minSamples", "focus", "text", "lessonWords", "wordMin", "wordMax", "caps", "digits", "punct", "dia", "extraRate", "progression", "inputMode", "pause"];
+const REGEN = ["wordLevel", "digitSource", "lang", "layout", "order", "startKeys", "targetWpm", "targetAcc", "focusLevel", "text", "lessonWords", "wordLen", "caps", "digits", "punct", "dia", "progression", "inputMode"];
 
 function setSetting(id, v) {
   const st = S.settings;
   st[id] = v;
   if (id === "lang") st.layout = LAYOUT_BY_LANG[v][0];
   if (id === "layout") st.lang = LAYOUTS[v].lang;
-  if (id === "wordMin" && st.wordMax < v) st.wordMax = v;
-  if (id === "wordMax" && st.wordMin > v) st.wordMin = v;
   refreshDerived();
   applyChrome();
   scheduleSave();
@@ -37,7 +43,6 @@ function optLabel(id, v) {
 }
 
 function fmtRange(r, v) {
-  if (r.id === "lineHeight") return nf(v, 1);
   if (r.id === "fontSize") return nf(v) + " px";
   return nf(v);
 }
@@ -287,11 +292,20 @@ function dataSection() {
     exportPanel,
     h("div", { class: "srow", "data-label": t("d.import").toLowerCase() }, h("div", { class: "lab" }, t("d.import"), h("span", { id: "import-msg", class: "msg" })), h("div", { class: "dataactions" }, h("button", { type: "button", class: "btn", onclick: showImport }, t("d.import")))),
     importPanel,
+    ...(hasBackup() ? [h("div", { class: "srow", "data-label": t("d.restore").toLowerCase() }, h("div", { class: "lab" }, t("d.restore"), h("span", { id: "restore-msg", class: "msg" })), h("div", { class: "dataactions" },
+      h("button", { type: "button", class: "btn", onclick: () => {
+        if (!restoreBackup()) return;
+        newLesson();
+        S.lastResult = null;
+        renderSettings();
+        const m = document.getElementById("restore-msg");
+        if (m) m.textContent = t("d.restored");
+      } }, t("d.restoreBt"))))] : []),
     h("div", { class: "srow", "data-label": t("d.resetStats").toLowerCase() }, h("div", { class: "lab" }, t("d.resetStats")), h("div", { class: "dataactions" }, confirmBtn(t("d.resetStats"), () => {
       S.data = { v: VERSION, layouts: {}, lessons: [], tests: [], code: [], sc: {}, days: {}, pbs: {} };
       S.lastResult = null;
       S.test = null;
-      saveNow();
+      saveNow(true);
       newLesson();
       renderSettings();
     }))),
@@ -327,15 +341,17 @@ function renderSettings() {
   U.main.textContent = "";
   const wrap = h("div", { class: "settings" });
   wrap.append(h("input", { class: "search", id: "filter", type: "search", placeholder: t("d.filter"), "aria-label": t("d.filter"), value: q, oninput: ev => applyFilter(ev.target.value) }));
-  const main = h("section", { class: "sec" }, h("h2", null, t("sec.main")));
-  BASIC.forEach(id => main.append(settingRow(SCHEMA_BY_ID[id])));
-  main.append(extrasRow(), startRow(), stepsRow());
-  wrap.append(main);
+  ESSENTIALS.forEach(g => {
+    const box = h("section", { class: "sec" }, h("h2", null, t("sec." + g[0])));
+    g[1].forEach(id => box.append(settingRow(SCHEMA_BY_ID[id])));
+    if (g[0] === "typing") box.append(extrasRow(), startRow(), stepsRow());
+    wrap.append(box);
+  });
   const adv = h("details", { class: "adv" }, h("summary", null, t("sec.adv")));
   adv.open = !!U.advOpen;
   adv.addEventListener("toggle", () => { U.advOpen = adv.open; });
   ["practice", "rules", "text", "test", "display"].forEach(sec => {
-    const rows = SCHEMA.filter(r => r.sec === sec && !r.hidden && BASIC.indexOf(r.id) < 0 && EXTRAS.indexOf(r.id) < 0);
+    const rows = SCHEMA.filter(r => r.sec === sec && !r.hidden && SHOWN.indexOf(r.id) < 0 && EXTRAS.indexOf(r.id) < 0);
     if (!rows.length) return;
     const s = h("section", { class: "sec" }, h("h3", null, t("sec." + sec)));
     rows.forEach(r => s.append(settingRow(r)));

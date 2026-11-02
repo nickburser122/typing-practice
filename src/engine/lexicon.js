@@ -22,7 +22,7 @@ function ensureLex(lang) {
   words.forEach((w, i) => {
     const chars = w.split("");
     const base = 1 / Math.pow(i + 20, 0.4);
-    entries.push({ w, chars, base, len: chars.length });
+    entries.push({ w, chars, base, len: chars.length, cc: null, pc: null, pr: null, bwe: 0, bwv: 0 });
     const fw = 1 / (i + 3);
     for (const c of chars) freq[c] = (freq[c] || 0) + fw;
     freq[" "] = (freq[" "] || 0) + fw;

@@ -1,4 +1,4 @@
-const VERSION = 4;
+const VERSION = 5;
 const SHARP = 2;
 let rngState = 1;
 function seedRng(n) {

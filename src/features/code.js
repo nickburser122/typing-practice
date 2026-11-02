@@ -5,6 +5,7 @@ import { LAYOUTS } from "../data/layouts.js";
 import { codeHistory, codeSid, finishCode, newCodeLesson } from "../engine/code.js";
 import { T } from "../i18n/strings.js";
 import { U, bdi, h, pct, render } from "../ui/dom.js";
+import { endSessionIfDue } from "../ui/session.js";
 import { hwNote } from "../ui/practice.js";
 import { seg } from "../ui/stats.js";
 import { historyCard, resultCard } from "../ui/test.js";
@@ -87,7 +88,7 @@ function renderCodeRes() {
   if (!box) return;
   box.textContent = "";
   const r = S.codeRes;
-  if (!r || !S.settings.result) return;
+  if (!r) return;
   box.append(resultCard(r, "en", null, S.settings.codeTimer !== "off"));
   const hist = historyCard(codeHistory(), t("code.hist"));
   if (hist) box.append(hist);
@@ -228,6 +229,7 @@ const codeHooks = {
     if (codeClockStart(performance.now())) armCodeClock();
   },
   finished() {
+    if (endSessionIfDue(newCodeLesson)) return;
     newCodeLesson();
     if (U.typer) {
       renderTyper();

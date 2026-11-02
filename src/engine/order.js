@@ -119,4 +119,12 @@ function setK(k) {
   scheduleSave();
 }
 
-export { activeKeys, computeOrder, currentK, currentOrder, setK };
+function startFromFirstKeys() {
+  const L = layoutData(S.settings.layout);
+  L.k = 2;
+  L.placed = true;
+  S.data.onboard = "done";
+  scheduleSave();
+}
+
+export { activeKeys, computeOrder, currentK, currentOrder, setK, startFromFirstKeys };

@@ -8,32 +8,27 @@ const SCHEMA = [
   { id: "inputMode", sec: "practice", type: "seg", def: "layout", opts: ["layout", "system"], help: true },
   { id: "order", help: true, sec: "practice", type: "seg", def: "smart", opts: ["smart", "position", "frequency"] },
   { id: "progression", sec: "practice", type: "seg", def: "auto", opts: ["auto", "manual"], help: true },
-  { id: "unlock", sec: "practice", type: "seg", def: "strict", opts: ["strict", "assist"], help: true, when: s => s.progression === "auto" },
   { id: "startKeys", sec: "practice", type: "range", def: 4, min: 2, max: 12, step: 1, help: true },
-  { id: "reviewRate", sec: "practice", type: "range", def: 10, min: 0, max: 30, step: 5, help: true },
   { id: "digitSource", sec: "practice", type: "seg", def: "either", opts: ["row", "numpad", "either"], help: true },
   { id: "targetWpm", help: true, sec: "practice", type: "range", def: 30, min: 8, max: 150, step: 1 },
   { id: "targetAcc", help: true, sec: "practice", type: "range", def: 95, min: 80, max: 100, step: 1 },
-  { id: "minSamples", sec: "practice", type: "range", def: 20, min: 10, max: 40, step: 1, help: true },
-  { id: "focus", sec: "practice", type: "range", def: 60, min: 0, max: 100, step: 5, help: true },
-  { id: "algo", sec: "practice", type: "seg", def: "impact", opts: ["impact", "classic"], help: true },
+  { id: "focusLevel", help: true, sec: "practice", type: "seg", def: "normal", opts: ["gentle", "normal", "sharp"] },
+  { id: "wordLen", help: true, sec: "text", type: "seg", def: "mixed", opts: ["short", "mixed", "long"] },
+  { id: "hideErrors", help: true, sec: "practice", type: "switch", def: false },
+  { id: "sessionLen", help: true, sec: "practice", type: "seg", def: 0, opts: [0, 10, 15, 20, 30] },
   { id: "onError", help: true, sec: "practice", type: "seg", def: "stop", opts: ["stop", "advance"] },
   { id: "shiftPolicy", help: true, sec: "rules", type: "seg", def: "off", opts: ["off", "hint", "strict"] },
   { id: "capsPolicy", help: true, sec: "rules", type: "seg", def: "allow", opts: ["allow", "strict"] },
   { id: "backspace", help: true, sec: "rules", type: "seg", def: "allow", opts: ["allow", "off"] },
   { id: "kbFade", help: true, sec: "rules", type: "switch", def: false },
   { id: "fingerZones", help: true, sec: "rules", type: "switch", def: false },
-  { id: "pause", help: true, sec: "practice", type: "range", def: 2000, min: 500, max: 5000, step: 100 },
   { id: "text", help: true, sec: "text", type: "seg", def: "auto", opts: ["auto", "real", "generated"] },
   { id: "wordLevel", help: true, sec: "text", type: "seg", def: "balanced", opts: ["common", "balanced", "wide"] },
   { id: "lessonWords", help: true, sec: "text", type: "range", def: 20, min: 8, max: 60, step: 1 },
-  { id: "wordMin", help: true, sec: "text", type: "range", def: 3, min: 2, max: 8, step: 1 },
-  { id: "wordMax", help: true, sec: "text", type: "range", def: 7, min: 3, max: 12, step: 1 },
   { id: "caps", help: true, sec: "text", type: "switch", def: false, when: s => LAYOUTS[s.layout].lang === "en" },
   { id: "digits", help: true, sec: "text", type: "switch", def: false },
   { id: "punct", help: true, sec: "text", type: "switch", def: false },
   { id: "dia", help: true, sec: "text", type: "switch", def: false, when: s => LAYOUTS[s.layout].lang === "ar" },
-  { id: "extraRate", help: true, sec: "text", type: "range", def: 15, min: 5, max: 40, step: 5, when: s => s.caps || s.digits || s.punct || s.dia },
   { id: "testFeed", help: true, sec: "test", type: "switch", def: true },
   { id: "confident", help: true, sec: "test", type: "switch", def: false },
   { id: "testMode", sec: "test", type: "seg", def: "time", opts: ["time", "words", "quote", "custom"], hidden: true },
@@ -56,14 +51,25 @@ const SCHEMA = [
   { id: "theme", sec: "display", type: "seg", def: "system", opts: ["system", "light", "dark"] },
   { id: "font", help: true, sec: "display", type: "select", def: "sans", opts: ["sans", "mono", "naskh", "vazir", "system"] },
   { id: "fontSize", help: true, sec: "display", type: "range", def: 36, min: 20, max: 64, step: 2 },
-  { id: "lineHeight", help: true, sec: "display", type: "range", def: 1.9, min: 1.3, max: 2.6, step: 0.1 },
+  { id: "caretStyle", help: true, sec: "display", type: "seg", def: "line", opts: ["line", "block", "underline"] },
+  { id: "caretSmooth", help: true, sec: "display", type: "switch", def: true },
+  { id: "textWidth", help: true, sec: "display", type: "seg", def: "normal", opts: ["narrow", "normal", "wide"] },
+  { id: "zen", help: true, sec: "display", type: "switch", def: false },
   { id: "keyboard", help: true, sec: "display", type: "switch", def: true },
-  { id: "strip", help: true, sec: "display", type: "switch", def: true },
-  { id: "result", help: true, sec: "display", type: "switch", def: true },
   { id: "liveWpm", help: true, sec: "display", type: "switch", def: false },
   { id: "liveAcc", help: true, sec: "display", type: "switch", def: false },
   { id: "numerals", help: true, sec: "display", type: "seg", def: "latin", opts: ["latin", "arabic"] }
 ];
+
+const MIN_SAMPLES = 20;
+const REVIEW_RATE = 10;
+const EXTRA_RATE = 15;
+const FOCUS_S = { gentle: 0.3, normal: 0.6, sharp: 0.9 };
+const WORD_LEN = { short: [2, 5], mixed: [3, 7], long: [5, 10] };
+
+function lineHeightFor(lang) {
+  return lang === "ar" ? 2.3 : 1.9;
+}
 
 const PREVIEW = { en: "The quick brown fox jumps over 12 lazy dogs.", ar: "نصٌّ قصير لتجربة الخط والحجم والمسافة بين الأسطر 12" };
 
@@ -75,7 +81,6 @@ function defaultSettings() {
   SCHEMA.forEach(r => { s[r.id] = r.def; });
   s.mix = null;
   s.learnTracks = { active: "letters" };
-  s.carrier = "steady";
   s.presets = [];
   return s;
 }
@@ -102,12 +107,15 @@ function sanitizeSettings(input) {
     }
   });
   out.lang = LAYOUTS[out.layout].lang;
-  if (out.wordMax < out.wordMin) out.wordMax = out.wordMin;
+  if (input.focusLevel === undefined && typeof input.focus === "number" && isFinite(input.focus)) out.focusLevel = input.focus <= 40 ? "gentle" : input.focus <= 75 ? "normal" : "sharp";
+  if (input.wordLen === undefined && typeof input.wordMax === "number" && isFinite(input.wordMax)) {
+    const lo = typeof input.wordMin === "number" && isFinite(input.wordMin) ? input.wordMin : 3;
+    out.wordLen = input.wordMax <= 5 ? "short" : lo >= 5 ? "long" : "mixed";
+  }
   out.mix = sanitizeMix(input.mix);
   const lt = input.learnTracks;
   out.learnTracks = { active: lt && TRACK_KEYS.indexOf(lt.active) >= 0 ? lt.active : "letters" };
   out.shiftPolicy = ["off", "hint", "strict"].indexOf(input.shiftPolicy) >= 0 ? input.shiftPolicy : (input.strictShift === true ? "strict" : "off");
-  out.carrier = input.carrier === "active" ? "active" : "steady";
   out.presets = [];
   if (Array.isArray(input.presets)) {
     input.presets.slice(0, 6).forEach(p => {
@@ -119,4 +127,7 @@ function sanitizeSettings(input) {
   return out;
 }
 
-export { PREVIEW, SCHEMA, SCHEMA_BY_ID, defaultSettings, sanitizeSettings };
+export {
+  EXTRA_RATE, FOCUS_S, MIN_SAMPLES, PREVIEW, REVIEW_RATE, SCHEMA, SCHEMA_BY_ID, WORD_LEN, defaultSettings, lineHeightFor,
+  sanitizeSettings
+};

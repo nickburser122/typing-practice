@@ -5,7 +5,7 @@ import { keyModel, needOf, statusOf } from "../engine/skill.js";
 import {
   allCharsOfLayout, charStat, errRate, layoutData, legacyChars, median, mergedStat, slowestInto
 } from "../engine/stats.js";
-import { stallInfo } from "../engine/tracks.js";
+import { newLesson, stallInfo, unlockAnyway } from "../engine/tracks.js";
 import { U, bdi, clamp01, glyph, h, pct, render } from "./dom.js";
 import { renderProgress } from "./progress.js";
 import { buildKeyboard, iso } from "./typer.js";
@@ -206,8 +206,15 @@ function stallLine() {
   const s = stallInfo();
   if (!s) return null;
   const k = s.c ? iso(s.c) : "";
-  const text = s.kind === "speed" ? t("stall.speed") : s.kind === "key" ? t("stall.acc") : t("stall.lessons");
-  return text.replace("{k}", k).replace("{ms}", nf(s.ms)).replace("{gate}", nf(s.gate)).replace("{acc}", pct(s.acc)).replace("{target}", pct(s.target));
+  const text = s.kind === "speed" ? t("stall.speed") : s.kind === "key" ? t("stall.acc") : s.kind === "few" ? t("stall.few") : s.kind === "fatigue" ? t("stall.fatigue") : t("stall.lessons");
+  const line = text.replace("{k}", k).replace("{ms}", nf(s.ms)).replace("{gate}", nf(s.gate)).replace("{acc}", pct(s.acc)).replace("{target}", pct(s.target)).replace("{have}", nf(s.have)).replace("{need}", nf(s.need));
+  if (s.kind === "fatigue") return line;
+  return [line, " ", h("button", { type: "button", class: "btn", id: "unlockany", onclick: () => {
+    if (unlockAnyway()) {
+      newLesson();
+      render();
+    }
+  } }, t("stall.btn"))];
 }
 
 function renderKeys() {

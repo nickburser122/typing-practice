@@ -2,10 +2,14 @@ import { S, layoutInfo, nf, t } from "../core/state.js";
 import { scheduleSave } from "../core/storage.js";
 import { LAYOUT_BY_LANG } from "../data/layouts.js";
 import { median } from "../engine/stats.js";
-import { QUOTE_LENS, testBackspace, testChar, testHistory, testNetNow, testNew, testTick } from "../engine/test.js";
+import { QUOTE_LENS, missedWords, testBackspace, testChar, testHistory, testNetNow, testNew, testTick } from "../engine/test.js";
+import { sessionDue } from "../engine/sessionlen.js";
+import { newWordsLesson } from "../engine/tracks.js";
 import { produceChars } from "../input/keys.js";
-import { U, bdi, clearFade, glyph, go, h, pct, placeCaret, quietNote, render, typingFade } from "./dom.js";
-import { hwNote, setFocused } from "./practice.js";
+import { isShortcut, wordDelete } from "../input/modifiers.js";
+import { U, bdi, clearFade, glyph, go, h, pct, placeCaret, quietNote, render, typingFade, zenActive, zenEsc } from "./dom.js";
+import { hwNote, noteHardware, setFocused } from "./practice.js";
+import { sessionCard } from "./session.js";
 import { setSetting } from "./settings.js";
 import { seg, spark } from "./stats.js";
 
@@ -47,6 +51,41 @@ function ruleHint(st) {
   return bits.join(" ");
 }
 
+function rulesMenu(st) {
+  const open = !!U.rulesOpen;
+  const btn = h("button", {
+    type: "button", class: "btn rulesbtn", id: "rulesbtn", "aria-haspopup": "true", "aria-expanded": String(open),
+    onclick: () => {
+      U.rulesOpen = !U.rulesOpen;
+      render();
+    }
+  }, t("tt.rules"));
+  const wrap = h("div", { class: "rulesw" }, btn);
+  if (U.rulesCloser) document.removeEventListener("click", U.rulesCloser);
+  U.rulesCloser = null;
+  if (open) {
+    U.rulesCloser = e => {
+      if (e.target.closest && e.target.closest(".rulesw")) return;
+      document.removeEventListener("click", U.rulesCloser);
+      U.rulesCloser = null;
+      U.rulesOpen = false;
+      render();
+    };
+    setTimeout(() => {
+      if (U.rulesCloser) document.addEventListener("click", U.rulesCloser);
+    }, 0);
+    const sw = h("button", {
+      type: "button", class: "sw", role: "switch", "aria-label": t("s.confident"), "aria-checked": String(!!st.confident),
+      onclick: () => setTestOpt("confident", !st.confident)
+    });
+    wrap.append(h("div", { class: "rules", id: "rulespanel", role: "group", "aria-label": t("tt.rules") },
+      h("div", { class: "rrow" }, h("span", { class: "rl" }, t("tt.diffLabel")), labelled(seg(["normal", "expert", "master"].map(v => ({ v, l: t("tt.diff." + v) })), st.testDiff, v => setTestOpt("testDiff", v)), t("tt.diffLabel"))),
+      h("div", { class: "rrow" }, h("span", { class: "rl" }, t("tt.stopLabel")), labelled(seg(["off", "letter", "word"].map(v => ({ v, l: t("tt.stop." + v) })), st.testStop, v => setTestOpt("testStop", v)), t("tt.stopLabel"))),
+      h("div", { class: "rrow" }, h("span", { class: "rl" }, t("s.confident")), sw)));
+  }
+  return wrap;
+}
+
 function renderTest() {
   const st = S.settings;
   if (!S.test || S.test.lid !== st.layout) testNew();
@@ -68,8 +107,7 @@ function renderTest() {
     plain ? seg([{ v: true, l: t("tt.num") }], st.testNum, () => setTestOpt("testNum", !st.testNum), "toggle") : null,
     plain && layoutInfo().lang === "en" ? seg([{ v: true, l: t("s.caps") }], st.testCaps, () => setTestOpt("testCaps", !st.testCaps), "toggle") : null,
     plain && layoutInfo().lang !== "en" ? seg([{ v: true, l: t("tt.dia") }], st.testDia, () => setTestOpt("testDia", !st.testDia), "toggle") : null,
-    labelled(seg(["normal", "expert", "master"].map(v => ({ v, l: t("tt.diff." + v) })), st.testDiff, v => setTestOpt("testDiff", v)), t("tt.diffLabel")),
-    labelled(seg(["off", "letter", "word"].map(v => ({ v, l: t("tt.stop." + v) })), st.testStop, v => setTestOpt("testStop", v)), t("tt.stopLabel"))
+    rulesMenu(st)
   );
   U.tbody = h("div", { class: "tbody" });
   U.thist = h("div", { class: "thist" });
@@ -91,7 +129,7 @@ function renderTestLive() {
     U.tlive = null;
     U.tinner = null;
     U.tword = [];
-    U.tbody.append(h("div", { class: "card tcard tempty" }, h("p", { class: "empty" }, t("tt.customEmpty")), h("div", { class: "acts" }, h("button", { type: "button", class: "btn go", onclick: () => go("free") }, t("tt.customGo")))));
+    U.tbody.append(h("div", { class: "card tcard tempty" }, h("p", { class: "empty" }, t("tt.customEmpty")), h("div", { class: "acts" }, h("button", { type: "button", class: "btn go", onclick: () => go("practice") }, t("tt.customGo")))));
     return;
   }
   U.tlive = h("div", { class: "tlive" });
@@ -101,7 +139,10 @@ function renderTestLive() {
   U.tbody.append(h("div", { class: "card tcard" }, U.tlive, stage));
   U.tword = [];
   for (let i = 0; i < T.words.length; i++) appendTestWord(i);
-  paintTestWord(0);
+  for (let i = 0; i <= T.wi && i < T.words.length; i++) paintTestWord(i);
+  U.ttyper._after = scrollTest;
+  scrollTest();
+  placeTestCaret();
   updateTestLive();
 }
 
@@ -150,6 +191,14 @@ function paintTestWord(i) {
   }
   o.sp.className = "c sp" + (cur && typed.length >= w.length ? " cur" : "");
   if (cur) placeCaret(U.tinner, typed != null && typed.length < w.length ? o.letters[typed.length] : o.sp, layoutInfo().lang === "ar");
+}
+
+function placeTestCaret() {
+  const T = S.test;
+  const o = T && U.tword[T.wi];
+  if (!o || T.done) return;
+  const w = T.words[T.wi];
+  placeCaret(U.tinner, T.typed.length < w.length ? o.letters[T.typed.length] : o.sp, layoutInfo().lang === "ar");
 }
 
 function scrollTest() {
@@ -209,6 +258,15 @@ function onTestKey(e) {
   if (!T) return;
   if (e.key === "Escape") {
     e.preventDefault();
+    if (U.rulesOpen) {
+      U.rulesOpen = false;
+      render();
+      return;
+    }
+    if (zenActive()) {
+      zenEsc();
+      return;
+    }
     const now = performance.now();
     if (T.running && !T.done && T.strokes > 0 && !(U.escAt && now - U.escAt < 2000)) {
       U.escAt = now;
@@ -230,7 +288,7 @@ function onTestKey(e) {
   if (e.key === "Backspace") {
     e.preventDefault();
     const before = T.wi;
-    testBackspace(e.ctrlKey || e.altKey);
+    testBackspace(wordDelete(e));
     if (before !== T.wi) paintTestWord(before);
     paintTestWord(T.wi);
     if (before !== T.wi) {
@@ -239,9 +297,10 @@ function onTestKey(e) {
     }
     return;
   }
-  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (isShortcut(e)) return;
   const out = produceChars(e);
   if (!out) return;
+  noteHardware();
   if (!S.focused) setFocused(true);
   if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
   e.preventDefault();
@@ -304,13 +363,15 @@ function renderTestResult() {
   if (!r) return;
   const acts = T.place
     ? h("div", { class: "acts" },
-      h("button", { type: "button", class: "btn go", onclick: () => go("practice") }, t("pl.go")),
+      h("button", { type: "button", class: "btn go", onclick: () => go("learn") }, t("pl.go")),
       h("span", { class: "msg" }, t("pl.keys") + ": ", bdi(nf(r.placed))))
     : h("div", { class: "acts" },
       h("button", { type: "button", class: "btn go", onclick: () => newTest(false) }, t("tr.next")),
       h("button", { type: "button", class: "btn", onclick: () => newTest(true) }, t("tr.repeat")),
+      missedWords(T).length ? h("button", { type: "button", class: "btn", id: "practisewords", onclick: () => { if (newWordsLesson(missedWords(T))) go("learn"); } }, t("tr.practise")) : null,
       r.custom ? h("span", { class: "msg" }, t("tr.customNote")) : r.fed ? h("span", { class: "msg" }, t("tr.fed")) : null);
   U.tbody.append(resultCard(r, layoutInfo().lang, acts, true));
+  if (sessionDue()) U.tbody.append(sessionCard(() => testNew(false)));
   renderTestHistory();
 }
 
@@ -361,4 +422,4 @@ function renderTestHistory() {
   if (card) box.append(card);
 }
 
-export { historyCard, langSeg, onTestKey, renderTest, resultCard, stopTick };
+export { historyCard, langSeg, onTestKey, renderTest, renderTestResult, resultCard, stopTick };

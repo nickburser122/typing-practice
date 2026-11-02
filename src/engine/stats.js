@@ -3,7 +3,7 @@ import { S, layoutInfo } from "../core/state.js";
 
 function layoutData(lid) {
   const L = S.data.layouts;
-  if (!L[lid]) L[lid] = bindK({ chars: {}, pairs: {}, tracks: newTracks(), rec: [], sh: { ok: 0, same: 0 }, lk: 0, tot: 0, rescue: 0, bk: null, raise: null, placed: false });
+  if (!L[lid]) L[lid] = bindK({ chars: {}, pairs: {}, tracks: newTracks(), rec: [], sh: { ok: 0, same: 0 }, lk: 0, tot: 0, raise: null, weak: [], placed: false });
   if (!L[lid].rec) L[lid].rec = [];
   return L[lid];
 }
@@ -31,8 +31,9 @@ function charStat(lid, ch, create) {
   return s;
 }
 
-function recentAccuracy(lid, n) {
-  const own = S.data.lessons.filter(l => l.lid === lid);
+function recentAccuracy(lid, n, tr) {
+  const track = tr || "letters";
+  const own = S.data.lessons.filter(l => l.lid === lid && (l.tr || "letters") === track);
   if (own.length < n) return null;
   return sum(own.slice(-n).map(l => l.acc)) / n;
 }
@@ -75,7 +76,13 @@ function slowestInto(lid, ch, min) {
   return out.slice(0, 3);
 }
 
+function stampPush(st, field, isTest) {
+  const arr = st[field] || (st[field] = []);
+  arr.push(Math.floor(Date.now() / 86400000) * 2 + (isTest ? 1 : 0));
+  if (arr.length > 40) arr.splice(0, arr.length - 40);
+}
+
 export {
   allCharsOfLayout, charStat, errRate, layoutData, legacyChars, median, mergedStat, recentAccuracy,
-  slowestInto, sum
+  slowestInto, stampPush, sum
 };

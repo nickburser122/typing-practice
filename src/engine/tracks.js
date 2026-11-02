@@ -1,9 +1,11 @@
 import { rnd } from "../core/base.js";
+import { REVIEW_RATE } from "../core/settings.js";
 import { S, emitLessonBuilt, layoutInfo } from "../core/state.js";
 import { scheduleSave } from "../core/storage.js";
+import { fatigueHolding, gateUnlock, resetSitting } from "./fatigue.js";
 import { carrierCtx, carrierWord, classKeys, punctPatterns, symbolPatterns } from "./mix.js";
 import { activeKeys, currentK, currentOrder, setK } from "./order.js";
-import { RECENT_LESSONS, gateMs, lessonAccuracyOk, needOf, skillOf, statusOf } from "./skill.js";
+import { RECENT_LESSONS, gateOf, lessonAccuracyOk, needOf, skillOf, statusOf } from "./skill.js";
 import { charStat, layoutData, recentAccuracy } from "./stats.js";
 import { buildWords, pickW, rand } from "./words.js";
 
@@ -42,8 +44,9 @@ function setTrackK(tr, k) {
   scheduleSave();
 }
 
-const TRACK_PATIENCE = 30;
-const STALL_LESSONS = 30;
+function stallAt() {
+  return S.data.early ? 15 : 30;
+}
 
 function advanceTrack(tr) {
   const lid = S.settings.layout;
@@ -55,29 +58,31 @@ function advanceTrack(tr) {
   const slot = L.tracks[tr];
   slot.lk = (slot.lk || 0) + 1;
   const settled = trackActive(tr).every(c => statusOf(charStat(lid, c, false), c) === "steady");
-  const ready = settled && (S.settings.unlock !== "strict" || lessonAccuracyOk(lid));
-  if (ready || (S.settings.unlock === "assist" && slot.lk >= TRACK_PATIENCE)) {
+  const ready = settled && lessonAccuracyOk(lid, tr);
+  if (gateUnlock(lid, tr, ready)) {
     setTrackK(tr, k + 1);
     slot.lk = 0;
+    resetSitting(lid, tr);
   }
 }
 
 function stallInfo() {
   const P = S.settings;
-  if (P.progression !== "auto" || P.unlock !== "strict") return null;
+  if (P.progression !== "auto") return null;
   const tr = learnTrack();
   const lid = P.layout;
   const L = layoutData(lid);
   const complete = tr === "letters" ? currentK() >= currentOrder().length : trackK(tr) >= trackKeys(tr).length;
   if (complete) return null;
+  if (fatigueHolding(lid, tr)) return { track: tr, kind: "fatigue", lessons: tr === "letters" ? L.lk || 0 : L.tracks[tr].lk || 0 };
   const spent = tr === "letters" ? L.lk || 0 : L.tracks[tr].lk || 0;
-  if (spent < STALL_LESSONS) return null;
+  if (spent < stallAt()) return null;
   const keys = trackActive(tr);
   let worst = null;
   let top = -1;
   keys.forEach(c => {
     const s = charStat(lid, c, false);
-    if (statusOf(s, c) !== "learning") return;
+    if (statusOf(s, c) === "steady") return;
     const v = needOf(s, c);
     if (v > top) {
       top = v;
@@ -85,12 +90,14 @@ function stallInfo() {
     }
   });
   if (worst === null) {
-    const recent = recentAccuracy(lid, RECENT_LESSONS);
+    const recent = recentAccuracy(lid, RECENT_LESSONS, tr);
     if (recent === null || recent >= S.derived.targetAcc) return null;
     return { track: tr, kind: "lessons", n: keys.length, acc: recent, target: S.derived.targetAcc, lessons: spent };
   }
-  const sk = skillOf(lid, worst, charStat(lid, worst, false));
-  const gate = gateMs();
+  const ws = charStat(lid, worst, false);
+  if (statusOf(ws, worst) === "sparse") return { track: tr, kind: "few", c: worst, n: keys.length, have: ws ? ws.n : 0, need: S.derived.minS, lessons: spent };
+  const sk = skillOf(lid, worst, ws);
+  const gate = gateOf(worst);
   const slow = sk.upper > gate;
   return { track: tr, kind: slow ? "speed" : "key", c: worst, n: keys.length, ms: Math.round(sk.ms), gate: Math.round(gate), acc: sk.acc, target: S.derived.targetAcc, lessons: spent };
 }
@@ -110,6 +117,26 @@ function pickNeed(keys) {
   return pickW(keys, keys.map(c => Math.max(0.2, needOf(charStat(lid, c, false), c))));
 }
 
+function trackFocus(keys) {
+  const lid = S.settings.layout;
+  let best = null;
+  let bv = -1;
+  keys.forEach(c => {
+    const s = charStat(lid, c, false);
+    if (statusOf(s, c) === "steady") return;
+    const v = needOf(s, c) + rnd() * 0.001;
+    if (v > bv) {
+      bv = v;
+      best = c;
+    }
+  });
+  return best;
+}
+
+function wantKey(keys, focus) {
+  return focus && rnd() < 0.6 ? focus : pickNeed(keys);
+}
+
 function validTrackToken(tok, set) {
   let has = false;
   for (const c of tok) {
@@ -124,7 +151,8 @@ function buildTrackWords(tr) {
   const N = S.settings.lessonWords;
   const keys = trackActive(tr);
   const words = [];
-  const out = () => ({ words, focus: null, focusPair: null });
+  const focus = trackFocus(keys);
+  const out = () => ({ words, focus, focusPair: null });
   if (tr === "digits" || tr === "numpad") {
     const digs = keys.filter(c => /[0-9]/.test(c));
     const seps = keys.filter(c => !/[0-9]/.test(c));
@@ -136,6 +164,16 @@ function buildTrackWords(tr) {
       if (seps.length && len >= 3 && rand(3) === 0) {
         const p = 1 + rand(len - 1);
         s = s.slice(0, p) + seps[rand(seps.length)] + s.slice(p);
+      }
+      if (focus && s.indexOf(focus) < 0 && rnd() < 0.6) {
+        if (/[0-9]/.test(focus)) {
+          const p = rand(s.length);
+          if (/[0-9]/.test(s[p])) s = s.slice(0, p) + focus + s.slice(p + 1);
+          else s += focus;
+        } else if (s.length >= 3) {
+          const p = 1 + rand(s.length - 1);
+          s = s.slice(0, p) + focus + s.slice(p);
+        }
       }
       words.push(s);
     }
@@ -149,7 +187,7 @@ function buildTrackWords(tr) {
         words.push(base[rand(base.length)]);
         continue;
       }
-      const c = pickNeed(keys);
+      const c = wantKey(keys, focus);
       const low = c.toLowerCase();
       const cand = base.filter(w => w[0] === low);
       let tail;
@@ -171,11 +209,16 @@ function buildTrackWords(tr) {
       words.push(carrierWord(cc));
       continue;
     }
-    const want = pickNeed(keys);
+    const want = wantKey(keys, focus);
     let tok = null;
     for (let tries = 0; tries < 10 && !tok; tries++) {
       const cand = tr === "dia" ? carrierWord(cc) + keys[rand(keys.length)] : pats[rand(pats.length)](carrierWord(cc), carrierWord(cc));
-      if (validTrackToken(cand, set) && (cand.indexOf(want) >= 0 || tries > 5)) tok = cand;
+      if (validTrackToken(cand, set) && cand.indexOf(want) >= 0) tok = cand;
+    }
+    if (!tok) {
+      const a = carrierWord(cc);
+      const r = rand(3);
+      tok = r === 0 ? a + want : r === 1 ? want + a : a + want + carrierWord(cc);
     }
     words.push(tok || carrierWord(cc) + keys[0]);
   }
@@ -222,18 +265,13 @@ function reviewToken(item, words) {
 
 function reviewBlend(words, tr) {
   const st = S.settings;
-  if (!st.reviewRate || st.caps || st.digits || st.punct || st.dia) return words;
+  if (st.caps || st.digits || st.punct || st.dia) return words;
   const items = reviewItems(tr);
   if (!items.length) return words;
-  return words.map(w => (rnd() < st.reviewRate / 100 ? reviewToken(items[rand(items.length)], words) || w : w));
+  return words.map(w => (rnd() < REVIEW_RATE / 100 ? reviewToken(items[rand(items.length)], words) || w : w));
 }
 
-function newLesson() {
-  emitLessonBuilt();
-  const tr = learnTrack();
-  const b = tr === "letters" ? buildWords() : buildTrackWords(tr);
-  const text = reviewBlend(b.words, tr).join(" ");
-  const chars = text.split("");
+function makeLesson(chars, b, tr) {
   S.lesson = {
     chars,
     idx: 0,
@@ -250,6 +288,59 @@ function newLesson() {
   };
 }
 
+function newLesson() {
+  emitLessonBuilt();
+  const tr = learnTrack();
+  const b = tr === "letters" ? buildWords() : buildTrackWords(tr);
+  const text = reviewBlend(b.words, tr).join(" ");
+  makeLesson(text.split(""), b, tr);
+}
+
+function newWordsLesson(list) {
+  const clean = Array.from(new Set(list.filter(w => typeof w === "string" && w.length > 0 && w.length <= 24)));
+  if (!clean.length) return false;
+  emitLessonBuilt();
+  const N = S.settings.lessonWords;
+  const words = [];
+  while (words.length < N) {
+    const round = clean.slice();
+    for (let i = round.length - 1; i > 0; i--) {
+      const j = rand(i + 1);
+      const tmp = round[i];
+      round[i] = round[j];
+      round[j] = tmp;
+    }
+    round.forEach(w => {
+      if (words.length < N) words.push(w);
+    });
+  }
+  makeLesson(words.join(" ").split(""), { focus: null, focusPair: null }, "letters");
+  return true;
+}
+
+function unlockAnyway() {
+  const info = stallInfo();
+  if (!info || info.kind === "fatigue") return false;
+  const tr = info.track;
+  const lid = S.settings.layout;
+  const L = layoutData(lid);
+  if (tr === "letters") {
+    const k = currentK();
+    if (k >= currentOrder().length) return false;
+    setK(k + 1);
+    L.lk = 0;
+  } else {
+    const k = trackK(tr);
+    if (k >= trackKeys(tr).length) return false;
+    setTrackK(tr, k + 1);
+    L.tracks[tr].lk = 0;
+  }
+  if (info.c) L.raise = { c: info.c, until: (L.tot || 0) + 30 };
+  resetSitting(lid, tr);
+  scheduleSave();
+  return true;
+}
+
 export {
-  advanceTrack, learnTrack, newLesson, setTrackK, stallInfo, trackActive, trackK, trackKeys, trackList
+  advanceTrack, learnTrack, newLesson, newWordsLesson, setTrackK, stallInfo, trackActive, trackK, trackKeys, trackList, unlockAnyway
 };

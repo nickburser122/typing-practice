@@ -24,7 +24,7 @@ export function fresh(layout, extra) {
   S.testOv = null;
   S.test = null;
   S.lesson = null;
-  S.view = "practice";
+  S.view = "learn";
   refreshDerived();
 }
 

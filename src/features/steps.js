@@ -5,6 +5,7 @@ import { currentK } from "../engine/order.js";
 import { layoutData } from "../engine/stats.js";
 import { newLesson } from "../engine/tracks.js";
 import { fingerOf } from "../input/keys.js";
+import { isShortcut } from "../input/modifiers.js";
 import { U, go, h, render, startPlacement } from "../ui/dom.js";
 import { hwNote } from "../ui/practice.js";
 import { confirmBtn, rowLabel, setSetting, syncRows } from "../ui/settings.js";
@@ -114,11 +115,11 @@ function finishSteps(state) {
   S.steps = null;
   scheduleSave();
   newLesson();
-  go("practice");
+  go("learn");
 }
 
 function stepsOnKey(e) {
-  if (e.ctrlKey || e.metaKey || e.altKey || e.key === "Tab") return;
+  if (isShortcut(e) || e.key === "Tab") return;
   const tg = e.target;
   if (tg && (tg.tagName === "INPUT" || tg.tagName === "SELECT")) return;
   if ((e.key === " " || e.key === "Enter") && tg && tg.tagName === "BUTTON" && U.tabbed) return;
@@ -194,13 +195,11 @@ function beginAgain() {
   L.k = Math.max(2, S.settings.startKeys);
   L.lk = 0;
   L.tot = 0;
-  L.rescue = 0;
-  L.bk = null;
   L.raise = null;
   L.placed = true;
   scheduleSave();
   newLesson();
-  go("practice");
+  go("learn");
 }
 
 function extrasRow() {

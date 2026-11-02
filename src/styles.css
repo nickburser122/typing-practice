@@ -347,7 +347,7 @@ main { padding-top: 20px; }
 
 .chip.s { background: var(--raised); border-color: transparent; color: var(--ink-2); }
 .chip.n { border-style: dashed; }
-.chip.f { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.chip.f { background: var(--raised); border-color: var(--ink-2); color: var(--ink); box-shadow: inset 0 -3px 0 var(--ink); }
 
 .step {
   appearance: none;
@@ -412,6 +412,15 @@ main { padding-top: 20px; }
 }
 
 .stage[data-focus="0"] .caret { opacity: 0; }
+
+:root[data-caret="block"] .caret { border-radius: 4px; background: color-mix(in srgb, var(--accent) 34%, transparent); }
+:root[data-caret="underline"] .caret { border-radius: 1px; }
+:root[data-smooth="0"] .caret { transition: opacity var(--ease); }
+
+:root[data-tw="narrow"] .typer, :root[data-tw="narrow"] .ttyper { max-width: 30ch; margin-inline: auto; }
+:root[data-tw="wide"] .shell { max-width: 1120px; }
+
+:root[data-he="1"] .c.x, :root[data-he="1"] .c.ex, :root[data-he="1"] .c.m, :root[data-he="1"] .c.cur.err { text-decoration: none; }
 
 .fh {
   position: absolute;
@@ -924,3 +933,25 @@ details[open]:not(.adv) > summary::before { transform: rotate(45deg); }
 .pgtable .tablewrap { max-height: 420px; overflow-y: auto; }
 .pb.fail { color: var(--accent); font-weight: 500; }
 .tempty { display: grid; gap: 12px; justify-items: start; }
+
+.sessum { display: grid; gap: 10px; max-width: 360px; margin: 24px auto; padding: 22px; border: 1px solid var(--line); border-radius: var(--r); }
+.sessum h2 { margin: 0 0 6px; font-size: 18px; }
+.ssrow { display: flex; justify-content: space-between; gap: 16px; }
+.ssk { color: var(--mute); }
+.ssv { font-variant-numeric: tabular-nums; }
+.sessum .btn { justify-self: start; margin-top: 8px; }
+
+:root[data-zen="1"] header.top { display: none; }
+:root[data-zen="1"] main > :not(.pcard):not(.tbody) { display: none; }
+:root[data-zen="1"] .pcard .strip, :root[data-zen="1"] .pcard .why, :root[data-zen="1"] .pcard .meta { display: none; }
+:root[data-zen="1"] .tbody .hist { display: none; }
+:root[data-zen="1"] .tlive { opacity: 0.45; }
+:root[data-zen="1"] .card { border-color: transparent; box-shadow: none; background: transparent; }
+:root[data-zen="1"] main { display: grid; align-content: center; min-height: 80vh; }
+.sessum { animation: fadein 0.6s ease both; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+.rulesw { position: relative; display: inline-block; }
+.rules { position: absolute; top: calc(100% + 6px); inset-inline-start: 0; z-index: 30; display: grid; gap: 12px; min-width: 280px; padding: 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); }
+.rrow { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.rl { color: var(--mute); font-size: 13px; }

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { check } from "./tools/check-boundaries.mjs";
+import { markPng } from "./tools/mark-png.mjs";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const src = path.join(root, "src");
@@ -41,7 +42,11 @@ export async function bundle({ entry, plugins = [], stripCsp = false }) {
   if (!entry.includes("dev") && !path.isAbsolute(entry)) checkSource(js, css);
   let page = fs.readFileSync(path.join(src, "index.template.html"), "utf8");
   if (stripCsp) page = page.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\n?/, "");
-  return page.replace("{{css}}", () => css.trimEnd()).replace("{{js}}", () => js.trimEnd());
+  return page
+    .replace("{{icon32}}", () => markPng(32).toString("base64"))
+    .replace("{{icon180}}", () => markPng(180).toString("base64"))
+    .replace("{{css}}", () => css.trimEnd())
+    .replace("{{js}}", () => js.trimEnd());
 }
 
 async function main() {

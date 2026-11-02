@@ -7,11 +7,13 @@ import { charStat, layoutData } from "../engine/stats.js";
 import { codeMode, freeHooks } from "../features/free.js";
 import { U, h } from "../ui/dom.js";
 import { hooks } from "../ui/practice.js";
+import { altGraph } from "./modifiers.js";
 
 function produceChars(e) {
   U.shiftNote = null;
   if (e.code === "Space" || e.key === " ") return " ";
-  const trk = S.view === "practice" && S.lesson && !S.lesson.code ? S.lesson.track : null;
+  if (altGraph(e) && S.settings.inputMode !== "system") return "";
+  const trk = S.view === "learn" && S.lesson && !S.lesson.code ? S.lesson.track : null;
   if (trk === "digits" || trk === "numpad") {
     const pad = !!(e.code && e.code.indexOf("Numpad") === 0);
     const row = !!(e.code && (/^Digit[0-9]$/.test(e.code) || (trk === "numpad" && e.code === "Period")));
@@ -101,7 +103,7 @@ function backspaceLesson() {
   if (S.settings.backspace === "off" || codeMode() || !l || l.done || l.idx === 0 || l.mark[l.idx - 1] !== 2) return;
   l.idx--;
   l.mark[l.idx] = 0;
-  (S.view === "free" ? freeHooks : hooks).painted(l.idx, l.idx + 1);
+  (S.view === "practice" ? freeHooks : hooks).painted(l.idx, l.idx + 1);
 }
 
 let FINGER_OF = null;

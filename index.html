@@ -4,8 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
-<title>Tarq</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cstyle%3E.a%7Bfill:%23B0452B%7D.b%7Bfill:%23fff%7D@media(prefers-color-scheme:dark)%7B.a%7Bfill:%23E0795A%7D.b%7Bfill:%2317120F%7D%7D%3C/style%3E%3Crect class=%27a%27 x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2714%27/%3E%3Crect class=%27b%27 x=%2722%27 y=%2743%27 width=%2720%27 height=%274.5%27 rx=%272.25%27/%3E%3C/svg%3E">
+<title>Tarq · typing trainer</title>
+<meta name="description" content="A quiet typing trainer for English and Arabic that works offline in one file.">
+<meta name="theme-color" content="#B0452B" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#E0795A" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cstyle%3E.a%7Bfill:%23B0452B%7D.b%7Bfill:%23fff%7D@media(prefers-color-scheme:dark)%7B.a%7Bfill:%23E0795A%7D.b%7Bfill:%2317120F%7D%7D%3C/style%3E%3Crect class=%27a%27 x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2714%27/%3E%3Crect class=%27b%27 x=%2720%27 y=%2741%27 width=%2724%27 height=%277%27 rx=%273.5%27/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAArElEQVR42mNgGKxgg6u2wQZX7YINrtoNFGKQGQakWOywwVX7/gZX7f9UxiAzHQhZnkADi9FxAj6f/6cTdsDmgPt0dMB9bAnuP52xAbIDCgbAAQXIDmgYAAc0jDpg1AGjDhh1wKgDhpYDtgZa/L+xaCpRGKSW6g74cOf6f2IBSC3VHUAqoLoDznVXE205SC2pDhjwBsnANskGvFE6KJrlA94xGRRds0HROaU3AAA7tyUSuaVAeQAAAABJRU5ErkJggg==">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAEUklEQVR42u3csaoTQRSH8X2EvEeaLS3TxDpia5HSRkhhZ2FKwVrbBR/AbGOhIDZaaCGIjYVwsVAEiwuKjU1kvCMGSe5VspvNzPz+8D3AzHz3cPbM5FaViIiIiIiIiIiIiIhU7XQ8iSxxUH7tOwP3k7dup+NFOx2v2un4pJ2O1zgKTuKZhLOpmXpxBW4InJzgjQr+R+JR/GsncR5yh7MclSpy6M9OiZAdp/FsR0QGsROSeaa1KLYVmeVWlRsHWzxN8tU6jt9UZWxW6zpVmed6ZezoreepybxwcLiARSoy65fxz301mUFqbQa0H///AehgsA/zY5G5Ns1AR9OPemiZR+bM6HhOPfIRCB+JHb3NcADog5lWA1qPPYRe2nT0zPKQ1dlUA4eYeoxUZ6jSqjOKrNKut5HVtbjJBoaYePT5fzNsMIZg4lYQbg+1Gyii7Ygv6mwshqQ23YBpxw6hVzYUA7PSP0MfvUNoG4rBMX+GeTShkbvQXtchn9d3hAahAUIDhAahCQ1C20wQGiA0QGgQmtAgNEBogNAAoUFoQoPQAKEBQgOEBqEJDUIDhAYIDRAahCY0CA0QGiA0CE1oEJrQIDRAaIDQIDShQWhCg9AAoQFCg9CEBqEJDUIDhAYIDUITGoQGCA0QGiA0CE1oEBogNEBogNAgNKFBaIDQAKEBQoPQhAahAUIDhAYIDUITGoQGCA0QGoQmNAhNaBAaIPQwPLpyaf3y9o31uwf31l/evMqCsJawprA2QhcidDjscPA/vn1d55qwtrDGDMUm9CbPrl9df//8cV1KwlrDmgmdodDhYHOuyudV64ykJvTvNqOkyrytUmfSfhA68P7hg3XpCXtA6AyEDpVJzpJBlSb067u3mBwT9oLQiQv94XHL5JiwF4ROXOhw4SBnCXtBaEITmtDHw6cXT5kcE/aC0IkL/fb+HSbHhL0gdOJCP7l2mckxYS8IncHFij46i/6Z0JvvOEpPJu85CO2CJYsLFUKTOjuZCb2N5zfnRby8C2sMa/XAv5CfYIWfKoWr4JzkDmsJawpr8xMsP5JFIUJPbCSOhAmhQegtUttMDE7VVdrp+MSGYmBOuhR6ZUMxMKsuhV7YUAzMokuhaxuKgamrLqOPRhb984bQjY3FQDR9CG0ejbTnz9oOZNlumHYgi+nGFqFH7XR8apNxIIJro6rPeH2HpF7XqdIopjqr0siqOv9VpU080Ntk42DVeUPqmY1HT8yqIeL2EEncCmo9UEyrseMlnqkHuphq1NUxpJ2O5w4EezKvjimuxXGU19s+ElHMRyCpUZTM2g8k32Zc8KFo+oFt04x5lWLiSM+cGptz5rpKOfHyRV+NZvBLkx7efqjWZVblWZVjYrVe6q2L6ZWXWVVlYhO5qESxF1qRbFqLRZEin/N/PxpyJydx09v/zchI7jr+ta8IfnQCr+LZ1Ezdv4JPYn+GwzFRgUVEREREREREREREzvITL4S0ZrYhN2QAAAAASUVORK5CYII=">
 <style>
 /* src/fonts.css */
 @font-face {
@@ -771,9 +776,10 @@ main {
   border-style: dashed;
 }
 .chip.f {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
+  background: var(--raised);
+  border-color: var(--ink-2);
+  color: var(--ink);
+  box-shadow: inset 0 -3px 0 var(--ink);
 }
 .step {
   appearance: none;
@@ -879,6 +885,30 @@ main {
 }
 .stage[data-focus="0"] .caret {
   opacity: 0;
+}
+:root[data-caret=block] .caret {
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 34%, transparent);
+}
+:root[data-caret=underline] .caret {
+  border-radius: 1px;
+}
+:root[data-smooth="0"] .caret {
+  transition: opacity var(--ease);
+}
+:root[data-tw=narrow] .typer,
+:root[data-tw=narrow] .ttyper {
+  max-width: 30ch;
+  margin-inline: auto;
+}
+:root[data-tw=wide] .shell {
+  max-width: 1120px;
+}
+:root[data-he="1"] .c.x,
+:root[data-he="1"] .c.ex,
+:root[data-he="1"] .c.m,
+:root[data-he="1"] .c.cur.err {
+  text-decoration: none;
 }
 .fh {
   position: absolute;
@@ -2411,6 +2441,100 @@ details[open]:not(.adv) > summary::before {
   gap: 12px;
   justify-items: start;
 }
+.sessum {
+  display: grid;
+  gap: 10px;
+  max-width: 360px;
+  margin: 24px auto;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+.sessum h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+.ssrow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ssk {
+  color: var(--mute);
+}
+.ssv {
+  font-variant-numeric: tabular-nums;
+}
+.sessum .btn {
+  justify-self: start;
+  margin-top: 8px;
+}
+:root[data-zen="1"] header.top {
+  display: none;
+}
+:root[data-zen="1"] main > :not(.pcard):not(.tbody) {
+  display: none;
+}
+:root[data-zen="1"] .pcard .strip,
+:root[data-zen="1"] .pcard .why,
+:root[data-zen="1"] .pcard .meta {
+  display: none;
+}
+:root[data-zen="1"] .tbody .hist {
+  display: none;
+}
+:root[data-zen="1"] .tlive {
+  opacity: 0.45;
+}
+:root[data-zen="1"] .card {
+  border-color: transparent;
+  box-shadow: none;
+  background: transparent;
+}
+:root[data-zen="1"] main {
+  display: grid;
+  align-content: center;
+  min-height: 80vh;
+}
+.sessum {
+  animation: fadein 0.6s ease both;
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.rulesw {
+  position: relative;
+  display: inline-block;
+}
+.rules {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-start: 0;
+  z-index: 30;
+  display: grid;
+  gap: 12px;
+  min-width: 280px;
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+}
+.rrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.rl {
+  color: var(--mute);
+  font-size: 13px;
+}
 </style>
 </head>
 <body>
@@ -2419,7 +2543,7 @@ details[open]:not(.adv) > summary::before {
 "use strict";
 (() => {
   // src/core/base.js
-  var VERSION = 4;
+  var VERSION = 5;
   var SHARP = 2;
   var rngState = 1;
   function seedRng(n) {
@@ -2818,32 +2942,27 @@ details[open]:not(.adv) > summary::before {
     { id: "inputMode", sec: "practice", type: "seg", def: "layout", opts: ["layout", "system"], help: true },
     { id: "order", help: true, sec: "practice", type: "seg", def: "smart", opts: ["smart", "position", "frequency"] },
     { id: "progression", sec: "practice", type: "seg", def: "auto", opts: ["auto", "manual"], help: true },
-    { id: "unlock", sec: "practice", type: "seg", def: "strict", opts: ["strict", "assist"], help: true, when: (s) => s.progression === "auto" },
     { id: "startKeys", sec: "practice", type: "range", def: 4, min: 2, max: 12, step: 1, help: true },
-    { id: "reviewRate", sec: "practice", type: "range", def: 10, min: 0, max: 30, step: 5, help: true },
     { id: "digitSource", sec: "practice", type: "seg", def: "either", opts: ["row", "numpad", "either"], help: true },
     { id: "targetWpm", help: true, sec: "practice", type: "range", def: 30, min: 8, max: 150, step: 1 },
     { id: "targetAcc", help: true, sec: "practice", type: "range", def: 95, min: 80, max: 100, step: 1 },
-    { id: "minSamples", sec: "practice", type: "range", def: 20, min: 10, max: 40, step: 1, help: true },
-    { id: "focus", sec: "practice", type: "range", def: 60, min: 0, max: 100, step: 5, help: true },
-    { id: "algo", sec: "practice", type: "seg", def: "impact", opts: ["impact", "classic"], help: true },
+    { id: "focusLevel", help: true, sec: "practice", type: "seg", def: "normal", opts: ["gentle", "normal", "sharp"] },
+    { id: "wordLen", help: true, sec: "text", type: "seg", def: "mixed", opts: ["short", "mixed", "long"] },
+    { id: "hideErrors", help: true, sec: "practice", type: "switch", def: false },
+    { id: "sessionLen", help: true, sec: "practice", type: "seg", def: 0, opts: [0, 10, 15, 20, 30] },
     { id: "onError", help: true, sec: "practice", type: "seg", def: "stop", opts: ["stop", "advance"] },
     { id: "shiftPolicy", help: true, sec: "rules", type: "seg", def: "off", opts: ["off", "hint", "strict"] },
     { id: "capsPolicy", help: true, sec: "rules", type: "seg", def: "allow", opts: ["allow", "strict"] },
     { id: "backspace", help: true, sec: "rules", type: "seg", def: "allow", opts: ["allow", "off"] },
     { id: "kbFade", help: true, sec: "rules", type: "switch", def: false },
     { id: "fingerZones", help: true, sec: "rules", type: "switch", def: false },
-    { id: "pause", help: true, sec: "practice", type: "range", def: 2e3, min: 500, max: 5e3, step: 100 },
     { id: "text", help: true, sec: "text", type: "seg", def: "auto", opts: ["auto", "real", "generated"] },
     { id: "wordLevel", help: true, sec: "text", type: "seg", def: "balanced", opts: ["common", "balanced", "wide"] },
     { id: "lessonWords", help: true, sec: "text", type: "range", def: 20, min: 8, max: 60, step: 1 },
-    { id: "wordMin", help: true, sec: "text", type: "range", def: 3, min: 2, max: 8, step: 1 },
-    { id: "wordMax", help: true, sec: "text", type: "range", def: 7, min: 3, max: 12, step: 1 },
     { id: "caps", help: true, sec: "text", type: "switch", def: false, when: (s) => LAYOUTS[s.layout].lang === "en" },
     { id: "digits", help: true, sec: "text", type: "switch", def: false },
     { id: "punct", help: true, sec: "text", type: "switch", def: false },
     { id: "dia", help: true, sec: "text", type: "switch", def: false, when: (s) => LAYOUTS[s.layout].lang === "ar" },
-    { id: "extraRate", help: true, sec: "text", type: "range", def: 15, min: 5, max: 40, step: 5, when: (s) => s.caps || s.digits || s.punct || s.dia },
     { id: "testFeed", help: true, sec: "test", type: "switch", def: true },
     { id: "confident", help: true, sec: "test", type: "switch", def: false },
     { id: "testMode", sec: "test", type: "seg", def: "time", opts: ["time", "words", "quote", "custom"], hidden: true },
@@ -2866,14 +2985,23 @@ details[open]:not(.adv) > summary::before {
     { id: "theme", sec: "display", type: "seg", def: "system", opts: ["system", "light", "dark"] },
     { id: "font", help: true, sec: "display", type: "select", def: "sans", opts: ["sans", "mono", "naskh", "vazir", "system"] },
     { id: "fontSize", help: true, sec: "display", type: "range", def: 36, min: 20, max: 64, step: 2 },
-    { id: "lineHeight", help: true, sec: "display", type: "range", def: 1.9, min: 1.3, max: 2.6, step: 0.1 },
+    { id: "caretStyle", help: true, sec: "display", type: "seg", def: "line", opts: ["line", "block", "underline"] },
+    { id: "caretSmooth", help: true, sec: "display", type: "switch", def: true },
+    { id: "textWidth", help: true, sec: "display", type: "seg", def: "normal", opts: ["narrow", "normal", "wide"] },
+    { id: "zen", help: true, sec: "display", type: "switch", def: false },
     { id: "keyboard", help: true, sec: "display", type: "switch", def: true },
-    { id: "strip", help: true, sec: "display", type: "switch", def: true },
-    { id: "result", help: true, sec: "display", type: "switch", def: true },
     { id: "liveWpm", help: true, sec: "display", type: "switch", def: false },
     { id: "liveAcc", help: true, sec: "display", type: "switch", def: false },
     { id: "numerals", help: true, sec: "display", type: "seg", def: "latin", opts: ["latin", "arabic"] }
   ];
+  var MIN_SAMPLES = 20;
+  var REVIEW_RATE = 10;
+  var EXTRA_RATE = 15;
+  var FOCUS_S = { gentle: 0.3, normal: 0.6, sharp: 0.9 };
+  var WORD_LEN = { short: [2, 5], mixed: [3, 7], long: [5, 10] };
+  function lineHeightFor(lang) {
+    return lang === "ar" ? 2.3 : 1.9;
+  }
   var PREVIEW = { en: "The quick brown fox jumps over 12 lazy dogs.", ar: "نصٌّ قصير لتجربة الخط والحجم والمسافة بين الأسطر 12" };
   var SCHEMA_BY_ID = {};
   SCHEMA.forEach((r) => {
@@ -2886,7 +3014,6 @@ details[open]:not(.adv) > summary::before {
     });
     s.mix = null;
     s.learnTracks = { active: "letters" };
-    s.carrier = "steady";
     s.presets = [];
     return s;
   }
@@ -2912,12 +3039,15 @@ details[open]:not(.adv) > summary::before {
       }
     });
     out.lang = LAYOUTS[out.layout].lang;
-    if (out.wordMax < out.wordMin) out.wordMax = out.wordMin;
+    if (input.focusLevel === void 0 && typeof input.focus === "number" && isFinite(input.focus)) out.focusLevel = input.focus <= 40 ? "gentle" : input.focus <= 75 ? "normal" : "sharp";
+    if (input.wordLen === void 0 && typeof input.wordMax === "number" && isFinite(input.wordMax)) {
+      const lo = typeof input.wordMin === "number" && isFinite(input.wordMin) ? input.wordMin : 3;
+      out.wordLen = input.wordMax <= 5 ? "short" : lo >= 5 ? "long" : "mixed";
+    }
     out.mix = sanitizeMix(input.mix);
     const lt = input.learnTracks;
     out.learnTracks = { active: lt && TRACK_KEYS.indexOf(lt.active) >= 0 ? lt.active : "letters" };
     out.shiftPolicy = ["off", "hint", "strict"].indexOf(input.shiftPolicy) >= 0 ? input.shiftPolicy : input.strictShift === true ? "strict" : "off";
-    out.carrier = input.carrier === "active" ? "active" : "steady";
     out.presets = [];
     if (Array.isArray(input.presets)) {
       input.presets.slice(0, 6).forEach((p) => {
@@ -2931,10 +3061,10 @@ details[open]:not(.adv) > summary::before {
 
   // src/i18n/strings.js
   var T = {
-    "nav.practice": ["Learn", "تعلّم"],
+    "nav.learn": ["Learn", "تعلّم"],
     "nav.keys": ["Keys", "المفاتيح"],
     "nav.test": ["Test", "اختبار"],
-    "nav.free": ["Practice", "تمرين"],
+    "nav.practice": ["Practice", "تمرين"],
     "fp.chips": ["Practice content", "محتوى التمرين"],
     "fp.c.letters": ["Letters", "حروف"],
     "fp.c.capitals": ["Capitals", "كبيرة"],
@@ -2989,6 +3119,15 @@ details[open]:not(.adv) > summary::before {
     "tr.pbNew": ["New best", "أفضل جديد"],
     "tr.slow": ["Slowest keys", "أبطأ المفاتيح"],
     "tr.miss": ["Most missed", "الأكثر خطأً"],
+    "ss.title": ["Session finished", "انتهت الجلسة"],
+    "ss.time": ["Time", "المدة"],
+    "ss.min": ["min", "د"],
+    "ss.chars": ["Characters", "الأحرف"],
+    "ss.speed": ["Speed", "السرعة"],
+    "ss.wpm": ["wpm", "كلمة/د"],
+    "ss.acc": ["Accuracy", "الدقة"],
+    "ss.again": ["New session", "جلسة جديدة"],
+    "tr.practise": ["Practise these words", "تمرّن على هذه الكلمات"],
     "tr.next": ["New test", "اختبار جديد"],
     "tr.repeat": ["Same words", "الكلمات نفسها"],
     "tr.hist": ["Recent tests", "اختبارات حديثة"],
@@ -2996,6 +3135,8 @@ details[open]:not(.adv) > summary::before {
     "tr.chart": ["Speed per second", "السرعة في كل ثانية"],
     "tr.noKeys": ["Not enough keystrokes to rank keys.", "لا توجد ضغطات كافية لترتيب المفاتيح."],
     "tr.fed": ["Counted in your key statistics", "محسوبة في إحصاءات مفاتيحك"],
+    "tool.zen": ["Zen mode", "وضع التركيز"],
+    "zen.escAsk": ["Esc again to leave Zen", "اضغط Esc مرة أخرى للخروج من وضع التركيز"],
     "tool.theme": ["Theme", "السمة"],
     "tool.lang": ["Interface language", "لغة الواجهة"],
     "brand": ["tarq", "طرق"],
@@ -3054,7 +3195,6 @@ details[open]:not(.adv) > summary::before {
       "Speed is the median time from the previous key to this one over the last 40 samples. Accuracy counts first-try presses over the last 40 attempts. A key is measured only after the minimum number of samples; until then it shows as New. The keyboard views shade a key by how much practice it still needs, which combines speed, accuracy and time since it was last seen. Gaps above the pause limit and the first key of a lesson are ignored. Pair speed is a running average. Expected speed comes from the finger and row a key uses. Your correction moves that estimate toward your own timings, and the weight of your timings grows with the number of samples. Each Learn track has its own key order and its own count of unlocked keys. A track unlocks its next key when every key it uses is settled, with the same speed and accuracy gate as letters. Practice and Test add to key statistics and never unlock keys. Keys typed in code are recorded in a separate code bucket, so slower code typing never changes when a letter counts as settled, and the key views show both together. With a Shift rule on, each shifted character is judged by the Shift key on the hand opposite its own key: Hint only records which side you used, and Strict also counts the same hand as a miss on that character. Caps Lock can be counted the same way. First steps and its reaches are untimed and write no key statistics.",
       "السرعة هي وسيط الزمن بين المفتاح السابق وهذا المفتاح خلال آخر 40 عينة. الدقة تحسب الضغطات الصحيحة من المحاولة الأولى في آخر 40 محاولة. لا يُقاس المفتاح إلا بعد الحد الأدنى من العينات، وقبل ذلك يظهر بأنه جديد. تظلّل عروض لوحة المفاتيح كل مفتاح بحسب ما يحتاجه من تمرين، ويجمع ذلك بين السرعة والدقة ومدة غيابه. تُتجاهل الفواصل الأطول من حد التوقف وأول مفتاح في الدرس. سرعة الزوج متوسط متحرك. السرعة المتوقعة تأتي من الإصبع والصف اللذين يستخدمهما المفتاح. يحرّك تصحيحك هذا التقدير نحو توقيتاتك أنت، ويزداد وزن توقيتاتك مع زيادة عدد العينات. لكل مسار في التعلّم ترتيبه الخاص وعدد مفاتيحه المفتوحة. يفتح المسار مفتاحه التالي عندما تستقر كل مفاتيحه، بحد السرعة والدقة نفسه المستخدم للحروف. التمرين والاختبار يضيفان إلى إحصاءات المفاتيح ولا يفتحان مفاتيح جديدة. الأحرف المكتوبة داخل الكود تُسجَّل في خانة كود منفصلة، فلا تغيّر الكتابة البطيئة في الكود موعد استقرار الحرف، وتعرض عروض المفاتيح الاثنتين معًا. عند تفعيل قاعدة Shift يُحكم على كل حرف مشفوع بمفتاح Shift في اليد المقابلة لمفتاحه: التلميح يسجّل الجانب المستخدم فقط، والصارم يحتسب اليد نفسها خطأً على ذلك الحرف. ويمكن احتساب قفل الأحرف الكبيرة بالطريقة نفسها. الخطوات الأولى والوصول فيها بلا توقيت ولا تكتب أي إحصاءات للمفاتيح."
     ],
-    "k.reviewRate": ["review revisit return mix tracks settled keys percent", "مراجعة إعادة مسارات مفاتيح مثبتة نسبة"],
     "k.digitSource": ["numbers digits number row numpad keypad numeric", "أرقام صف الأرقام لوحة الأرقام لوحة مفاتيح رقمية"],
     "k.shiftPolicy": ["shift capitals hand opposite same hint strict left right", "شيفت حروف كبيرة يد مقابلة نفس اليد تلميح صارم يسار يمين"],
     "k.capsPolicy": ["caps lock capital letters strict", "قفل الأحرف الكبيرة كابس صارم"],
@@ -3077,15 +3217,14 @@ details[open]:not(.adv) > summary::before {
     "s.unlock": ["Unlocking", "فتح المفاتيح"],
     "s.unlock.h": ["Strict adds a key only when every active key reaches the target. Assist also adds one after many lessons without progress.", "الصارم يضيف مفتاحًا فقط حين تبلغ كل المفاتيح المفعّلة الهدف. المساعد يضيفه أيضًا بعد دروس كثيرة بلا تقدّم."],
     "s.unlock.off": ["Unlocking applies when Progression is Auto.", "يُطبَّق فتح المفاتيح حين يكون التقدّم تلقائيًا."],
-    "o.unlock.strict": ["Strict", "صارم"],
-    "o.unlock.assist": ["Assist", "مساعد"],
     "stall.speed": ["Next key waits on {k}: {ms} ms against {gate} ms.", "المفتاح التالي ينتظر «{k}»: {ms} م.ث مقابل {gate} م.ث."],
     "stall.acc": ["Next key waits on {k}: accuracy {acc} against {target}.", "المفتاح التالي ينتظر «{k}»: الدقة {acc} مقابل {target}."],
+    "stall.few": ["Next key waits on {k}: {have} of {need} samples.", "المفتاح التالي ينتظر «{k}»: {have} من {need} عيّنة."],
+    "stall.btn": ["Unlock next key anyway", "افتح المفتاح التالي على أي حال"],
+    "stall.fatigue": ["Next key held for up to two lessons: speed fell and errors rose in this sitting.", "المفتاح التالي مؤجل حتى درسين: انخفضت السرعة وزادت الأخطاء خلال هذه الجلسة."],
     "stall.lessons": ["Next key waits on lesson accuracy: {acc} against {target}.", "المفتاح التالي ينتظر دقة الدروس: {acc} مقابل {target}."],
     "s.progression.h": ["Auto adds a key when every active key reaches the target.", "التلقائي يضيف مفتاحًا حين تبلغ كل المفاتيح المفعّلة الهدف."],
     "s.startKeys": ["Starting keys", "المفاتيح الابتدائية"],
-    "s.reviewRate": ["Review of other tracks (%)", "مراجعة المسارات الأخرى (٪)"],
-    "s.reviewRate.h": ["How often keys you have settled in other tracks return inside lessons.", "كم مرة تعود المفاتيح التي ثبتّها في مساراتك الأخرى داخل الدروس."],
     "s.digitSource": ["Number keys", "مفاتيح الأرقام"],
     "s.digitSource.h": ["Which keys count in the Numbers track: the number row, the numeric keypad, or either.", "أي المفاتيح تُحتسب في مسار الأرقام: صف الأرقام أو لوحة الأرقام أو أيٌّ منهما."],
     "o.digitSource.row": ["Number row", "صف الأرقام"],
@@ -3111,14 +3250,8 @@ details[open]:not(.adv) > summary::before {
     "s.startKeys.h": ["Used for a new layout and after clearing statistics.", "تُستخدم لتخطيط جديد وبعد مسح الإحصاءات."],
     "s.targetWpm": ["Target speed (wpm)", "السرعة المستهدفة (كلمة/د)"],
     "s.targetAcc": ["Target accuracy (%)", "الدقة المستهدفة (٪)"],
-    "s.minSamples": ["Samples before a key is measured", "العينات اللازمة قبل قياس المفتاح"],
-    "s.minSamples.h": ["Until then a key shows as not enough data.", "حتى ذلك الحين يظهر المفتاح بلا بيانات كافية."],
-    "s.focus": ["Weak-key focus (%)", "التركيز على المفاتيح الأضعف (٪)"],
-    "s.focus.h": ["How strongly lessons favor the keys you are slowest on.", "مدى تفضيل الدروس للمفاتيح الأبطأ لديك."],
     "s.algo": ["Targeting", "أسلوب الاستهداف"],
     "s.algo.h": ["Impact targets the keys and key pairs that cost you the most time. Classic focuses the slowest key against your target.", "الأثر يستهدف المفاتيح والأزواج التي تكلفك أكبر وقت. الكلاسيكي يركّز على أبطأ مفتاح مقارنة بهدفك."],
-    "o.algo.impact": ["Impact", "الأثر"],
-    "o.algo.classic": ["Classic", "كلاسيكي"],
     "sec.test": ["Test", "الاختبار"],
     "sec.rules": ["Accuracy rules", "قواعد الدقة"],
     "s.shiftPolicy": ["Shift rule", "قاعدة Shift"],
@@ -3143,8 +3276,45 @@ details[open]:not(.adv) > summary::before {
     "d.capsMiss": ["Caps Lock", "قفل الأحرف الكبيرة"],
     "s.testFeed": ["Tests update key statistics", "الاختبارات تحدّث إحصاءات المفاتيح"],
     "s.confident": ["Confident mode", "وضع الثقة"],
+    "s.focusLevel": ["Focus", "التركيز"],
+    "s.focusLevel.h": ["How strongly lessons lean on the key or pair that needs work.", "مدى ميل الدروس نحو الحرف أو الزوج الذي يحتاج عملاً."],
+    "o.focusLevel.gentle": ["Gentle", "خفيف"],
+    "o.focusLevel.normal": ["Normal", "عادي"],
+    "o.focusLevel.sharp": ["Sharp", "مركّز"],
+    "s.wordLen": ["Word length", "طول الكلمات"],
+    "s.wordLen.h": ["Short words, a mix, or longer words in lessons.", "كلمات قصيرة أو مزيج أو كلمات أطول في الدروس."],
+    "o.wordLen.short": ["Short", "قصيرة"],
+    "o.wordLen.mixed": ["Mixed", "متنوعة"],
+    "o.wordLen.long": ["Long", "طويلة"],
+    "s.hideErrors": ["Hide errors while typing", "إخفاء الأخطاء أثناء الكتابة"],
+    "s.hideErrors.h": ["Errors are still recorded, only the marking is hidden. Results show everything.", "تُسجَّل الأخطاء كالمعتاد ويُخفى التمييز فقط. تُظهر النتائج كل شيء."],
+    "s.sessionLen": ["Session length", "مدة الجلسة"],
+    "s.sessionLen.h": ["After this much practice, the current lesson finishes and a plain summary shows.", "بعد هذه المدة ينتهي الدرس الحالي ويظهر ملخص بسيط."],
+    "o.sessionLen.0": ["Off", "إيقاف"],
+    "o.sessionLen.10": ["10 min", "10 د"],
+    "o.sessionLen.15": ["15 min", "15 د"],
+    "o.sessionLen.20": ["20 min", "20 د"],
+    "o.sessionLen.30": ["30 min", "30 د"],
+    "s.caretStyle": ["Caret", "المؤشر"],
+    "s.caretStyle.h": ["The shape of the typing marker.", "شكل مؤشر الكتابة."],
+    "o.caretStyle.line": ["Line", "خط"],
+    "o.caretStyle.block": ["Block", "كتلة"],
+    "o.caretStyle.underline": ["Underline", "تسطير"],
+    "s.caretSmooth": ["Smooth caret", "مؤشر سلس"],
+    "s.caretSmooth.h": ["Glide between letters. Off when the system asks for reduced motion.", "ينزلق بين الحروف. يتوقف عند طلب النظام تقليل الحركة."],
+    "s.textWidth": ["Text width", "عرض النص"],
+    "s.textWidth.h": ["Narrower columns are easier on long sessions and on Arabic.", "الأعمدة الأضيق أريح في الجلسات الطويلة وللعربية."],
+    "o.textWidth.narrow": ["Narrow", "ضيق"],
+    "o.textWidth.normal": ["Normal", "عادي"],
+    "o.textWidth.wide": ["Wide", "واسع"],
+    "s.zen": ["Zen mode", "وضع التركيز"],
+    "s.zen.h": ["Only the text and the caret. Press Esc twice to leave.", "النص والمؤشر فقط. اضغط Esc مرتين للخروج."],
+    "sec.keyboard": ["Keyboard", "لوحة المفاتيح"],
+    "sec.goal": ["Goal", "الهدف"],
+    "sec.typing": ["Typing", "الكتابة"],
+    "sec.look": ["Look", "المظهر"],
+    "sec.zen": ["Zen", "التركيز"],
     "s.onError": ["When another key is pressed", "عند ضغط مفتاح آخر"],
-    "s.pause": ["Ignore gaps longer than (ms)", "تجاهل الفواصل الأطول من (م.ث)"],
     "s.text": ["Text source", "مصدر النص"],
     "s.wordLevel": ["Word difficulty", "صعوبة الكلمات"],
     "s.wordLevel.h": ["Balanced favours everyday words and still mixes in rarer ones. Common keeps to the most familiar words. Wide gives rarer words much more weight. It applies to real words in Learn and Practice.", "المتوازن يفضّل الكلمات اليومية ويخلط معها كلمات أندر. الشائع يلتزم بالكلمات الأكثر ألفة. الواسع يمنح الكلمات الأندر وزنًا أكبر بكثير. ينطبق على الكلمات الحقيقية في التعلّم والتمرين."],
@@ -3153,8 +3323,6 @@ details[open]:not(.adv) > summary::before {
     "o.wordLevel.wide": ["Wide", "واسع"],
     "k.wordLevel": ["word difficulty level easy hard common rare frequency vocabulary balanced wide", "صعوبة الكلمات مستوى سهل صعب شائعة نادرة تكرار مفردات متوازن واسع"],
     "s.lessonWords": ["Words per lesson", "كلمات في الدرس"],
-    "s.wordMin": ["Shortest word", "أقصر كلمة"],
-    "s.wordMax": ["Longest word", "أطول كلمة"],
     "s.caps": ["Capital letters", "الأحرف الكبيرة"],
     "s.digits": ["Numbers", "الأرقام"],
     "s.dia": ["Diacritics", "التشكيل"],
@@ -3162,15 +3330,11 @@ details[open]:not(.adv) > summary::before {
     "s.start": ["Starting point", "نقطة البداية"],
     "s.start.h": ["Beginners start from the first keys. If you already type, a 60-second sample sets your keys.", "للمبتدئ تبدأ الدروس من المفاتيح الأولى. وإن كنت تكتب بالفعل فعيّنة مدتها 60 ثانية تحدد مفاتيحك."],
     "s.punct": ["Punctuation", "علامات الترقيم"],
-    "s.extraRate": ["Share of words affected (%)", "نسبة الكلمات المتأثرة (٪)"],
     "s.ui": ["Interface language", "لغة الواجهة"],
     "s.theme": ["Theme", "السمة"],
     "s.font": ["Practice font", "خط التمرين"],
     "s.fontSize": ["Text size", "حجم النص"],
-    "s.lineHeight": ["Line height", "ارتفاع السطر"],
     "s.keyboard": ["On-screen keyboard", "لوحة المفاتيح على الشاشة"],
-    "s.strip": ["Active keys", "المفاتيح المفعّلة"],
-    "s.result": ["Result after each lesson", "النتيجة بعد كل درس"],
     "s.liveWpm": ["Live speed", "السرعة المباشرة"],
     "s.numerals": ["Numerals in interface", "الأرقام في الواجهة"],
     "o.inputMode.layout": ["Physical keys", "مفاتيح فعلية"],
@@ -3253,10 +3417,13 @@ details[open]:not(.adv) > summary::before {
     "d.storage": ["Storage", "التخزين"],
     "d.persist": ["Persistent", "دائم"],
     "d.temp": ["The browser may clear it", "قد يمسحه المتصفح"],
-    "d.mem": ["Unavailable. Changes last until this tab closes.", "غير متاح. تبقى التغييرات حتى إغلاق هذا التبويب."],
+    "d.mem": ["Not being saved in this browser. Changes last until this tab closes.", "لا يُحفظ شيء في هذا المتصفح. تبقى التغييرات حتى إغلاق هذا التبويب."],
     "d.ask": ["Request persistence", "طلب التخزين الدائم"],
     "d.export": ["Export", "تصدير"],
     "d.import": ["Import", "استيراد"],
+    "d.restore": ["Data before the last import", "البيانات قبل آخر استيراد"],
+    "d.restoreBt": ["Restore previous", "استعادة السابق"],
+    "d.restored": ["Restored", "تمت الاستعادة"],
     "d.exportS": ["Settings only", "الإعدادات فقط"],
     "d.exportA": ["Settings and statistics", "الإعدادات والإحصاءات"],
     "d.copy": ["Copy", "نسخ"],
@@ -3301,24 +3468,17 @@ details[open]:not(.adv) > summary::before {
     "s.targetWpm.h": ["A key counts as settled once you reach this pace.", "يُعدّ المفتاح مستقرًّا عندما تبلغ هذه السرعة."],
     "s.targetAcc.h": ["A key counts as settled once its accuracy stays at or above this.", "يُعدّ المفتاح مستقرًّا عندما تبقى دقته عند هذا الحد أو فوقه."],
     "s.onError.h": ["Stop waits for the right key. Continue moves on and still counts the miss.", "«توقف» ينتظر المفتاح الصحيح. «تابع» ينتقل مع احتساب الخطأ."],
-    "s.pause.h": ["Longer gaps are treated as a break and left out of your speed.", "الفواصل الأطول تُعدّ استراحة ولا تدخل في سرعتك."],
     "s.text.h": ["Real words come from a word list. Generated words are built from the keys you practise. Auto chooses for you.", "الكلمات الحقيقية من قائمة كلمات، والمولّدة تُبنى من المفاتيح التي تتدرّب عليها، والتلقائي يختار عنك."],
     "s.lessonWords.h": ["How many words each lesson has.", "عدد الكلمات في كل درس."],
-    "s.wordMin.h": ["Shorter words are left out when a lesson is built.", "تُستبعد الكلمات الأقصر عند بناء الدرس."],
-    "s.wordMax.h": ["Longer words are left out when a lesson is built.", "تُستبعد الكلمات الأطول عند بناء الدرس."],
     "s.caps.h": ["Adds capital letters to some words.", "يضيف أحرفًا كبيرة إلى بعض الكلمات."],
     "s.digits.h": ["Adds numbers to some words.", "يضيف أرقامًا إلى بعض الكلمات."],
     "s.punct.h": ["Adds punctuation to some words.", "يضيف علامات ترقيم إلى بعض الكلمات."],
     "s.dia.h": ["Adds diacritics to some words.", "يضيف التشكيل إلى بعض الكلمات."],
-    "s.extraRate.h": ["How many words get capitals, numbers, punctuation or diacritics.", "كم كلمة تحصل على أحرف كبيرة أو أرقام أو علامات ترقيم أو تشكيل."],
     "s.testFeed.h": ["When on, Words tests also update your key statistics.", "عند التفعيل تحدّث اختبارات الكلمات إحصاءات مفاتيحك أيضًا."],
     "s.confident.h": ["Backspace does nothing in Words tests, so every key stays as you typed it.", "مفتاح المسح لا يعمل في اختبارات الكلمات، فتبقى كل ضغطة كما كتبتها."],
     "s.font.h": ["The typeface used for practice text.", "الخط المستخدم في نص التمرين."],
     "s.fontSize.h": ["The size of the practice text.", "حجم نص التمرين."],
-    "s.lineHeight.h": ["The space between lines of practice text.", "المسافة بين أسطر نص التمرين."],
     "s.keyboard.h": ["Shows a keyboard that highlights the next key.", "يعرض لوحة مفاتيح تضيء المفتاح التالي."],
-    "s.strip.h": ["Shows the keys you are practising above the text.", "يعرض المفاتيح التي تتدرّب عليها فوق النص."],
-    "s.result.h": ["Shows your speed and accuracy after each lesson.", "يعرض سرعتك ودقتك بعد كل درس."],
     "s.liveWpm.h": ["Shows your speed while you type. Off keeps the screen calm.", "يعرض سرعتك أثناء الكتابة. الإيقاف يُبقي الشاشة هادئة."],
     "s.numerals.h": ["Choose Latin (123) or Arabic-Indic (١٢٣) digits for the interface.", "اختر الأرقام اللاتينية (123) أو الهندية (١٢٣) للواجهة."],
     "s.caps.off": ["Capital letters apply to English only.", "الأحرف الكبيرة تنطبق على الإنجليزية فقط."],
@@ -3360,6 +3520,7 @@ details[open]:not(.adv) > summary::before {
     "tt.qshort": ["Short", "قصير"],
     "tt.qmedium": ["Medium", "متوسط"],
     "tt.qlong": ["Long", "طويل"],
+    "tt.rules": ["Rules", "القواعد"],
     "tt.diffLabel": ["Difficulty", "الصعوبة"],
     "tt.diff.normal": ["Normal", "عادي"],
     "tt.diff.expert": ["Expert", "خبير"],
@@ -3375,6 +3536,7 @@ details[open]:not(.adv) > summary::before {
     "tt.h.back": ["Backspace can return to the previous word while it still has an error.", "يمكن لمفتاح المسح العودة إلى الكلمة السابقة ما دام فيها خطأ."],
     "tt.customEmpty": ["Add your own text in Practice and it will appear here as a test.", "أضف نصك الخاص في تمرين وسيظهر هنا كاختبار."],
     "tt.customGo": ["Open Practice", "افتح تمرين"],
+    "lt.escAsk": ["Press Esc again to restart this lesson", "اضغط Esc مرة أخرى لإعادة هذا الدرس"],
     "tt.escAsk": ["Press Esc again to restart", "اضغط Esc مرة أخرى لإعادة الاختبار"],
     "tr.failExpert": ["Test ended: a word with an error was submitted (Expert).", "انتهى الاختبار: أُنهيت كلمة وفيها خطأ (خبير)."],
     "tr.failMaster": ["Test ended: an error was made (Master).", "انتهى الاختبار: حدث خطأ (محترف)."],
@@ -3427,10 +3589,12 @@ details[open]:not(.adv) > summary::before {
   var S = {
     settings: defaultSettings(),
     data: { v: VERSION, layouts: {}, lessons: [], tests: [], code: [], sc: {}, days: {}, pbs: {} },
-    view: "practice",
+    view: "learn",
     lesson: null,
     focused: false,
     storage: "unknown",
+    tab: null,
+    session: { ms: 0, chars: 0, errs: 0, shown: false },
     lastResult: null,
     keysUI: { tab: "kb", range: "90", metric: "need", layer: 0, sel: null, sort: "need", cls: "all" },
     derived: {}
@@ -3469,7 +3633,7 @@ details[open]:not(.adv) > summary::before {
     S.derived = {
       targetMs: 12e3 / s.targetWpm,
       targetAcc: s.targetAcc / 100,
-      minS: s.minSamples
+      minS: MIN_SAMPLES
     };
   }
   function typeable(ch) {
@@ -3526,6 +3690,14 @@ details[open]:not(.adv) > summary::before {
     d.a += Math.max(0, Math.min(1, acc));
     if (wpm > d.b) d.b = wpm;
     d[kind] += 1;
+  }
+  function addTime(days, lid, ts, ms, keys) {
+    if (!(ts > 0)) return;
+    const key = dayKey(ts);
+    const byLid = days[lid] || (days[lid] = {});
+    const d = byLid[key] || (byLid[key] = emptyDay());
+    d.ms += Math.max(0, Math.round(ms));
+    d.k += Math.max(0, Math.round(keys));
   }
   function trimDays(days) {
     for (const lid of Object.keys(days)) {
@@ -3625,6 +3797,11 @@ details[open]:not(.adv) > summary::before {
   function recordSession(kind, lid, wpm, acc, ms, keys, ts) {
     const d = ensureHistory();
     addTo(d.days, lid, ts || Date.now(), kind, wpm, acc, ms, keys);
+    trimDays(d.days);
+  }
+  function recordTime(lid, ms, keys, ts) {
+    const d = ensureHistory();
+    addTime(d.days, lid, ts || Date.now(), ms, keys);
     trimDays(d.days);
   }
   function pbOf(key) {
@@ -3740,6 +3917,9 @@ details[open]:not(.adv) > summary::before {
   var KEY_S = "tarq:settings";
   var KEY_D = "tarq:data";
   var KEY_C = "tarq:custom";
+  var KEY_L = "tarq:lease";
+  var KEY_B = "tarq:backup";
+  var KEY_V4 = "tarq:backup-v4";
   var CUSTOM_CAP = 5e4;
   var customStore = { text: null, src: null, lid: null, words: [] };
   function customText() {
@@ -3800,6 +3980,28 @@ details[open]:not(.adv) > summary::before {
   }
   var saveTimer = null;
   var MEM = {};
+  var conflictListeners = [];
+  function onConflict(fn) {
+    conflictListeners.push(fn);
+  }
+  function tabState() {
+    if (!S.tab) S.tab = { id: Math.random().toString(36).slice(2) + Date.now().toString(36), lease: false, raw: null, dirty: false };
+    return S.tab;
+  }
+  function readLease() {
+    const raw = storeGet(KEY_L);
+    if (!raw) return null;
+    try {
+      const v = JSON.parse(raw);
+      return v && typeof v.tab === "string" ? v : null;
+    } catch (err) {
+      return null;
+    }
+  }
+  function takeLease(T2) {
+    storeSet(KEY_L, JSON.stringify({ tab: T2.id, ts: Date.now() }));
+    T2.lease = true;
+  }
   function storeGet(k) {
     try {
       const v = window.localStorage.getItem(k);
@@ -3829,9 +4031,13 @@ details[open]:not(.adv) > summary::before {
     for (let i = 0; i < keys.length - PAIR_KEEP; i++) delete L.pairs[keys[i]];
   }
   function readSettings(raw) {
-    const out = sanitizeSettings(raw);
-    if (raw && typeof raw === "object" && raw.unlock === void 0) out.unlock = "assist";
-    return out;
+    return sanitizeSettings(raw);
+  }
+  function legacyAssist(raw) {
+    return !!raw && typeof raw === "object" && raw.unlock !== "strict";
+  }
+  function needsEarly(rawData, rawSettings) {
+    return !!rawData && typeof rawData === "object" && !("early" in rawData) && legacyAssist(rawSettings);
   }
   function adoptData(raw) {
     let d = null;
@@ -3847,9 +4053,60 @@ details[open]:not(.adv) > summary::before {
     if (!S.noSave) {
       clearTimeout(saveTimer);
       saveTimer = null;
+      tabState().dirty = false;
     }
     refreshDerived();
     return true;
+  }
+  function claimLease() {
+    if (S.noSave) return false;
+    const T2 = tabState();
+    if (T2.lease) return false;
+    const raw = storeGet(KEY_D);
+    let adopted = false;
+    if (raw !== T2.raw && adoptData(raw)) {
+      T2.raw = raw;
+      adopted = true;
+    }
+    takeLease(T2);
+    return adopted;
+  }
+  function releaseLease() {
+    if (S.noSave) return;
+    const T2 = tabState();
+    if (T2.dirty) saveNow();
+    if (!T2.lease) return;
+    const cur = readLease();
+    if (cur && cur.tab === T2.id) {
+      delete MEM[KEY_L];
+      try {
+        window.localStorage.removeItem(KEY_L);
+      } catch (err) {
+        S.storage = "memory";
+      }
+    }
+    T2.lease = false;
+  }
+  function onStorageEvent(key, value) {
+    if (S.noSave) return null;
+    const T2 = tabState();
+    if (key === KEY_L) {
+      let owner = null;
+      try {
+        owner = value ? JSON.parse(value).tab : null;
+      } catch (err) {
+        owner = null;
+      }
+      if (owner !== T2.id) T2.lease = false;
+      return "lease";
+    }
+    if (key === KEY_D) {
+      if (T2.lease || !adoptData(value)) return null;
+      T2.raw = value;
+      return "data";
+    }
+    if (key === KEY_S) return adoptSettings(value) ? "settings" : null;
+    return null;
   }
   function adoptSettings(raw) {
     let s = null;
@@ -3869,21 +4126,38 @@ details[open]:not(.adv) > summary::before {
     refreshDerived();
     return true;
   }
-  function saveNow() {
-    if (S.noSave) return;
+  function saveNow(force) {
+    if (S.noSave) return true;
     clearTimeout(saveTimer);
     saveTimer = null;
+    const T2 = tabState();
+    storeSet(KEY_S, JSON.stringify(S.settings));
+    if (!force && !T2.dirty) return true;
+    if (!force) {
+      const stored = storeGet(KEY_D);
+      if (stored !== T2.raw) {
+        if (adoptData(stored)) T2.raw = stored;
+        T2.lease = false;
+        conflictListeners.forEach((fn) => fn());
+        return false;
+      }
+    }
     for (const lid in S.data.layouts) prunePairs(S.data.layouts[lid]);
     S.data.saved = Date.now();
-    storeSet(KEY_S, JSON.stringify(S.settings));
-    storeSet(KEY_D, JSON.stringify(S.data));
+    const json = JSON.stringify(S.data);
+    storeSet(KEY_D, json);
+    T2.raw = json;
+    T2.dirty = false;
+    if (!T2.lease) takeLease(T2);
+    return true;
   }
   function dataFootprint() {
     const sv = storeGet(KEY_S) || "";
     const dv = storeGet(KEY_D) || "";
     const cv = storeGet(KEY_C) || "";
+    const bv = S.noSave ? "" : storeGet(KEY_B) || "";
     const bytes = sv ? (KEY_S.length + sv.length) * 2 : 0;
-    return { bytes: bytes + (dv ? (KEY_D.length + dv.length) * 2 : 0) + (cv ? (KEY_C.length + cv.length) * 2 : 0), lessons: S.data.lessons.length, tests: S.data.tests.length, saved: S.data.saved || 0 };
+    return { bytes: bytes + (dv ? (KEY_D.length + dv.length) * 2 : 0) + (cv ? (KEY_C.length + cv.length) * 2 : 0) + (bv ? (KEY_B.length + bv.length) * 2 : 0), lessons: S.data.lessons.length, tests: S.data.tests.length, saved: S.data.saved || 0 };
   }
   function eraseAll() {
     clearTimeout(saveTimer);
@@ -3895,6 +4169,10 @@ details[open]:not(.adv) > summary::before {
     customStore.src = null;
     S.customPos = 0;
     if (S.noSave) return;
+    const T2 = tabState();
+    takeLease(T2);
+    T2.raw = null;
+    T2.dirty = false;
     delete MEM[KEY_C];
     delete MEM[KEY_S];
     delete MEM[KEY_D];
@@ -3902,12 +4180,15 @@ details[open]:not(.adv) > summary::before {
       window.localStorage.removeItem(KEY_S);
       window.localStorage.removeItem(KEY_D);
       window.localStorage.removeItem(KEY_C);
+      window.localStorage.removeItem(KEY_B);
+      window.localStorage.removeItem(KEY_V4);
     } catch (err) {
       S.storage = "memory";
     }
   }
   function scheduleSave() {
     if (S.noSave) return;
+    tabState().dirty = true;
     if (saveTimer) return;
     saveTimer = setTimeout(saveNow, 600);
   }
@@ -3918,17 +4199,15 @@ details[open]:not(.adv) > summary::before {
     return 3 | 112 | (lang === "ar" ? 8 : 4);
   }
   function sanitizeData(input) {
-    const out = { v: VERSION, layouts: {}, lessons: [], tests: [], code: [], sc: {}, days: {}, pbs: {}, saved: 0, onboard: "new", onboardStep: 0 };
+    const out = { v: VERSION, layouts: {}, lessons: [], tests: [], code: [], sc: {}, days: {}, pbs: {}, saved: 0, onboard: "new", onboardStep: 0, hw: false, early: false };
     if (!input || typeof input !== "object") return out;
     out.saved = num(input.saved, 0, 864e13, 0);
     const layouts = input.layouts && typeof input.layouts === "object" ? input.layouts : {};
     for (const lid of Object.keys(LAYOUTS).concat(Object.keys(LAYOUTS).map((l) => l + ":code"))) {
       const src = layouts[lid];
       if (!src || typeof src !== "object") continue;
-      const dst = { chars: {}, pairs: {}, k: null, rec: [], sh: { ok: num(src.sh && src.sh.ok, 0, 1e9, 0), same: num(src.sh && src.sh.same, 0, 1e9, 0) }, lk: num(src.lk, 0, 1e6, 0), tot: num(src.tot, 0, 1e9, 0), rescue: num(src.rescue, 0, 2, 0), bk: null, raise: null, placed: src.placed === true };
-      if (src.bk && typeof src.bk === "object" && typeof src.bk.c === "string" && src.bk.c.length <= 2) {
-        dst.bk = { c: src.bk.c, mu: num(src.bk.mu, -20, 20, 0), lk: num(src.bk.lk, 0, 1e6, 0), rs: src.bk.rs ? 1 : 0, rl: num(src.bk.rl, 0, 1e6, 0), mu2: num(src.bk.mu2, -20, 20, 0) };
-      }
+      const dst = { chars: {}, pairs: {}, k: null, rec: [], sh: { ok: num(src.sh && src.sh.ok, 0, 1e9, 0), same: num(src.sh && src.sh.same, 0, 1e9, 0) }, lk: num(src.lk, 0, 1e6, 0), tot: num(src.tot, 0, 1e9, 0), raise: null, placed: src.placed === true };
+      dst.weak = Array.isArray(src.weak) ? src.weak.filter((x) => x && typeof x.w === "string" && x.w.length >= 1 && x.w.length <= 24 && typeof x.s === "number" && isFinite(x.s) && x.s > 0).map((x) => ({ w: x.w, s: Math.min(20, x.s) })).sort((a, b) => b.s - a.s).slice(0, 60) : [];
       if (src.raise && typeof src.raise === "object" && typeof src.raise.c === "string" && src.raise.c.length <= 2) {
         dst.raise = { c: src.raise.c, until: num(src.raise.until, 0, 1e9, 0) };
       }
@@ -3941,6 +4220,9 @@ details[open]:not(.adv) > summary::before {
         const clean = { n: num(c.n, 0, 1e9, 0), a: num(c.a, 0, 1e9, 0), e: num(c.e, 0, 1e9, 0), t: [], o: [], x: {}, ls: num(c.ls, 0, 864e13, 0) };
         if (Array.isArray(c.t)) clean.t = c.t.filter((v) => typeof v === "number" && isFinite(v) && v > 0 && v < 6e4).slice(-40);
         if (Array.isArray(c.o)) clean.o = c.o.map((v) => v ? 1 : 0).slice(-40);
+        ["td", "od"].forEach((f) => {
+          if (Array.isArray(c[f])) clean[f] = c[f].filter((v) => typeof v === "number" && isFinite(v) && v >= 0 && v < 1e8).slice(-40);
+        });
         if (c.x && typeof c.x === "object") {
           Object.keys(c.x).slice(0, 8).forEach((k) => {
             if (k.length <= 2) clean.x[k] = num(c.x[k], 0, 1e9, 0);
@@ -3953,19 +4235,28 @@ details[open]:not(.adv) > summary::before {
         const p = pairs[k];
         if (!p || typeof p !== "object" || k.length !== 2) return;
         dst.pairs[k] = { n: num(p.n, 0, 1e9, 0), m: num(p.m, 1, 6e4, 500) };
+        if ("te" in p || "tc" in p) {
+          dst.pairs[k].te = num(p.te, 0, 1e4, 0);
+          dst.pairs[k].tc = num(p.tc, 0, 1e4, 0);
+        }
       });
       dst.tracks = sanitizeTracks(src.tracks, dst.k);
       bindK(dst);
       out.layouts[lid] = dst;
     }
     if (Array.isArray(input.lessons)) {
-      out.lessons = input.lessons.slice(-300).filter((l) => l && typeof l === "object").map((l) => ({
-        ts: num(l.ts, 0, 864e13, 0),
-        lid: typeof l.lid === "string" && LAYOUTS[l.lid] ? l.lid : "en-qwerty",
-        wpm: num(l.wpm, 0, 500, 0),
-        acc: num(l.acc, 0, 1, 0),
-        n: num(l.n, 0, 1e5, 0)
-      }));
+      out.lessons = input.lessons.slice(-300).filter((l) => l && typeof l === "object").map((l) => {
+        const rec = {
+          ts: num(l.ts, 0, 864e13, 0),
+          lid: typeof l.lid === "string" && LAYOUTS[l.lid] ? l.lid : "en-qwerty",
+          tr: TRACK_KEYS.indexOf(l.tr) >= 0 ? l.tr : "letters",
+          wpm: num(l.wpm, 0, 500, 0),
+          acc: num(l.acc, 0, 1, 0),
+          n: num(l.n, 0, 1e5, 0)
+        };
+        if (typeof l.ams === "number" && isFinite(l.ams)) rec.ams = num(l.ams, 0, 864e5, 0);
+        return rec;
+      });
     }
     if (Array.isArray(input.code)) {
       out.code = input.code.slice(-200).filter((x) => x && typeof x === "object").map((x) => ({
@@ -4001,6 +4292,8 @@ details[open]:not(.adv) > summary::before {
     const hasData = Object.keys(out.layouts).length || out.lessons.length || out.tests.length || out.code.length;
     out.onboard = ONBOARD_STATES.indexOf(input.onboard) >= 0 ? input.onboard : hasData ? "done" : "new";
     out.onboardStep = Math.max(0, Math.min(4, Math.round(num(input.onboardStep, 0, 4, 0))));
+    out.hw = input.hw === true;
+    out.early = input.early === true;
     if (input.sc && typeof input.sc === "object") {
       Object.keys(input.sc).slice(0, 400).forEach((k) => {
         const v = input.sc[k];
@@ -4019,20 +4312,78 @@ details[open]:not(.adv) > summary::before {
     } catch (err) {
       s = null;
     }
+    let rd = null;
     try {
-      const rd = storeGet(KEY_D);
+      rd = storeGet(KEY_D);
       if (rd) d = JSON.parse(rd);
     } catch (err) {
       d = null;
     }
+    const T2 = tabState();
+    T2.raw = rd;
+    T2.dirty = false;
+    if (!S.noSave && d && typeof d === "object" && !(d.v >= 5) && !storeGet(KEY_V4)) {
+      if (!tryStore(KEY_V4, JSON.stringify({ v: 4, settings: storeGet(KEY_S) || "", data: rd }))) dropKey(KEY_V4);
+    }
     S.settings = readSettings(s);
     S.data = sanitizeData(d);
+    if (needsEarly(d, s)) {
+      S.data.early = true;
+      scheduleSave();
+    }
     refreshDerived();
   }
   function buildExport(full) {
     const o = { app: "tarq", version: VERSION, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), settings: S.settings };
     if (full) o.data = S.data;
     return o;
+  }
+  function tryStore(k, v) {
+    try {
+      window.localStorage.setItem(k, v);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+  function dropKey(k) {
+    try {
+      window.localStorage.removeItem(k);
+    } catch (err) {
+      return;
+    }
+  }
+  function snapshot() {
+    return JSON.stringify({ ts: Date.now(), settings: S.settings, data: S.data });
+  }
+  function keepBackup() {
+    if (S.noSave) return;
+    if (!tryStore(KEY_B, snapshot())) dropKey(KEY_B);
+  }
+  function readBackup() {
+    const raw = storeGet(KEY_B);
+    if (!raw) return null;
+    try {
+      const b = JSON.parse(raw);
+      return b && typeof b === "object" && b.data && typeof b.data === "object" && b.settings && typeof b.settings === "object" ? b : null;
+    } catch (err) {
+      return null;
+    }
+  }
+  function hasBackup() {
+    return !S.noSave && !!readBackup();
+  }
+  function restoreBackup() {
+    if (S.noSave) return false;
+    const b = readBackup();
+    if (!b) return false;
+    const prev = snapshot();
+    S.settings = readSettings(b.settings);
+    S.data = sanitizeData(b.data);
+    refreshDerived();
+    saveNow(true);
+    if (!tryStore(KEY_B, prev)) dropKey(KEY_B);
+    return true;
   }
   function applyImport(text) {
     let obj;
@@ -4042,11 +4393,151 @@ details[open]:not(.adv) > summary::before {
       return false;
     }
     if (!obj || obj.app !== "tarq" || typeof obj.version !== "number" || obj.version > VERSION) return false;
+    keepBackup();
     S.settings = readSettings(obj.settings);
     if (obj.data) S.data = sanitizeData(obj.data);
+    if (needsEarly(obj.data, obj.settings)) S.data.early = true;
     refreshDerived();
-    saveNow();
+    saveNow(true);
     return true;
+  }
+
+  // src/engine/stats.js
+  function layoutData(lid) {
+    const L = S.data.layouts;
+    if (!L[lid]) L[lid] = bindK({ chars: {}, pairs: {}, tracks: newTracks(), rec: [], sh: { ok: 0, same: 0 }, lk: 0, tot: 0, raise: null, weak: [], placed: false });
+    if (!L[lid].rec) L[lid].rec = [];
+    return L[lid];
+  }
+  function legacyChars(lid) {
+    const L = S.data.layouts[lid + ":code"];
+    return L ? L.chars : null;
+  }
+  function mergedStat(lid, ch) {
+    const s = charStat(lid, ch, false);
+    const old = legacyChars(lid);
+    const o = old && old[ch];
+    if (!o) return s;
+    if (!s) return o;
+    const x = Object.assign({}, o.x);
+    for (const k in s.x) x[k] = (x[k] || 0) + s.x[k];
+    return { n: s.n + o.n, a: s.a + o.a, e: s.e + o.e, t: o.t.concat(s.t).slice(-40), o: o.o.concat(s.o).slice(-40), x, ls: Math.max(s.ls || 0, o.ls || 0) };
+  }
+  function charStat(lid, ch, create) {
+    const L = layoutData(lid);
+    let s = L.chars[ch];
+    if (!s && create) s = L.chars[ch] = { n: 0, a: 0, e: 0, t: [], o: [], x: {} };
+    return s;
+  }
+  function recentAccuracy(lid, n, tr) {
+    const track = tr || "letters";
+    const own = S.data.lessons.filter((l) => l.lid === lid && (l.tr || "letters") === track);
+    if (own.length < n) return null;
+    return sum(own.slice(-n).map((l) => l.acc)) / n;
+  }
+  function median(arr) {
+    if (!arr.length) return 0;
+    const a = arr.slice().sort((x, y) => x - y);
+    const m = a.length >> 1;
+    return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+  }
+  function sum(arr) {
+    let s = 0;
+    for (let i = 0; i < arr.length; i++) s += arr[i];
+    return s;
+  }
+  function errRate(s) {
+    return s && s.o.length ? sum(s.o) / s.o.length : 0;
+  }
+  function allCharsOfLayout() {
+    const lay = layoutInfo();
+    const set = /* @__PURE__ */ new Set();
+    for (const code in lay.map) {
+      const m = lay.map[code];
+      if (m[0].length === 1) set.add(m[0]);
+      if (m[1].length === 1) set.add(m[1]);
+    }
+    return set;
+  }
+  function slowestInto(lid, ch, min) {
+    const L = layoutData(lid);
+    const out = [];
+    for (const k in L.pairs) {
+      if (k.length === 2 && k[1] === ch && L.pairs[k].n >= min) out.push({ pair: k, m: L.pairs[k].m, n: L.pairs[k].n });
+    }
+    out.sort((a, b) => b.m - a.m);
+    return out.slice(0, 3);
+  }
+  function stampPush(st, field, isTest) {
+    const arr = st[field] || (st[field] = []);
+    arr.push(Math.floor(Date.now() / 864e5) * 2 + (isTest ? 1 : 0));
+    if (arr.length > 40) arr.splice(0, arr.length - 40);
+  }
+
+  // src/engine/fatigue.js
+  var IDLE_MS = 6e5;
+  var BASE_LESSONS = 5;
+  var RECENT_LESSONS_N = 3;
+  var MAX_HOLD = 2;
+  var SLOWER = 1.15;
+  function sittingKey(lid, tr) {
+    return lid + "|" + tr;
+  }
+  function sittings() {
+    if (!S.sess || typeof S.sess !== "object") S.sess = {};
+    return S.sess;
+  }
+  function mean(arr) {
+    return arr.length ? sum(arr) / arr.length : 0;
+  }
+  function push(buf, ms, er, cap) {
+    buf.lat.push(ms);
+    buf.err.push(er);
+    if (buf.lat.length > cap) {
+      buf.lat.shift();
+      buf.err.shift();
+    }
+  }
+  function sitting(lid, tr, now) {
+    const all = sittings();
+    const key = sittingKey(lid, tr);
+    let ss = all[key];
+    if (!ss || now - ss.last > IDLE_MS) {
+      ss = all[key] = { base: { lat: [], err: [] }, recent: { lat: [], err: [] }, last: now, fat: false, held: 0, holding: false };
+    }
+    return ss;
+  }
+  function noteSession(lid, tr, ms, er, now) {
+    const at = now == null ? Date.now() : now;
+    const ss = sitting(lid, tr, at);
+    ss.last = at;
+    if (ss.base.lat.length < BASE_LESSONS) push(ss.base, ms, er, BASE_LESSONS);
+    else push(ss.recent, ms, er, RECENT_LESSONS_N);
+    ss.fat = ss.recent.lat.length >= RECENT_LESSONS_N && median(ss.recent.lat) > median(ss.base.lat) * SLOWER && mean(ss.recent.err) > mean(ss.base.err);
+    return ss.fat;
+  }
+  function gateUnlock(lid, tr, ready) {
+    const ss = sittings()[sittingKey(lid, tr)];
+    if (!ss) return ready;
+    if (!ready) {
+      ss.holding = false;
+      return false;
+    }
+    if (ss.fat && ss.held < MAX_HOLD) {
+      ss.held++;
+      ss.holding = true;
+      return false;
+    }
+    ss.holding = false;
+    return true;
+  }
+  function resetSitting(lid, tr) {
+    delete sittings()[sittingKey(lid, tr)];
+  }
+  function fatigueHolding(lid, tr, now) {
+    const ss = sittings()[sittingKey(lid, tr)];
+    const at = now == null ? Date.now() : now;
+    return !!(ss && ss.holding && at - ss.last <= IDLE_MS);
   }
 
   // src/engine/difficulty.js
@@ -4103,7 +4594,7 @@ details[open]:not(.adv) > summary::before {
     words.forEach((w, i) => {
       const chars = w.split("");
       const base = 1 / Math.pow(i + 20, 0.4);
-      entries.push({ w, chars, base, len: chars.length });
+      entries.push({ w, chars, base, len: chars.length, cc: null, pc: null, pr: null, bwe: 0, bwv: 0 });
       const fw = 1 / (i + 3);
       for (const c of chars) freq[c] = (freq[c] || 0) + fw;
       freq[" "] = (freq[" "] || 0) + fw;
@@ -4127,72 +4618,6 @@ details[open]:not(.adv) > summary::before {
     for (const k in bfreq) bn[k] = bfreq[k] / bt;
     LEX[lang] = { entries, freq, tri, bi, fn, bn };
     return LEX[lang];
-  }
-
-  // src/engine/stats.js
-  function layoutData(lid) {
-    const L = S.data.layouts;
-    if (!L[lid]) L[lid] = bindK({ chars: {}, pairs: {}, tracks: newTracks(), rec: [], sh: { ok: 0, same: 0 }, lk: 0, tot: 0, rescue: 0, bk: null, raise: null, placed: false });
-    if (!L[lid].rec) L[lid].rec = [];
-    return L[lid];
-  }
-  function legacyChars(lid) {
-    const L = S.data.layouts[lid + ":code"];
-    return L ? L.chars : null;
-  }
-  function mergedStat(lid, ch) {
-    const s = charStat(lid, ch, false);
-    const old = legacyChars(lid);
-    const o = old && old[ch];
-    if (!o) return s;
-    if (!s) return o;
-    const x = Object.assign({}, o.x);
-    for (const k in s.x) x[k] = (x[k] || 0) + s.x[k];
-    return { n: s.n + o.n, a: s.a + o.a, e: s.e + o.e, t: o.t.concat(s.t).slice(-40), o: o.o.concat(s.o).slice(-40), x, ls: Math.max(s.ls || 0, o.ls || 0) };
-  }
-  function charStat(lid, ch, create) {
-    const L = layoutData(lid);
-    let s = L.chars[ch];
-    if (!s && create) s = L.chars[ch] = { n: 0, a: 0, e: 0, t: [], o: [], x: {} };
-    return s;
-  }
-  function recentAccuracy(lid, n) {
-    const own = S.data.lessons.filter((l) => l.lid === lid);
-    if (own.length < n) return null;
-    return sum(own.slice(-n).map((l) => l.acc)) / n;
-  }
-  function median(arr) {
-    if (!arr.length) return 0;
-    const a = arr.slice().sort((x, y) => x - y);
-    const m = a.length >> 1;
-    return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
-  }
-  function sum(arr) {
-    let s = 0;
-    for (let i = 0; i < arr.length; i++) s += arr[i];
-    return s;
-  }
-  function errRate(s) {
-    return s && s.o.length ? sum(s.o) / s.o.length : 0;
-  }
-  function allCharsOfLayout() {
-    const lay = layoutInfo();
-    const set = /* @__PURE__ */ new Set();
-    for (const code in lay.map) {
-      const m = lay.map[code];
-      if (m[0].length === 1) set.add(m[0]);
-      if (m[1].length === 1) set.add(m[1]);
-    }
-    return set;
-  }
-  function slowestInto(lid, ch, min) {
-    const L = layoutData(lid);
-    const out = [];
-    for (const k in L.pairs) {
-      if (k.length === 2 && k[1] === ch && L.pairs[k].n >= min) out.push({ pair: k, m: L.pairs[k].m, n: L.pairs[k].n });
-    }
-    out.sort((a, b) => b.m - a.m);
-    return out.slice(0, 3);
   }
 
   // src/engine/order.js
@@ -4305,41 +4730,125 @@ details[open]:not(.adv) > summary::before {
     layoutData(S.settings.layout).k = Math.max(2, Math.min(order.length, k));
     scheduleSave();
   }
+  function startFromFirstKeys() {
+    const L = layoutData(S.settings.layout);
+    L.k = 2;
+    L.placed = true;
+    S.data.onboard = "done";
+    scheduleSave();
+  }
 
   // src/engine/skill.js
   var DECAY = 0.95;
-  function wlogStats(t2) {
-    let w = 1;
+  var DAY_MS2 = 864e5;
+  var AGE_TAU = 21;
+  var TEST_WEIGHT = 0.5;
+  var AGE_TABLE = new Float64Array(512);
+  for (let i = 0; i < AGE_TABLE.length; i++) AGE_TABLE[i] = Math.exp(-i / AGE_TAU);
+  var W_SMALL = new Float64Array(64);
+  var L_SMALL = new Float64Array(64);
+  var W_OUT = W_SMALL;
+  function fillWeights(len, stamps, ls) {
+    const w = len <= 64 ? W_SMALL : new Float64Array(len);
+    W_OUT = w;
+    const now = Date.now();
+    const today = Math.floor(now / DAY_MS2);
+    const lsW = ls ? Math.exp(-Math.max(0, (now - ls) / DAY_MS2) / AGE_TAU) : 1;
+    const sl = stamps ? stamps.length : 0;
+    let rank = 1;
+    let full = 0;
+    let got = 0;
+    for (let i = len - 1; i >= 0; i--) {
+      const si = sl - (len - i);
+      let aw = lsW;
+      let test = 1;
+      if (si >= 0) {
+        const st = stamps[si];
+        const age = today - (st >> 1);
+        aw = age <= 0 ? 1 : age >= 512 ? 0 : AGE_TABLE[age];
+        if (st & 1) test = TEST_WEIGHT;
+      }
+      const wi = rank * aw * test;
+      w[i] = wi;
+      full += rank;
+      got += wi;
+      rank *= DECAY;
+    }
+    return full > 0 ? got / full : 0;
+  }
+  var LOG_CACHE = /* @__PURE__ */ new WeakMap();
+  function wlogStats(t2, stamps, ls) {
+    const sig = (stamps ? stamps.length + lastOf(stamps) : -1) + ":" + ls + ":" + Math.floor(Date.now() / DAY_MS2);
+    const hit = LOG_CACHE.get(t2);
+    if (hit && hit.len === t2.length && hit.last === lastOf(t2) && hit.sig === sig) return hit.res;
+    const res = wlogCompute(t2, stamps, ls);
+    LOG_CACHE.set(t2, { len: t2.length, last: lastOf(t2), sig, res });
+    return res;
+  }
+  function wlogCompute(t2, stamps, ls) {
+    const len = t2.length;
+    const keep = fillWeights(len, stamps, ls);
+    const w = W_OUT;
+    const lg = len <= 64 ? L_SMALL : new Float64Array(len);
     let sw = 0;
     let sw2 = 0;
     let m = 0;
-    for (let i = t2.length - 1; i >= 0; i--) {
-      m += w * Math.log(t2[i]);
-      sw += w;
-      sw2 += w * w;
-      w *= DECAY;
+    for (let i = 0; i < len; i++) {
+      const l = Math.log(t2[i]);
+      lg[i] = l;
+      m += w[i] * l;
+      sw += w[i];
+      sw2 += w[i] * w[i];
     }
-    if (!sw) return { mean: 0, v: 0, ne: 0 };
-    const mean = m / sw;
+    if (!(sw > 0)) return { mean: 0, v: 0, ne: 0 };
+    const mean2 = m / sw;
     let vv = 0;
-    w = 1;
-    for (let i = t2.length - 1; i >= 0; i--) {
-      const d = Math.log(t2[i]) - mean;
-      vv += w * d * d;
-      w *= DECAY;
+    for (let i = 0; i < len; i++) {
+      const d = lg[i] - mean2;
+      vv += w[i] * d * d;
     }
-    return { mean, v: vv / sw, ne: sw * sw / sw2 };
+    return { mean: mean2, v: vv / sw, ne: sw * sw / sw2 * keep };
   }
-  function globalMs(lid) {
+  function lastOf(arr) {
+    return arr.length ? arr[arr.length - 1] : -1;
+  }
+  function uncachedGlobalMs(lid) {
     const L = layoutData(lid);
     const dm = diffMap(lid);
     const xs = [];
     for (const ch in L.chars) {
       const s = L.chars[ch];
-      if (s.t.length >= 6 && ch !== " ") xs.push(Math.exp(wlogStats(s.t).mean) * (1.15 / (dm[ch] || 1.5)));
+      if (s.t.length >= 6 && ch !== " ") xs.push(Math.exp(wlogStats(s.t, s.td, s.ls).mean) * (1.15 / (dm[ch] || 1.5)));
     }
     if (xs.length >= 3) return median(xs);
     return 12e3 / (S.settings.targetWpm * 0.5);
+  }
+  var GLOBAL_CACHE = {};
+  function globalFresh(c, L, lid) {
+    if (!c || c.L !== L || c.target !== S.settings.targetWpm || c.dm !== diffMap(lid) || c.day !== Math.floor(Date.now() / DAY_MS2)) return false;
+    let n = 0;
+    for (const ch in L.chars) {
+      const s = L.chars[ch];
+      const r = c.refs[ch];
+      if (!r || r.s !== s || r.t !== s.t || r.len !== s.t.length || r.last !== lastOf(s.t) || r.dl !== (s.td ? s.td.length : 0) || r.dlast !== (s.td ? lastOf(s.td) : -1) || r.ls !== s.ls) return false;
+      n++;
+    }
+    return n === c.n;
+  }
+  function globalMs(lid) {
+    const L = layoutData(lid);
+    const hit = GLOBAL_CACHE[lid];
+    if (globalFresh(hit, L, lid)) return hit.v;
+    const refs = {};
+    let n = 0;
+    for (const ch in L.chars) {
+      const s = L.chars[ch];
+      refs[ch] = { s, t: s.t, len: s.t.length, last: lastOf(s.t), dl: s.td ? s.td.length : 0, dlast: s.td ? lastOf(s.td) : -1, ls: s.ls };
+      n++;
+    }
+    const v = uncachedGlobalMs(lid);
+    GLOBAL_CACHE[lid] = { L, target: S.settings.targetWpm, dm: diffMap(lid), day: Math.floor(Date.now() / DAY_MS2), refs, n, v };
+    return v;
   }
   function wilsonLower(p, n) {
     const z = 0.5;
@@ -4352,22 +4861,33 @@ details[open]:not(.adv) > summary::before {
     const sk = skillOf(lid, ch, s);
     return { expected, learned: sk.ms, correction: sk.ms - expected, weight: sk.ne / (sk.ne + SKILL_K), ne: sk.ne };
   }
+  var SKILL_CACHE = {};
   function skillOf(lid, ch, s) {
+    if (!s) return uncachedSkillOf(lid, ch, s);
+    const key = lid + "\0" + ch;
+    const g = globalMs(lid);
+    const c = SKILL_CACHE[key];
+    if (c && c.s === s && c.t === s.t && c.o === s.o && c.g === g && c.tl === s.t.length && c.ol === s.o.length && c.tlast === lastOf(s.t) && c.olast === lastOf(s.o) && c.day === Math.floor(Date.now() / DAY_MS2) && c.dl === (s.td ? s.td.length + lastOf(s.td) : -1) && c.ol2 === (s.od ? s.od.length + lastOf(s.od) : -1) && c.ls === s.ls) return c.v;
+    const v = uncachedSkillOf(lid, ch, s);
+    SKILL_CACHE[key] = { s, t: s.t, o: s.o, g, tl: s.t.length, ol: s.o.length, tlast: lastOf(s.t), olast: lastOf(s.o), day: Math.floor(Date.now() / DAY_MS2), dl: s.td ? s.td.length + lastOf(s.td) : -1, ol2: s.od ? s.od.length + lastOf(s.od) : -1, ls: s.ls, v };
+    return v;
+  }
+  function uncachedSkillOf(lid, ch, s) {
     const dm = diffMap(lid);
     const prior = Math.log(globalMs(lid) * ((dm[ch] || 1.5) / 1.15));
-    const st = s && s.t.length ? wlogStats(s.t) : { mean: 0, v: 0, ne: 0 };
+    const st = s && s.t.length ? wlogStats(s.t, s.td, s.ls) : { mean: 0, v: 0, ne: 0 };
     const K = SKILL_K;
     const mu = (st.ne * st.mean + K * prior) / (st.ne + K);
     const vr = Math.max(0.01, (st.ne * st.v + K * 0.09) / (st.ne + K));
     const upper = Math.exp(mu + Math.sqrt(vr / (st.ne + K)));
     let succ = 0;
     let tot = 0;
-    let w = 1;
     const o = s ? s.o : [];
-    for (let i = o.length - 1; i >= 0; i--) {
-      tot += w;
-      succ += w * (1 - o[i]);
-      w *= DECAY;
+    fillWeights(o.length, s ? s.od : null, s ? s.ls : 0);
+    const ow = W_OUT;
+    for (let i = 0; i < o.length; i++) {
+      tot += ow[i];
+      succ += ow[i] * (1 - o[i]);
     }
     const a0 = 1.9;
     const b0 = 0.1;
@@ -4383,18 +4903,42 @@ details[open]:not(.adv) > summary::before {
   function gateMs() {
     return rampMs(currentK());
   }
-  function accuracyFloor() {
-    return Math.max(0.8, S.derived.targetAcc - 0.05);
+  var PAUSE = { at: 0, data: null, lid: "", target: 0, v: 0 };
+  function pauseMs() {
+    const lid = S.settings.layout;
+    const now = Date.now();
+    if (PAUSE.data === S.data && PAUSE.lid === lid && PAUSE.target === S.settings.targetWpm && now - PAUSE.at < 2e3 && now >= PAUSE.at) return PAUSE.v;
+    const ms = S.data.layouts[lid] ? globalMs(lid) : 12e3 / (S.settings.targetWpm * 0.5);
+    PAUSE.at = now;
+    PAUSE.data = S.data;
+    PAUSE.lid = lid;
+    PAUSE.target = S.settings.targetWpm;
+    PAUSE.v = Math.min(4e3, Math.max(1e3, 5 * ms));
+    return PAUSE.v;
+  }
+  var DIFF_MEDIAN = {};
+  function medianDifficulty(lid) {
+    const dm = diffMap(lid);
+    const key = lid + currentOrder().length;
+    if (DIFF_MEDIAN[key] === void 0) {
+      const vals = currentOrder().map((c) => dm[c] || 1.5);
+      DIFF_MEDIAN[key] = vals.length ? median(vals) : 1;
+    }
+    return DIFF_MEDIAN[key];
+  }
+  function gateOf(ch) {
+    const lid = S.settings.layout;
+    const ratio = (diffMap(lid)[ch] || 1.5) / medianDifficulty(lid);
+    return gateMs() * Math.min(1.35, Math.max(0.9, ratio));
   }
   function statusOf(s, ch) {
     const P = S.derived;
     if (!s || s.n < P.minS) return "sparse";
     const k = skillOf(S.settings.layout, ch || "", s);
-    const accOk = S.settings.unlock === "strict" ? k.acc >= accuracyFloor() : k.lower >= P.targetAcc;
-    return k.upper <= gateMs() && accOk ? "steady" : "learning";
+    return k.upper <= gateOf(ch) && k.acc >= P.targetAcc - 0.03 ? "steady" : "learning";
   }
-  function lessonAccuracyOk(lid) {
-    const r = recentAccuracy(lid, RECENT_LESSONS);
+  function lessonAccuracyOk(lid, tr) {
+    const r = recentAccuracy(lid, RECENT_LESSONS, tr);
     return r !== null && r >= S.derived.targetAcc;
   }
   function staleOf(s) {
@@ -4405,7 +4949,12 @@ details[open]:not(.adv) > summary::before {
     const P = S.derived;
     if (!s || s.n < P.minS) return 2 + (1 - (s ? s.n : 0) / P.minS);
     const k = skillOf(S.settings.layout, ch || "", s);
-    return Math.max(0.2, k.ms / P.targetMs) + 4 * Math.max(0, 1 - k.acc - (1 - P.targetAcc)) + 0.5 * staleOf(s);
+    const gate = gateOf(ch);
+    const speedGap = Math.max(0, Math.log(k.upper / gate));
+    const accGap = Math.max(0, P.targetAcc - k.lower) * 8;
+    const age = s.ls ? Math.max(0, (Date.now() - s.ls) / 864e5) : 0;
+    const steady = k.upper <= gate && k.acc >= P.targetAcc - 0.03;
+    return speedGap + accGap + (steady ? Math.min(1, age / 14) * 0.5 : 0);
   }
 
   // src/data/quotes.js
@@ -4486,16 +5035,90 @@ details[open]:not(.adv) > summary::before {
   };
   var QUOTE_BUCKETS = { en: [90, 200], ar: [60, 150] };
 
+  // src/engine/sessionlen.js
+  function noteWork(ms, chars, errs) {
+    const s = S.session;
+    s.ms += Math.max(0, ms);
+    s.chars += Math.max(0, chars);
+    s.errs += Math.max(0, errs);
+  }
+  function sessionDue() {
+    const m = S.settings.sessionLen;
+    return m > 0 && !S.session.shown && S.session.ms >= m * 6e4;
+  }
+  function sessionSummary() {
+    const s = S.session;
+    const min = s.ms / 6e4;
+    return { ms: s.ms, chars: s.chars, wpm: min > 0 ? s.chars / 5 / min : 0, acc: s.chars > 0 ? Math.max(0, 1 - s.errs / s.chars) : 1 };
+  }
+  function resetSession() {
+    S.session = { ms: 0, chars: 0, errs: 0, shown: false };
+  }
+
+  // src/engine/weak.js
+  var WEAK_CAP = 60;
+  function isRealWord(lex, w) {
+    if (!lex.wset) lex.wset = new Set(lex.entries.map((e) => e.w));
+    return lex.wset.has(w);
+  }
+  function noteWords(lid, items) {
+    const L = layoutData(lid);
+    const lex = ensureLex(layoutInfo().lang);
+    const weak = L.weak || (L.weak = []);
+    items.forEach((it) => {
+      const w = it.w;
+      if (typeof w !== "string" || w.length < 3 || !isRealWord(lex, w)) return;
+      const i = weak.findIndex((x) => x.w === w);
+      if (it.bad) {
+        if (i >= 0) weak[i].s = weak[i].s * 0.8 + 1;
+        else weak.push({ w, s: 1 });
+      } else if (i >= 0) {
+        weak[i].s *= 0.7;
+        if (weak[i].s < 0.2) weak.splice(i, 1);
+      }
+    });
+    weak.sort((a, b) => b.s - a.s);
+    if (weak.length > WEAK_CAP) weak.length = WEAK_CAP;
+  }
+  function lessonWordItems(lesson) {
+    const items = [];
+    let start = 0;
+    const n = lesson.chars.length;
+    for (let i = 0; i <= n; i++) {
+      if (i === n || lesson.chars[i] === " ") {
+        if (i > start) {
+          let bad = false;
+          for (let j = start; j < i; j++) if (lesson.flag[j]) bad = true;
+          items.push({ w: lesson.chars.slice(start, i).join(""), bad });
+        }
+        start = i + 1;
+      }
+    }
+    return items;
+  }
+  function weakWords(lid, aset) {
+    const L = layoutData(lid);
+    return (L.weak || []).filter((x) => x.w.split("").every((c) => aset.has(c)));
+  }
+
   // src/engine/session.js
   function ringPush(arr, v, cap) {
     arr.push(v);
     if (arr.length > cap) arr.splice(0, arr.length - cap);
   }
+  function notePair(lid, key, wrong) {
+    const L = layoutData(lid);
+    let p = L.pairs[key];
+    if (!p) p = L.pairs[key] = { n: 0, m: 500 };
+    p.tc = (p.tc || 0) * 0.97 + (wrong ? 0 : 1);
+    p.te = (p.te || 0) * 0.97 + (wrong ? 1 : 0);
+  }
   function recordTiming(lid, lesson, expected, prevCh, delta) {
     const P = S.settings;
     const st = charStat(lid, expected, true);
-    if (delta >= 15 && delta <= P.pause) {
+    if (delta >= 15 && delta <= pauseMs()) {
       ringPush(st.t, delta, 40);
+      stampPush(st, "td", !lesson);
       st.n++;
       if (prevCh && prevCh !== " " && expected !== " ") {
         const L = layoutData(lid);
@@ -4504,6 +5127,7 @@ details[open]:not(.adv) > summary::before {
         if (!p) p = L.pairs[key] = { n: 0, m: delta };
         p.m = p.n === 0 ? delta : p.m * 0.8 + delta * 0.2;
         p.n++;
+        notePair(lid, key, false);
       }
     }
   }
@@ -4512,6 +5136,8 @@ details[open]:not(.adv) > summary::before {
     if (!lesson || lesson.done) return;
     const lid = lesson.cm && lesson.cm[lesson.idx] ? S.settings.layout + ":code" : lesson.sid || S.settings.layout;
     if (lesson.idx === 0 && !lesson.start) lesson.start = ts;
+    if (lesson.lastTs != null) lesson.act = (lesson.act || 0) + Math.max(0, Math.min(ts - lesson.lastTs, pauseMs()));
+    lesson.lastTs = ts;
     const i = lesson.idx;
     const expected = lesson.chars[i];
     const st = charStat(lid, expected, true);
@@ -4532,6 +5158,7 @@ details[open]:not(.adv) > summary::before {
         }
         st.a++;
         ringPush(st.o, 0, 40);
+        stampPush(st, "od", false);
         if (lesson.prevTs != null && i > 0 && !lesson.flag[i - 1]) {
           recordTiming(lid, lesson, expected, lesson.chars[i - 1], ts - lesson.prevTs);
         }
@@ -4553,11 +5180,16 @@ details[open]:not(.adv) > summary::before {
         lesson.flag[i] = 1;
         lesson.errTs[i] = ts;
         lesson.errs++;
-        st.a++;
-        st.e++;
-        ringPush(st.o, 1, 40);
-        const keys = Object.keys(st.x);
-        if (ch in st.x || keys.length < 8) st.x[ch] = (st.x[ch] || 0) + 1;
+        const swapped = !lesson.code && ch !== expected && ch === lesson.chars[i + 1] && expected !== " " && ch !== " ";
+        if (swapped) notePair(lid, expected + ch, true);
+        else {
+          st.a++;
+          st.e++;
+          ringPush(st.o, 1, 40);
+          stampPush(st, "od", false);
+          const keys = Object.keys(st.x);
+          if (ch in st.x || keys.length < 8) st.x[ch] = (st.x[ch] || 0) + 1;
+        }
       }
       if (S.settings.onError === "advance") {
         lesson.mark[i] = 2;
@@ -4569,110 +5201,33 @@ details[open]:not(.adv) > summary::before {
     hooks2.painted(i, lesson.idx);
     if (lesson.idx >= lesson.chars.length) finishLesson(ts, hooks2);
   }
-  function noteSession(ms, er) {
-    const ss = S.sess || (S.sess = { lat: [], err: [], fat: false });
-    ss.lat.push(ms);
-    ss.err.push(er);
-    if (ss.lat.length >= 5) {
-      const b = median(ss.lat.slice(0, 3));
-      const c = median(ss.lat.slice(-2));
-      const be = sum(ss.err.slice(0, 3)) / 3;
-      const ce = sum(ss.err.slice(-2)) / 2;
-      ss.fat = c > b * 1.15 && ce > be;
-    }
-  }
-  function worstActive() {
-    const lid = S.settings.layout;
-    let best = null;
-    let bv = -1;
-    activeKeys().forEach((c) => {
-      const s = charStat(lid, c, false);
-      if (statusOf(s, c) !== "learning") return;
-      const v = needOf(s, c);
-      if (v > bv) {
-        bv = v;
-        best = c;
-      }
-    });
-    return best;
-  }
   function advance() {
     const lid = S.settings.layout;
     const L = layoutData(lid);
     const order = currentOrder();
     L.tot = (L.tot || 0) + 1;
     L.lk = (L.lk || 0) + 1;
-    if (L.rescue > 0) L.rescue--;
     if (S.settings.progression !== "auto") return;
     const k = currentK();
     if (k >= order.length) return;
-    if (S.sess && S.sess.fat) return;
-    const unlock = () => {
+    const settled = activeKeys().every((c) => statusOf(charStat(lid, c, false), c) === "steady");
+    const ready = settled && lessonAccuracyOk(lid, "letters");
+    if (gateUnlock(lid, "letters", ready)) {
       setK(k + 1);
       L.lk = 0;
-      L.bk = null;
-      L.rescue = 0;
-      S.sess = null;
-    };
-    const settled = activeKeys().every((c) => statusOf(charStat(lid, c, false), c) === "steady");
-    if (settled && (S.settings.unlock !== "strict" || lessonAccuracyOk(lid))) {
-      unlock();
-      return;
+      resetSitting(lid, "letters");
     }
-    if (S.settings.unlock === "strict") return;
-    const b = worstActive();
-    if (!b) return;
-    const mu = aggMu(lid);
-    if (!L.bk) {
-      L.bk = { c: b, mu, lk: L.lk, rs: 0, rl: 0, mu2: mu };
-      return;
-    }
-    const bk = L.bk;
-    if (!bk.rs) {
-      if (L.lk - bk.lk >= 12) {
-        if (bk.mu - mu < 0.06) {
-          bk.c = b;
-          bk.rs = 1;
-          bk.rl = L.lk;
-          bk.mu2 = mu;
-          L.rescue = 2;
-        } else {
-          bk.mu = mu;
-          bk.lk = L.lk;
-        }
-      }
-    } else if (L.rescue === 0 && L.lk - bk.rl >= 2) {
-      if (bk.mu2 - mu < 0.06) {
-        L.raise = { c: bk.c, until: L.tot + 30 };
-        unlock();
-        return;
-      }
-      bk.rs = 0;
-      bk.mu = mu;
-      bk.lk = L.lk;
-    }
-    if (L.lk >= 60) {
-      L.raise = { c: bk.c, until: L.tot + 30 };
-      unlock();
-    }
-  }
-  function aggMu(lid) {
-    const act = activeKeys();
-    let m = 0;
-    act.forEach((c) => {
-      m += skillOf(lid, c, charStat(lid, c, false)).mu;
-    });
-    return m / act.length;
   }
   function finishLesson(ts, hooks2) {
     const lesson = S.lesson;
     lesson.done = true;
     const n = lesson.chars.length;
-    const dur2 = Math.max(1, ts - lesson.start);
+    const wall = Math.max(1, ts - lesson.start);
+    const dur2 = lesson.act > 0 ? lesson.act : wall;
     const wpm = Math.max(0, (n - 1) / 5 / (dur2 / 6e4));
     const acc = Math.max(0, 1 - lesson.errs / n);
     if (lesson.code) {
-      finishCode(lesson, dur2);
+      finishCode(lesson, wall);
       scheduleSave();
       hooks2.finished();
       return;
@@ -4684,15 +5239,20 @@ details[open]:not(.adv) > summary::before {
       return;
     }
     S.lastResult = { wpm, acc };
-    S.data.lessons.push({ ts: Date.now(), lid: S.settings.layout, wpm: Math.round(wpm * 10) / 10, acc: Math.round(acc * 1e3) / 1e3, n });
+    S.data.lessons.push({ ts: Date.now(), lid: S.settings.layout, tr: lesson.track || "letters", wpm: Math.round(wpm * 10) / 10, acc: Math.round(acc * 1e3) / 1e3, n, ams: Math.round(dur2) });
     if (S.data.lessons.length > 300) S.data.lessons.splice(0, S.data.lessons.length - 300);
     recordSession("l", S.settings.layout, wpm, acc, dur2, n);
     if (acc >= 0.9) notePb(lessonPbKey(S.settings.layout), wpm, acc);
-    if (!(layoutData(S.settings.layout).rescue > 0)) noteSession(dur2 / n, lesson.errs / n);
+    noteSession(S.settings.layout, lesson.track || "letters", dur2 / n, lesson.errs / n);
+    noteWork(dur2, n, lesson.errs);
+    if (!lesson.code && (!lesson.track || lesson.track === "letters")) noteWords(S.settings.layout, lessonWordItems(lesson));
     if (lesson.track && lesson.track !== "letters") advanceTrack(lesson.track);
     else advance();
     scheduleSave();
     hooks2.finished();
+  }
+  function needsEscConfirm(lesson) {
+    return !!lesson && !lesson.done && !lesson.code && lesson.chars.length > 0 && lesson.idx / lesson.chars.length > 0.3;
   }
 
   // src/engine/model.js
@@ -4766,124 +5326,8 @@ details[open]:not(.adv) > summary::before {
     items.sort((a, b) => b.gain - a.gain);
     return { base, gErr, recMs, est, cost, impact, pexcess, pimpact, items, tAvg, cover, wpm: tAvg > 0 ? 12e3 / tAvg : null, ready: base != null && cover >= 0.6 };
   }
-  function confusionsOf(lid, aset) {
-    const L = layoutData(lid);
-    const agg = {};
-    for (const c in L.chars) {
-      if (c.length !== 1 || !aset.has(c)) continue;
-      const s = L.chars[c];
-      if (!s.a) continue;
-      for (const x in s.x) {
-        if (x.length !== 1 || x === c || !aset.has(x) || s.x[x] < 2) continue;
-        if (s.x[x] / s.a < 0.03) continue;
-        const k = c < x ? c + x : x + c;
-        agg[k] = (agg[k] || 0) + s.x[x];
-      }
-    }
-    return Object.keys(agg).map((k) => ({ a: k[0], b: k[1], n: agg[k] })).sort((p, q) => q.n - p.n).slice(0, 2);
-  }
-  function neighborsOf(ch) {
-    const lay = layoutInfo();
-    const r = lay.rev[ch];
-    if (!r) return [];
-    let pos = null;
-    GEOM.forEach((row, ri) => {
-      const ci = row.indexOf(r.code);
-      if (ci >= 0) pos = [ri, ci];
-    });
-    if (!pos) return [];
-    const out = [];
-    [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, 1], [1, -1]].forEach((d) => {
-      const row = GEOM[pos[0] + d[0]];
-      const code = row ? row[pos[1] + d[1]] : null;
-      const m = code ? lay.map[code] : null;
-      if (m && m[0].length === 1) out.push(m[0]);
-    });
-    return out;
-  }
 
   // src/engine/words.js
-  function buildContext() {
-    const st = S.settings;
-    const lay = layoutInfo();
-    const lex = ensureLex(lay.lang);
-    const lid = st.layout;
-    const P = S.derived;
-    const L = layoutData(lid);
-    const activeArr = activeKeys();
-    const aset = new Set(activeArr);
-    const needs = /* @__PURE__ */ new Map();
-    const pscore = {};
-    let focus = null;
-    let focusPair = null;
-    const focusPairs = [];
-    const raised = (c) => L.raise && L.raise.c === c && (L.tot || 0) < L.raise.until;
-    if (st.algo === "classic") {
-      activeArr.forEach((c) => needs.set(c, needOf(charStat(lid, c, false), c) + (raised(c) ? 1.5 : 0)));
-      focus = pickFocus(activeArr, needs);
-    } else {
-      const M = model(lid);
-      let maxImp = 0;
-      let maxCost = 0;
-      activeArr.forEach((c) => {
-        const s = charStat(lid, c, false);
-        if (s && s.n >= P.minS) {
-          maxImp = Math.max(maxImp, M.impact[c] || 0);
-          maxCost = Math.max(maxCost, M.cost[c] || 0);
-        }
-      });
-      const damp = M.base ? Math.min(1, maxCost / (0.2 * M.base)) : 1;
-      activeArr.forEach((c) => {
-        const s = charStat(lid, c, false);
-        let p;
-        if (!s || s.n < P.minS) p = 3 + 2 * (1 - (s ? s.n : 0) / P.minS);
-        else {
-          p = 1 + 4 * damp * (maxImp ? (M.impact[c] || 0) / maxImp : 0);
-          p += 0.5 * staleOf(s);
-        }
-        if (raised(c)) p += 1.5;
-        needs.set(c, p);
-      });
-      focus = pickFocus(activeArr, needs);
-      let maxPair = 0;
-      for (const k in M.pimpact) if (aset.has(k[0]) && aset.has(k[1])) maxPair = Math.max(maxPair, M.pimpact[k]);
-      let maxEx = 0;
-      for (const k in M.pexcess) if (aset.has(k[0]) && aset.has(k[1])) maxEx = Math.max(maxEx, M.pexcess[k]);
-      const dampP = M.base ? Math.min(1, maxEx / (0.2 * M.base)) : 1;
-      if (maxPair > 0) {
-        for (const k in M.pimpact) {
-          if (aset.has(k[0]) && aset.has(k[1])) pscore[k] = dampP * (M.pimpact[k] / maxPair);
-        }
-        Object.keys(pscore).filter((k) => pscore[k] >= 0.35).sort((a, b) => pscore[b] - pscore[a]).slice(0, 3).forEach((k) => focusPairs.push(k));
-        focusPair = focusPairs[0] || null;
-      }
-    }
-    let drill = null;
-    if (L.rescue > 0 && L.bk && aset.has(L.bk.c)) {
-      drill = {
-        key: L.bk.c,
-        neigh: new Set(neighborsOf(L.bk.c).filter((c) => aset.has(c))),
-        pairs: slowestInto(lid, L.bk.c, 3).map((p) => p.pair).filter((k) => aset.has(k[0]))
-      };
-      focus = drill.key;
-      if (drill.pairs.length) focusPair = drill.pairs[0];
-    }
-    const minL = Math.min(st.wordMin, st.wordMax);
-    const maxL = Math.max(st.wordMin, st.wordMax);
-    return { lex, aset, activeArr, focus, focusPair, focusPairs, pscore, s: st.focus / 100, needs, minL, maxL, confs: confusionsOf(lid, aset), drill };
-  }
-  function pickFocus(chars, needs) {
-    let best = null;
-    let bv = -1;
-    chars.forEach((c) => {
-      const v = needs.get(c) + rnd() * 1e-3;
-      if (v > bv) {
-        bv = v;
-        best = c;
-      }
-    });
-    return best;
-  }
   function rand(n) {
     return Math.floor(rnd() * n);
   }
@@ -4901,7 +5345,7 @@ details[open]:not(.adv) > summary::before {
     const { activeArr, focus, s, minL, maxL } = ctx;
     const hi = Math.max(minL, Math.min(maxL, minL + 2));
     const len = minL + rand(hi - minL + 1);
-    const weights = activeArr.map((a) => (a === focus ? 1 + s * 3 : 1) * (ctx.drill && ctx.drill.neigh.has(a) ? 1.8 : 1));
+    const weights = activeArr.map((a) => a === focus ? 1 + s * 3 : 1);
     let w = "";
     let guard = 0;
     while (w.length < len && guard++ < 200) {
@@ -4911,12 +5355,21 @@ details[open]:not(.adv) > summary::before {
     }
     return w;
   }
-  function genWord(ctx) {
+  function mustWord(ctx, must) {
+    const w = fallbackWord(ctx).split("");
+    if (w.indexOf(must) < 0 && w.length) w[rand(w.length)] = must;
+    return w.join("");
+  }
+  function genWord(ctx, must) {
     const { lex, aset, focus, s, minL, maxL, needs, pscore } = ctx;
     for (let attempt = 0; attempt < 40; attempt++) {
       const out = [];
       let p2 = "^";
       let p1 = "^";
+      if (must && attempt % 2 === 0) {
+        out.push(must);
+        p1 = must;
+      }
       while (out.length < maxL) {
         const cands = [];
         const ws = [];
@@ -4952,14 +5405,16 @@ details[open]:not(.adv) > summary::before {
       if (out.length < minL) continue;
       const w = out.join("");
       if (/(.)\1\1/.test(w)) continue;
+      if (must && out.indexOf(must) < 0) continue;
+      if (/^(.{1,2})\1+$/.test(w)) continue;
       if (focus && s > 0.3 && out.indexOf(focus) < 0 && rnd() < s) continue;
       return w;
     }
-    return fallbackWord(ctx);
+    return must ? mustWord(ctx, must) : fallbackWord(ctx);
   }
   function decorate(word, ctx) {
     const st = S.settings;
-    const rate = st.extraRate / 100;
+    const rate = EXTRA_RATE / 100;
     const lang = layoutInfo().lang;
     if (st.digits && rnd() < rate * 0.8) {
       const digs = DIGITS.filter(typeable);
@@ -4986,17 +5441,87 @@ details[open]:not(.adv) > summary::before {
     return word;
   }
   var LEVEL_EXP = { common: 2.5, balanced: 1.25, wide: 0.4 };
+  var POOLS = { lex: null, key: "", pool: null, wide: null };
+  function poolFor(lex, aset, activeArr, minL, maxL, allowWide) {
+    const key = activeArr.join("") + "|" + minL + "|" + maxL;
+    if (POOLS.lex !== lex || POOLS.key !== key) {
+      POOLS.lex = lex;
+      POOLS.key = key;
+      POOLS.pool = lex.entries.filter((e) => e.len >= minL && e.len <= maxL && e.chars.every((c) => aset.has(c)));
+      POOLS.wide = null;
+    }
+    let pool = POOLS.pool;
+    if (pool.length < 40 && allowWide) {
+      if (!POOLS.wide) POOLS.wide = lex.entries.filter((e) => e.len >= 2 && e.len <= Math.max(maxL, 9) && e.chars.every((c) => aset.has(c)));
+      if (POOLS.wide.length > pool.length) pool = POOLS.wide;
+    }
+    return pool;
+  }
+  var CAND_CAP = 1200;
+  var NEED_ARR = new Float64Array(65536);
+  var STALE_ARR = new Float64Array(65536);
+  var STEADY_ARR = new Uint8Array(65536);
+  function codesOf(e) {
+    if (!e.cc) {
+      const cc = new Uint16Array(e.len);
+      for (let j = 0; j < e.len; j++) cc[j] = e.chars[j].charCodeAt(0);
+      e.cc = cc;
+      const pc = new Float64Array(Math.max(0, e.len - 1));
+      for (let j = 1; j < e.len; j++) pc[j - 1] = cc[j - 1] * 65536 + cc[j];
+      e.pc = pc;
+    }
+    return e.cc;
+  }
+  function focusTemp(s) {
+    return s <= 0.4 ? 1.2 : s <= 0.75 ? 0.7 : 0.4;
+  }
+  function buildContext() {
+    const st = S.settings;
+    const lay = layoutInfo();
+    const lex = ensureLex(lay.lang);
+    const lid = st.layout;
+    const L = layoutData(lid);
+    const activeArr = activeKeys();
+    const aset = new Set(activeArr);
+    const needs = /* @__PURE__ */ new Map();
+    const blockers = [];
+    const raised = (c) => L.raise && L.raise.c === c && (L.tot || 0) < L.raise.until;
+    activeArr.forEach((c) => {
+      const s2 = charStat(lid, c, false);
+      needs.set(c, needOf(s2, c) + (raised(c) ? 1.5 : 0));
+      if (statusOf(s2, c) !== "steady") blockers.push(c);
+    });
+    let focus = null;
+    let bv = -1;
+    (blockers.length ? blockers : activeArr).forEach((c) => {
+      const v = (blockers.length ? needs.get(c) : needs.get(c) * (lex.fn[c] || 2e-3)) + rnd() * 1e-3;
+      if (v > bv) {
+        bv = v;
+        focus = c;
+      }
+    });
+    const M = model(lid);
+    const pairNeed = {};
+    const scale = 0.5 * (M.base || 300);
+    for (const k in M.pexcess) if (aset.has(k[0]) && aset.has(k[1])) pairNeed[k] = Math.min(2, M.pexcess[k] / scale);
+    for (const k in L.pairs) {
+      const p = L.pairs[k];
+      if (!(p.te > 0.5) || !aset.has(k[0]) || !aset.has(k[1])) continue;
+      pairNeed[k] = Math.min(2, (pairNeed[k] || 0) + 6 * (p.te / (p.te + (p.tc || 0) + 3)));
+    }
+    const focusPairs = Object.keys(pairNeed).filter((k) => pairNeed[k] >= 0.35).sort((a, b) => pairNeed[b] - pairNeed[a]).slice(0, 3);
+    const minL = WORD_LEN[st.wordLen][0];
+    const maxL = WORD_LEN[st.wordLen][1];
+    const s = FOCUS_S[st.focusLevel];
+    return { lex, aset, activeArr, focus, fluency: blockers.length === 0, focusPair: focusPairs[0] || null, focusPairs, pairNeed, pscore: pairNeed, s, T: focusTemp(s), needs, minL, maxL };
+  }
   function buildWords() {
     const st = S.settings;
     const ctx = buildContext();
-    const { lex, aset, activeArr, focus, focusPair, focusPairs, pscore, s, needs, minL, maxL, confs, drill } = ctx;
+    const { lex, aset, activeArr, focus, focusPair, focusPairs, pairNeed, needs, minL, maxL, T: T2 } = ctx;
     const lid = st.layout;
     const N = st.lessonWords;
-    let pool = lex.entries.filter((e) => e.len >= minL && e.len <= maxL && e.chars.every((c) => aset.has(c)));
-    if (pool.length < 40 && st.text !== "generated") {
-      const wide = lex.entries.filter((e) => e.len >= 2 && e.len <= Math.max(maxL, 9) && e.chars.every((c) => aset.has(c)));
-      if (wide.length > pool.length) pool = wide;
-    }
+    const pool = poolFor(lex, aset, activeArr, minL, maxL, st.text !== "generated");
     let share = 0;
     if (st.text === "real") share = pool.length >= 5 ? 1 : 0;
     else if (st.text === "auto") share = pool.length >= 40 ? 1 : pool.length >= 8 ? pool.length / 40 : 0;
@@ -5006,51 +5531,97 @@ details[open]:not(.adv) > summary::before {
     else if (pool.length > 2 * N && last.length) last[last.length - 1].forEach((w) => recent.add(w));
     let avail = pool.filter((e) => !recent.has(e.w));
     if (avail.length < 8) avail = pool;
+    const focusCode = focus ? focus.charCodeAt(0) : -1;
+    const fpCodes = focusPairs.map((k) => k.charCodeAt(0) * 65536 + k.charCodeAt(1));
+    if (avail.length > CAND_CAP * 1.5) {
+      const keep = new Uint8Array(avail.length);
+      for (let n = 0; n < CAND_CAP; n++) keep[rand(avail.length)] = 1;
+      for (let i = 0; i < avail.length; i++) {
+        if (keep[i]) continue;
+        const e = avail[i];
+        const cc = codesOf(e);
+        let hit = cc.indexOf(focusCode) >= 0;
+        for (let q = 0; q < fpCodes.length && !hit; q++) if (e.pc.indexOf(fpCodes[q]) >= 0) hit = true;
+        if (hit) keep[i] = 1;
+      }
+      avail = avail.filter((e, i) => keep[i] === 1);
+    }
     const steady = new Set(activeArr.filter((c) => statusOf(charStat(lid, c, false), c) === "steady"));
     const stale = {};
     activeArr.forEach((c) => {
       stale[c] = staleOf(charStat(lid, c, false));
     });
-    const confSet = confs.map((x) => x.a + x.b);
-    const wF = [];
-    const wC = [];
-    const wR = [];
-    avail.forEach((e) => {
-      let kt = 0;
-      for (const c of e.chars) kt += Math.max(0, (needs.get(c) || 1) - 0.8);
-      kt /= e.len;
-      let pt = 0;
-      for (let j = 1; j < e.len; j++) pt += pscore[e.chars[j - 1] + e.chars[j]] || 0;
-      pt = e.len > 1 ? pt / (e.len - 1) : 0;
-      const bw = Math.pow(e.base, LEVEL_EXP[st.wordLevel] || 1.25);
-      let f = bw * (1 + s * SHARP * (3 * kt + 6 * pt));
-      if (e.chars.indexOf(focus) >= 0) f *= 1 + s * 6 * SHARP;
-      for (const fp of focusPairs) if (e.w.indexOf(fp) >= 0) f *= 1 + s * 4 * SHARP;
-      confSet.forEach((cp) => {
-        const ha = e.chars.indexOf(cp[0]) >= 0;
-        const hb = e.chars.indexOf(cp[1]) >= 0;
-        if (ha || hb) f *= 1 + s * 2;
-        if (ha && hb) f *= 1 + s * 4;
-      });
-      if (drill) {
-        for (const c of e.chars) if (drill.neigh.has(c)) f *= 1.4;
-        for (const dp of drill.pairs) if (e.w.indexOf(dp) >= 0) f *= 3;
-      }
-      wF.push(f);
-      wC.push(bw * (1 + 0.6 * s * kt));
-      let rv = 0;
-      if (e.chars.every((c) => steady.has(c))) {
-        let sv = 0;
-        for (const c of e.chars) sv += stale[c] || 0;
-        rv = bw * (1 + 3 * sv / e.len);
-      }
-      wR.push(rv);
+    const exp = LEVEL_EXP[st.wordLevel] || 1.25;
+    const pairKeys = Object.keys(pairNeed);
+    const anyPair = pairKeys.length > 0;
+    const pairMap = /* @__PURE__ */ new Map();
+    pairKeys.forEach((k) => pairMap.set(k.charCodeAt(0) * 65536 + k.charCodeAt(1), pairNeed[k]));
+    activeArr.forEach((c) => {
+      const code = c.charCodeAt(0);
+      NEED_ARR[code] = needs.get(c) || 0;
+      STALE_ARR[code] = stale[c] || 0;
+      STEADY_ARR[code] = steady.has(c) ? 1 : 0;
     });
-    const hasR = steady.size >= 3 && wR.some((v) => v > 0) && !drill;
-    const nR = hasR ? Math.round(N * 0.1) : 0;
-    const nF = Math.round(N * 0.6);
+    const wS = new Float64Array(avail.length);
+    const wR = new Float64Array(avail.length);
+    const fIdx = [];
+    const pIdx = [];
+    let anyR = false;
+    for (let i = 0; i < avail.length; i++) {
+      const e = avail[i];
+      const cc = codesOf(e);
+      const len = e.len;
+      let nv = 0;
+      let hasFocus = false;
+      let allSteady = true;
+      let sv = 0;
+      for (let j = 0; j < len; j++) {
+        const code = cc[j];
+        nv += NEED_ARR[code];
+        if (code === focusCode) hasFocus = true;
+        if (STEADY_ARR[code] === 0) allSteady = false;
+        sv += STALE_ARR[code];
+      }
+      nv /= len;
+      let pv = 0;
+      let hasPair = false;
+      if (anyPair) {
+        const pc = e.pc;
+        for (let j = 0; j < pc.length; j++) {
+          const v = pairMap.get(pc[j]);
+          if (v !== void 0) pv += v;
+          if (!hasPair) {
+            for (let q = 0; q < fpCodes.length; q++) {
+              if (fpCodes[q] === pc[j]) {
+                hasPair = true;
+                break;
+              }
+            }
+          }
+        }
+        pv = len > 1 ? pv / (len - 1) : 0;
+      }
+      if (e.bwe !== exp) {
+        e.bwe = exp;
+        e.bwv = Math.pow(e.base, exp);
+      }
+      wS[i] = e.bwv * Math.exp((nv + 1.5 * pv) / T2);
+      if (hasFocus) fIdx.push(i);
+      if (hasPair) pIdx.push(i);
+      if (allSteady) {
+        wR[i] = e.bwv * (1 + 3 * sv / len);
+        anyR = true;
+      }
+    }
+    const weakAvail = ctx.fluency ? weakWords(lid, aset) : [];
+    const nW = weakAvail.length ? Math.min(Math.round(N * 0.3), weakAvail.length) : 0;
+    const nR = steady.size >= 3 && anyR ? Math.round(N * 0.1) : 0;
+    const nF = focus ? Math.round(N * (ctx.fluency ? 0.3 : 0.6)) : 0;
+    const nP = focusPairs.length ? Math.min(Math.round(N * (ctx.fluency ? 0.4 : 0.25)), Math.max(0, N - nF - nR - nW)) : 0;
     const roles = [];
+    for (let i = 0; i < nW; i++) roles.push("w");
     for (let i = 0; i < nF; i++) roles.push("f");
+    for (let i = 0; i < nP; i++) roles.push("p");
     for (let i = 0; i < nR; i++) roles.push("r");
     while (roles.length < N) roles.push("c");
     for (let i = roles.length - 1; i > 0; i--) {
@@ -5059,25 +5630,79 @@ details[open]:not(.adv) > summary::before {
       roles[i] = roles[j];
       roles[j] = tmp;
     }
+    const allIdx = avail.map((e, i) => i);
     const words = [];
     const raw = [];
     const used = /* @__PURE__ */ new Set();
     let prev = "";
+    const sampler = (idx, weights) => {
+      const cum = new Float64Array(idx.length);
+      let tot = 0;
+      for (let j = 0; j < idx.length; j++) {
+        tot += weights[idx[j]];
+        cum[j] = tot;
+      }
+      return { idx, cum, tot };
+    };
+    const cache = /* @__PURE__ */ new Map();
+    const fromIdx = (idx, weights) => {
+      if (!idx.length) return null;
+      let sm = cache.get(weights);
+      if (!sm) {
+        sm = /* @__PURE__ */ new Map();
+        cache.set(weights, sm);
+      }
+      let s = sm.get(idx);
+      if (!s) {
+        s = sampler(idx, weights);
+        sm.set(idx, s);
+      }
+      if (!(s.tot > 0)) return null;
+      for (let tries = 0; tries < 12; tries++) {
+        const r = rnd() * s.tot;
+        let lo = 0;
+        let hi = s.cum.length - 1;
+        while (lo < hi) {
+          const mid = lo + hi >> 1;
+          if (s.cum[mid] >= r) hi = mid;
+          else lo = mid + 1;
+        }
+        const cand = avail[s.idx[lo]].w;
+        if (cand !== prev && !used.has(cand)) return cand;
+      }
+      return null;
+    };
     for (let i = 0; i < N; i++) {
+      const role = roles[i];
       let w = null;
-      if (avail.length && (share >= 1 || rnd() < share)) {
-        const ws = roles[i] === "f" ? wF : roles[i] === "r" ? wR : wC;
-        for (let tries = 0; tries < 12; tries++) {
-          const cand = pickW(avail, ws).w;
-          if (cand !== prev && (!used.has(cand) || avail.length < N)) {
-            w = cand;
-            break;
+      if (role === "w") {
+        const open = weakAvail.filter((x) => !used.has(x.w) && x.w !== prev);
+        if (open.length) {
+          let tot = 0;
+          open.forEach((x) => {
+            tot += x.s;
+          });
+          let r = rnd() * tot;
+          w = open[open.length - 1].w;
+          for (let j = 0; j < open.length; j++) {
+            r -= open[j].s;
+            if (r <= 0) {
+              w = open[j].w;
+              break;
+            }
           }
         }
       }
+      if (w == null && avail.length && (share >= 1 || rnd() < share)) {
+        if (role === "p") w = fromIdx(pIdx, wS);
+        if (w == null && (role === "f" || role === "p")) w = fromIdx(fIdx, wS);
+        if (w == null && role === "r") w = fromIdx(allIdx, wR);
+        if (w == null && role !== "f" && role !== "p") w = fromIdx(allIdx, wS);
+      }
       if (w == null) {
+        const must = role === "f" || role === "p" ? focus : null;
         for (let tries = 0; tries < 12; tries++) {
-          const cand = activeArr.length <= 6 ? fallbackWord(ctx) : genWord(ctx);
+          const cand = genWord(ctx, must);
           if (!used.has(cand) || tries === 11) {
             w = cand;
             break;
@@ -5223,6 +5848,8 @@ details[open]:not(.adv) > summary::before {
       start: 0,
       end: 0,
       prevTs: null,
+      act: 0,
+      lastTs: null,
       prevCh: null,
       prevOk: false,
       ccWords: 0,
@@ -5257,7 +5884,7 @@ details[open]:not(.adv) > summary::before {
       per.e++;
       per.a++;
     } else if (ok && !seen) per.a++;
-    if (delta != null && delta >= 15 && delta <= P.pause) {
+    if (delta != null && delta >= 15 && delta <= pauseMs()) {
       per.n++;
       per.sum += delta;
     }
@@ -5270,12 +5897,14 @@ details[open]:not(.adv) > summary::before {
       if (!seen) {
         stt.a++;
         ringPush(stt.o, 0, 40);
+        stampPush(stt, "od", true);
         if (delta != null) recordTiming(T2.lid, null, expected, T2.prevCh, delta);
       }
     } else if (!seen) {
       stt.a++;
       stt.e++;
       ringPush(stt.o, 1, 40);
+      stampPush(stt, "od", true);
       const keys = Object.keys(stt.x);
       if (ch in stt.x || keys.length < 8) stt.x[ch] = (stt.x[ch] || 0) + 1;
     }
@@ -5294,6 +5923,8 @@ details[open]:not(.adv) > summary::before {
       T2.running = true;
       T2.start = ts;
     }
+    if (T2.lastTs != null) T2.act += Math.max(0, Math.min(ts - T2.lastTs, pauseMs()));
+    T2.lastTs = ts;
     if (ch === " ") {
       const ok2 = T2.typed === w;
       T2.strokes++;
@@ -5414,6 +6045,9 @@ details[open]:not(.adv) > summary::before {
     T2.failed = failed || "";
     testSnap(T2, ts);
     const durMs = Math.max(1e3, ts - T2.start);
+    const tail = T2.lastTs != null ? Math.max(0, Math.min(ts - T2.lastTs, pauseMs())) : 0;
+    const activeMs = Math.max(1e3, T2.act + tail);
+    if (T2.strokes > 0) noteWork(activeMs, T2.strokes, T2.bad);
     const min = durMs / 6e4;
     const net = testNetNow(T2);
     const raw = testRawNow(T2);
@@ -5477,7 +6111,11 @@ details[open]:not(.adv) > summary::before {
         if (S.data.tests.length > 200) S.data.tests.splice(0, S.data.tests.length - 200);
         notePb(testPbKey(rec), rec.wpm, rec.acc, rec.ts);
       }
-      recordSession("t", T2.lid, wpm, acc, durMs, T2.strokes, rec.ts);
+      recordSession("t", T2.lid, wpm, acc, activeMs, T2.strokes, rec.ts);
+      noteWords(T2.lid, T2.committed.map((typed, i) => ({ w: T2.words[i], bad: typed !== T2.words[i] })));
+      scheduleSave();
+    } else if (T2.strokes > 0) {
+      recordTime(T2.lid, activeMs, T2.strokes, rec.ts);
       scheduleSave();
     }
   }
@@ -5507,6 +6145,14 @@ details[open]:not(.adv) > summary::before {
     L.placed = true;
     T2.res.placed = L.k;
     scheduleSave();
+  }
+  function missedWords(T2) {
+    const out = [];
+    T2.committed.forEach((typed, i) => {
+      const w = T2.words[i];
+      if (typeof w === "string" && typed !== w && /^\p{L}{3,24}$/u.test(w) && out.indexOf(w) < 0) out.push(w);
+    });
+    return out.slice(0, 12);
   }
 
   // src/engine/code.js
@@ -5702,7 +6348,7 @@ details[open]:not(.adv) > summary::before {
   function legacyMix(st) {
     const lang = LAYOUTS[st.layout].lang;
     const m = defaultMix();
-    const w = Math.max(1, Math.min(100, Math.round(st.extraRate)));
+    const w = EXTRA_RATE;
     m.letters.weight = 100;
     m.capitals = { on: !!st.caps && lang === "en", weight: w };
     m.digits = { on: !!st.digits, weight: w };
@@ -5786,8 +6432,7 @@ details[open]:not(.adv) > summary::before {
     const L = layoutData(lid);
     const order = currentOrder();
     let pool;
-    if (S.settings.carrier === "active") pool = activeKeys();
-    else {
+    {
       const steady = order.filter((c) => statusOf(L.chars[c], c) === "steady");
       pool = steady.length >= 4 ? steady : useActive ? activeKeys() : order.slice(0, 4);
     }
@@ -6004,8 +6649,9 @@ details[open]:not(.adv) > summary::before {
     layoutData(S.settings.layout).tracks[tr].k = Math.max(1, Math.min(trackKeys(tr).length, k));
     scheduleSave();
   }
-  var TRACK_PATIENCE = 30;
-  var STALL_LESSONS = 30;
+  function stallAt() {
+    return S.data.early ? 15 : 30;
+  }
   function advanceTrack(tr) {
     const lid = S.settings.layout;
     const L = layoutData(lid);
@@ -6016,28 +6662,30 @@ details[open]:not(.adv) > summary::before {
     const slot = L.tracks[tr];
     slot.lk = (slot.lk || 0) + 1;
     const settled = trackActive(tr).every((c) => statusOf(charStat(lid, c, false), c) === "steady");
-    const ready = settled && (S.settings.unlock !== "strict" || lessonAccuracyOk(lid));
-    if (ready || S.settings.unlock === "assist" && slot.lk >= TRACK_PATIENCE) {
+    const ready = settled && lessonAccuracyOk(lid, tr);
+    if (gateUnlock(lid, tr, ready)) {
       setTrackK(tr, k + 1);
       slot.lk = 0;
+      resetSitting(lid, tr);
     }
   }
   function stallInfo() {
     const P = S.settings;
-    if (P.progression !== "auto" || P.unlock !== "strict") return null;
+    if (P.progression !== "auto") return null;
     const tr = learnTrack();
     const lid = P.layout;
     const L = layoutData(lid);
     const complete = tr === "letters" ? currentK() >= currentOrder().length : trackK(tr) >= trackKeys(tr).length;
     if (complete) return null;
+    if (fatigueHolding(lid, tr)) return { track: tr, kind: "fatigue", lessons: tr === "letters" ? L.lk || 0 : L.tracks[tr].lk || 0 };
     const spent = tr === "letters" ? L.lk || 0 : L.tracks[tr].lk || 0;
-    if (spent < STALL_LESSONS) return null;
+    if (spent < stallAt()) return null;
     const keys = trackActive(tr);
     let worst = null;
     let top = -1;
     keys.forEach((c) => {
       const s = charStat(lid, c, false);
-      if (statusOf(s, c) !== "learning") return;
+      if (statusOf(s, c) === "steady") return;
       const v = needOf(s, c);
       if (v > top) {
         top = v;
@@ -6045,12 +6693,14 @@ details[open]:not(.adv) > summary::before {
       }
     });
     if (worst === null) {
-      const recent = recentAccuracy(lid, RECENT_LESSONS);
+      const recent = recentAccuracy(lid, RECENT_LESSONS, tr);
       if (recent === null || recent >= S.derived.targetAcc) return null;
       return { track: tr, kind: "lessons", n: keys.length, acc: recent, target: S.derived.targetAcc, lessons: spent };
     }
-    const sk = skillOf(lid, worst, charStat(lid, worst, false));
-    const gate = gateMs();
+    const ws = charStat(lid, worst, false);
+    if (statusOf(ws, worst) === "sparse") return { track: tr, kind: "few", c: worst, n: keys.length, have: ws ? ws.n : 0, need: S.derived.minS, lessons: spent };
+    const sk = skillOf(lid, worst, ws);
+    const gate = gateOf(worst);
     const slow = sk.upper > gate;
     return { track: tr, kind: slow ? "speed" : "key", c: worst, n: keys.length, ms: Math.round(sk.ms), gate: Math.round(gate), acc: sk.acc, target: S.derived.targetAcc, lessons: spent };
   }
@@ -6067,6 +6717,24 @@ details[open]:not(.adv) > summary::before {
     const lid = S.settings.layout;
     return pickW(keys, keys.map((c) => Math.max(0.2, needOf(charStat(lid, c, false), c))));
   }
+  function trackFocus(keys) {
+    const lid = S.settings.layout;
+    let best = null;
+    let bv = -1;
+    keys.forEach((c) => {
+      const s = charStat(lid, c, false);
+      if (statusOf(s, c) === "steady") return;
+      const v = needOf(s, c) + rnd() * 1e-3;
+      if (v > bv) {
+        bv = v;
+        best = c;
+      }
+    });
+    return best;
+  }
+  function wantKey(keys, focus) {
+    return focus && rnd() < 0.6 ? focus : pickNeed(keys);
+  }
   function validTrackToken(tok, set) {
     let has = false;
     for (const c of tok) {
@@ -6080,7 +6748,8 @@ details[open]:not(.adv) > summary::before {
     const N = S.settings.lessonWords;
     const keys = trackActive(tr);
     const words = [];
-    const out = () => ({ words, focus: null, focusPair: null });
+    const focus = trackFocus(keys);
+    const out = () => ({ words, focus, focusPair: null });
     if (tr === "digits" || tr === "numpad") {
       const digs = keys.filter((c) => /[0-9]/.test(c));
       const seps = keys.filter((c) => !/[0-9]/.test(c));
@@ -6092,6 +6761,16 @@ details[open]:not(.adv) > summary::before {
         if (seps.length && len >= 3 && rand(3) === 0) {
           const p = 1 + rand(len - 1);
           s = s.slice(0, p) + seps[rand(seps.length)] + s.slice(p);
+        }
+        if (focus && s.indexOf(focus) < 0 && rnd() < 0.6) {
+          if (/[0-9]/.test(focus)) {
+            const p = rand(s.length);
+            if (/[0-9]/.test(s[p])) s = s.slice(0, p) + focus + s.slice(p + 1);
+            else s += focus;
+          } else if (s.length >= 3) {
+            const p = 1 + rand(s.length - 1);
+            s = s.slice(0, p) + focus + s.slice(p);
+          }
         }
         words.push(s);
       }
@@ -6105,7 +6784,7 @@ details[open]:not(.adv) > summary::before {
           words.push(base[rand(base.length)]);
           continue;
         }
-        const c = pickNeed(keys);
+        const c = wantKey(keys, focus);
         const low = c.toLowerCase();
         const cand = base.filter((w) => w[0] === low);
         let tail;
@@ -6127,11 +6806,16 @@ details[open]:not(.adv) > summary::before {
         words.push(carrierWord(cc));
         continue;
       }
-      const want = pickNeed(keys);
+      const want = wantKey(keys, focus);
       let tok = null;
       for (let tries = 0; tries < 10 && !tok; tries++) {
         const cand = tr === "dia" ? carrierWord(cc) + keys[rand(keys.length)] : pats[rand(pats.length)](carrierWord(cc), carrierWord(cc));
-        if (validTrackToken(cand, set) && (cand.indexOf(want) >= 0 || tries > 5)) tok = cand;
+        if (validTrackToken(cand, set) && cand.indexOf(want) >= 0) tok = cand;
+      }
+      if (!tok) {
+        const a = carrierWord(cc);
+        const r = rand(3);
+        tok = r === 0 ? a + want : r === 1 ? want + a : a + want + carrierWord(cc);
       }
       words.push(tok || carrierWord(cc) + keys[0]);
     }
@@ -6175,17 +6859,12 @@ details[open]:not(.adv) > summary::before {
   }
   function reviewBlend(words, tr) {
     const st = S.settings;
-    if (!st.reviewRate || st.caps || st.digits || st.punct || st.dia) return words;
+    if (st.caps || st.digits || st.punct || st.dia) return words;
     const items = reviewItems(tr);
     if (!items.length) return words;
-    return words.map((w) => rnd() < st.reviewRate / 100 ? reviewToken(items[rand(items.length)], words) || w : w);
+    return words.map((w) => rnd() < REVIEW_RATE / 100 ? reviewToken(items[rand(items.length)], words) || w : w);
   }
-  function newLesson() {
-    emitLessonBuilt();
-    const tr = learnTrack();
-    const b = tr === "letters" ? buildWords() : buildTrackWords(tr);
-    const text = reviewBlend(b.words, tr).join(" ");
-    const chars = text.split("");
+  function makeLesson(chars, b, tr) {
     S.lesson = {
       chars,
       idx: 0,
@@ -6200,6 +6879,56 @@ details[open]:not(.adv) > summary::before {
       done: false,
       track: tr
     };
+  }
+  function newLesson() {
+    emitLessonBuilt();
+    const tr = learnTrack();
+    const b = tr === "letters" ? buildWords() : buildTrackWords(tr);
+    const text = reviewBlend(b.words, tr).join(" ");
+    makeLesson(text.split(""), b, tr);
+  }
+  function newWordsLesson(list) {
+    const clean = Array.from(new Set(list.filter((w) => typeof w === "string" && w.length > 0 && w.length <= 24)));
+    if (!clean.length) return false;
+    emitLessonBuilt();
+    const N = S.settings.lessonWords;
+    const words = [];
+    while (words.length < N) {
+      const round = clean.slice();
+      for (let i = round.length - 1; i > 0; i--) {
+        const j = rand(i + 1);
+        const tmp = round[i];
+        round[i] = round[j];
+        round[j] = tmp;
+      }
+      round.forEach((w) => {
+        if (words.length < N) words.push(w);
+      });
+    }
+    makeLesson(words.join(" ").split(""), { focus: null, focusPair: null }, "letters");
+    return true;
+  }
+  function unlockAnyway() {
+    const info = stallInfo();
+    if (!info || info.kind === "fatigue") return false;
+    const tr = info.track;
+    const lid = S.settings.layout;
+    const L = layoutData(lid);
+    if (tr === "letters") {
+      const k = currentK();
+      if (k >= currentOrder().length) return false;
+      setK(k + 1);
+      L.lk = 0;
+    } else {
+      const k = trackK(tr);
+      if (k >= trackKeys(tr).length) return false;
+      setTrackK(tr, k + 1);
+      L.tracks[tr].lk = 0;
+    }
+    if (info.c) L.raise = { c: info.c, until: (L.tot || 0) + 30 };
+    resetSitting(lid, tr);
+    scheduleSave();
+    return true;
   }
 
   // src/data/shortcuts.js
@@ -6605,7 +7334,7 @@ details[open]:not(.adv) > summary::before {
       const r = mk(svg, "rect", { class: "hc l" + level(c.ms), x: LEFT + c.col * (CS + G), y: TOP + c.row * (CS + G), width: CS, height: CS, rx: 3 });
       const show = () => {
         tip.textContent = "";
-        tip.append(h("b", null, longDate(c.key)), h("div", null, c.s ? t("pg.heatTip").replace("{m}", dur(c.ms)) : t("pg.rest")));
+        tip.append(h("b", null, longDate(c.key)), h("div", null, c.s || c.ms ? t("pg.heatTip").replace("{m}", dur(c.ms)) : t("pg.rest")));
         tip.hidden = false;
         tip.style.left = Math.max(14, Math.min(86, (LEFT + c.col * (CS + G) + CS / 2) / W * 100)) + "%";
         tip.style.top = (TOP + c.row * (CS + G)) / H * 100 + "%";
@@ -6694,6 +7423,46 @@ details[open]:not(.adv) > summary::before {
     ];
   }
 
+  // src/input/modifiers.js
+  function altGraph(e) {
+    return typeof e.getModifierState === "function" && !!e.getModifierState("AltGraph");
+  }
+  function isShortcut(e) {
+    return !!e.metaKey || (!!e.ctrlKey || !!e.altKey) && !altGraph(e);
+  }
+  function wordDelete(e) {
+    return !e.metaKey && (!!e.ctrlKey || !!e.altKey);
+  }
+
+  // src/ui/session.js
+  function sessionCard(next) {
+    S.session.shown = true;
+    const sm = sessionSummary();
+    const row = (k, v) => h("div", { class: "ssrow" }, h("span", { class: "ssk" }, t(k)), h("span", { class: "ssv" }, v));
+    return h(
+      "div",
+      { class: "sessum", id: "sessum" },
+      h("h2", null, t("ss.title")),
+      row("ss.time", nf(Math.round(sm.ms / 6e4)) + " " + t("ss.min")),
+      row("ss.chars", nf(sm.chars)),
+      row("ss.speed", nf(Math.round(sm.wpm)) + " " + t("ss.wpm")),
+      row("ss.acc", pct(sm.acc)),
+      h("button", { type: "button", class: "btn go", id: "sessgo", onclick: () => {
+        resetSession();
+        next();
+        render();
+      } }, t("ss.again"))
+    );
+  }
+  function endSessionIfDue(next) {
+    if (!sessionDue()) return false;
+    const stage = document.querySelector(".stage");
+    if (!stage) return false;
+    stage.textContent = "";
+    stage.append(sessionCard(next));
+    return true;
+  }
+
   // src/ui/test.js
   function stopTick() {
     if (U.tick) {
@@ -6728,6 +7497,51 @@ details[open]:not(.adv) > summary::before {
     if (!st.confident) bits.push(t("tt.h.back"));
     return bits.join(" ");
   }
+  function rulesMenu(st) {
+    const open = !!U.rulesOpen;
+    const btn = h("button", {
+      type: "button",
+      class: "btn rulesbtn",
+      id: "rulesbtn",
+      "aria-haspopup": "true",
+      "aria-expanded": String(open),
+      onclick: () => {
+        U.rulesOpen = !U.rulesOpen;
+        render();
+      }
+    }, t("tt.rules"));
+    const wrap = h("div", { class: "rulesw" }, btn);
+    if (U.rulesCloser) document.removeEventListener("click", U.rulesCloser);
+    U.rulesCloser = null;
+    if (open) {
+      U.rulesCloser = (e) => {
+        if (e.target.closest && e.target.closest(".rulesw")) return;
+        document.removeEventListener("click", U.rulesCloser);
+        U.rulesCloser = null;
+        U.rulesOpen = false;
+        render();
+      };
+      setTimeout(() => {
+        if (U.rulesCloser) document.addEventListener("click", U.rulesCloser);
+      }, 0);
+      const sw = h("button", {
+        type: "button",
+        class: "sw",
+        role: "switch",
+        "aria-label": t("s.confident"),
+        "aria-checked": String(!!st.confident),
+        onclick: () => setTestOpt("confident", !st.confident)
+      });
+      wrap.append(h(
+        "div",
+        { class: "rules", id: "rulespanel", role: "group", "aria-label": t("tt.rules") },
+        h("div", { class: "rrow" }, h("span", { class: "rl" }, t("tt.diffLabel")), labelled(seg(["normal", "expert", "master"].map((v) => ({ v, l: t("tt.diff." + v) })), st.testDiff, (v) => setTestOpt("testDiff", v)), t("tt.diffLabel"))),
+        h("div", { class: "rrow" }, h("span", { class: "rl" }, t("tt.stopLabel")), labelled(seg(["off", "letter", "word"].map((v) => ({ v, l: t("tt.stop." + v) })), st.testStop, (v) => setTestOpt("testStop", v)), t("tt.stopLabel"))),
+        h("div", { class: "rrow" }, h("span", { class: "rl" }, t("s.confident")), sw)
+      ));
+    }
+    return wrap;
+  }
   function renderTest() {
     const st = S.settings;
     if (!S.test || S.test.lid !== st.layout) testNew();
@@ -6745,8 +7559,7 @@ details[open]:not(.adv) > summary::before {
       plain ? seg([{ v: true, l: t("tt.num") }], st.testNum, () => setTestOpt("testNum", !st.testNum), "toggle") : null,
       plain && layoutInfo().lang === "en" ? seg([{ v: true, l: t("s.caps") }], st.testCaps, () => setTestOpt("testCaps", !st.testCaps), "toggle") : null,
       plain && layoutInfo().lang !== "en" ? seg([{ v: true, l: t("tt.dia") }], st.testDia, () => setTestOpt("testDia", !st.testDia), "toggle") : null,
-      labelled(seg(["normal", "expert", "master"].map((v) => ({ v, l: t("tt.diff." + v) })), st.testDiff, (v) => setTestOpt("testDiff", v)), t("tt.diffLabel")),
-      labelled(seg(["off", "letter", "word"].map((v) => ({ v, l: t("tt.stop." + v) })), st.testStop, (v) => setTestOpt("testStop", v)), t("tt.stopLabel"))
+      rulesMenu(st)
     );
     U.tbody = h("div", { class: "tbody" });
     U.thist = h("div", { class: "thist" });
@@ -6767,7 +7580,7 @@ details[open]:not(.adv) > summary::before {
       U.tlive = null;
       U.tinner = null;
       U.tword = [];
-      U.tbody.append(h("div", { class: "card tcard tempty" }, h("p", { class: "empty" }, t("tt.customEmpty")), h("div", { class: "acts" }, h("button", { type: "button", class: "btn go", onclick: () => go("free") }, t("tt.customGo")))));
+      U.tbody.append(h("div", { class: "card tcard tempty" }, h("p", { class: "empty" }, t("tt.customEmpty")), h("div", { class: "acts" }, h("button", { type: "button", class: "btn go", onclick: () => go("practice") }, t("tt.customGo")))));
       return;
     }
     U.tlive = h("div", { class: "tlive" });
@@ -6777,7 +7590,10 @@ details[open]:not(.adv) > summary::before {
     U.tbody.append(h("div", { class: "card tcard" }, U.tlive, stage));
     U.tword = [];
     for (let i = 0; i < T2.words.length; i++) appendTestWord(i);
-    paintTestWord(0);
+    for (let i = 0; i <= T2.wi && i < T2.words.length; i++) paintTestWord(i);
+    U.ttyper._after = scrollTest;
+    scrollTest();
+    placeTestCaret();
     updateTestLive();
   }
   function appendTestWord(i) {
@@ -6824,6 +7640,13 @@ details[open]:not(.adv) > summary::before {
     }
     o.sp.className = "c sp" + (cur && typed.length >= w.length ? " cur" : "");
     if (cur) placeCaret(U.tinner, typed != null && typed.length < w.length ? o.letters[typed.length] : o.sp, layoutInfo().lang === "ar");
+  }
+  function placeTestCaret() {
+    const T2 = S.test;
+    const o = T2 && U.tword[T2.wi];
+    if (!o || T2.done) return;
+    const w = T2.words[T2.wi];
+    placeCaret(U.tinner, T2.typed.length < w.length ? o.letters[T2.typed.length] : o.sp, layoutInfo().lang === "ar");
   }
   function scrollTest() {
     const o = U.tword[S.test.wi];
@@ -6877,6 +7700,15 @@ details[open]:not(.adv) > summary::before {
     if (!T2) return;
     if (e.key === "Escape") {
       e.preventDefault();
+      if (U.rulesOpen) {
+        U.rulesOpen = false;
+        render();
+        return;
+      }
+      if (zenActive()) {
+        zenEsc();
+        return;
+      }
       const now = performance.now();
       if (T2.running && !T2.done && T2.strokes > 0 && !(U.escAt && now - U.escAt < 2e3)) {
         U.escAt = now;
@@ -6898,7 +7730,7 @@ details[open]:not(.adv) > summary::before {
     if (e.key === "Backspace") {
       e.preventDefault();
       const before = T2.wi;
-      testBackspace(e.ctrlKey || e.altKey);
+      testBackspace(wordDelete(e));
       if (before !== T2.wi) paintTestWord(before);
       paintTestWord(T2.wi);
       if (before !== T2.wi) {
@@ -6907,9 +7739,10 @@ details[open]:not(.adv) > summary::before {
       }
       return;
     }
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (isShortcut(e)) return;
     const out = produceChars(e);
     if (!out) return;
+    noteHardware();
     if (!S.focused) setFocused(true);
     if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
     e.preventDefault();
@@ -6971,16 +7804,20 @@ details[open]:not(.adv) > summary::before {
     const acts = T2.place ? h(
       "div",
       { class: "acts" },
-      h("button", { type: "button", class: "btn go", onclick: () => go("practice") }, t("pl.go")),
+      h("button", { type: "button", class: "btn go", onclick: () => go("learn") }, t("pl.go")),
       h("span", { class: "msg" }, t("pl.keys") + ": ", bdi(nf(r.placed)))
     ) : h(
       "div",
       { class: "acts" },
       h("button", { type: "button", class: "btn go", onclick: () => newTest(false) }, t("tr.next")),
       h("button", { type: "button", class: "btn", onclick: () => newTest(true) }, t("tr.repeat")),
+      missedWords(T2).length ? h("button", { type: "button", class: "btn", id: "practisewords", onclick: () => {
+        if (newWordsLesson(missedWords(T2))) go("learn");
+      } }, t("tr.practise")) : null,
       r.custom ? h("span", { class: "msg" }, t("tr.customNote")) : r.fed ? h("span", { class: "msg" }, t("tr.fed")) : null
     );
     U.tbody.append(resultCard(r, layoutInfo().lang, acts, true));
+    if (sessionDue()) U.tbody.append(sessionCard(() => testNew(false)));
     renderTestHistory();
   }
   function resultCard(r, lang, acts, showTime) {
@@ -7082,12 +7919,7 @@ details[open]:not(.adv) > summary::before {
         { class: "place" },
         h("button", { type: "button", class: "btn", onclick: startSteps }, t(S.data.onboard === "steps" && S.data.onboardStep > 0 ? "fs.resume" : "fs.new")),
         h("button", { type: "button", class: "btn", onclick: () => {
-          S.settings.startKeys = 2;
-          S.settings.order = "position";
-          LP.k = 2;
-          LP.placed = true;
-          S.data.onboard = "done";
-          scheduleSave();
+          startFromFirstKeys();
           newLesson();
           render();
         } }, t("fs.first")),
@@ -7130,6 +7962,7 @@ details[open]:not(.adv) > summary::before {
       updateLive();
     },
     finished() {
+      if (endSessionIfDue(newLesson)) return;
       newLesson();
       if (U.typer) {
         renderTyper();
@@ -7147,7 +7980,7 @@ details[open]:not(.adv) > summary::before {
     if (st) st.setAttribute("data-focus", v ? "1" : "0");
   }
   function restartLesson() {
-    if (S.view === "free" && !codeMode()) {
+    if (S.view === "practice" && !codeMode()) {
       newFreeLesson();
       if (U.typer) {
         renderTyper();
@@ -7158,7 +7991,7 @@ details[open]:not(.adv) > summary::before {
     }
     if (codeMode()) {
       stopCodeClock();
-      if (S.view === "free") newFreeLesson();
+      if (S.view === "practice") newFreeLesson();
       else newCodeLesson();
       if (U.typer) renderTyper();
       updateClock();
@@ -7171,8 +8004,15 @@ details[open]:not(.adv) > summary::before {
       setHint();
     }
   }
+  function noteHardware() {
+    if (S.data.hw) return;
+    S.data.hw = true;
+    scheduleSave();
+    const note = document.querySelector(".hwnote");
+    if (note) note.remove();
+  }
   function hwNote() {
-    if (!window.matchMedia) return null;
+    if (S.data.hw || !window.matchMedia) return null;
     if (!window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(max-width: 520px)").matches) return null;
     return h("p", { class: "hwnote", role: "note" }, t("hw"));
   }
@@ -7187,9 +8027,10 @@ details[open]:not(.adv) > summary::before {
         box.dispatchEvent(new Event("input", { bubbles: true }));
         return;
       }
-      go(S.back || "practice");
+      go(S.back || "learn");
       return;
     }
+    if (S.view === "shortcuts" || S.view === "steps" || S.view === "learn" || S.view === "practice" || S.view === "test" || S.view === "code") claimLease();
     if (S.view === "shortcuts") {
       scOnKey(e);
       return;
@@ -7198,7 +8039,7 @@ details[open]:not(.adv) > summary::before {
       stepsOnKey(e);
       return;
     }
-    if (S.view !== "practice" && S.view !== "free" && S.view !== "test" && S.view !== "code") return;
+    if (S.view !== "learn" && S.view !== "practice" && S.view !== "test" && S.view !== "code") return;
     const tg = e.target;
     if (tg && (tg.tagName === "INPUT" || tg.tagName === "SELECT" || tg.tagName === "TEXTAREA")) return;
     if (U.tabbed && (e.key === " " || e.key === "Enter") && tg && (tg.tagName === "BUTTON" || tg.tagName === "SUMMARY" || tg.tagName === "A" || tg.tagName === "LABEL")) return;
@@ -7209,10 +8050,23 @@ details[open]:not(.adv) > summary::before {
     }
     if (e.key === "Escape") {
       e.preventDefault();
+      if (zenActive()) {
+        zenEsc();
+        return;
+      }
+      if (S.view === "learn" && needsEscConfirm(S.lesson)) {
+        const now = performance.now();
+        if (!(U.escAt && now - U.escAt < 2e3)) {
+          U.escAt = now;
+          quietNote("lt.escAsk");
+          return;
+        }
+      }
+      U.escAt = 0;
       restartLesson();
       return;
     }
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (isShortcut(e)) return;
     if (e.key === "Backspace") {
       e.preventDefault();
       backspaceLesson();
@@ -7220,6 +8074,7 @@ details[open]:not(.adv) > summary::before {
     }
     const out = produceChars(e);
     if (!out) return;
+    noteHardware();
     if (!S.focused) setFocused(true);
     if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
     e.preventDefault();
@@ -7227,7 +8082,7 @@ details[open]:not(.adv) > summary::before {
     shiftAccount(e);
     typingFade();
     const ts = e.timeStamp || performance.now();
-    for (const ch of out.split("")) handleChar(ch, ts, codeMode() ? codeHooks : S.view === "free" ? freeHooks : hooks);
+    for (const ch of out.split("")) handleChar(ch, ts, codeMode() ? codeHooks : S.view === "practice" ? freeHooks : hooks);
   }
 
   // src/features/steps.js
@@ -7328,10 +8183,10 @@ details[open]:not(.adv) > summary::before {
     S.steps = null;
     scheduleSave();
     newLesson();
-    go("practice");
+    go("learn");
   }
   function stepsOnKey(e) {
-    if (e.ctrlKey || e.metaKey || e.altKey || e.key === "Tab") return;
+    if (isShortcut(e) || e.key === "Tab") return;
     const tg = e.target;
     if (tg && (tg.tagName === "INPUT" || tg.tagName === "SELECT")) return;
     if ((e.key === " " || e.key === "Enter") && tg && tg.tagName === "BUTTON" && U.tabbed) return;
@@ -7416,13 +8271,11 @@ details[open]:not(.adv) > summary::before {
     L.k = Math.max(2, S.settings.startKeys);
     L.lk = 0;
     L.tot = 0;
-    L.rescue = 0;
-    L.bk = null;
     L.raise = null;
     L.placed = true;
     scheduleSave();
     newLesson();
-    go("practice");
+    go("learn");
   }
   function extrasRow() {
     const st = S.settings;
@@ -7460,15 +8313,20 @@ details[open]:not(.adv) > summary::before {
   }
 
   // src/ui/settings.js
-  var BASIC = ["lang", "layout", "inputMode", "targetWpm", "targetAcc", "wordLevel", "theme", "font", "keyboard"];
-  var REGEN = ["wordLevel", "reviewRate", "digitSource", "lang", "layout", "order", "startKeys", "targetWpm", "targetAcc", "minSamples", "focus", "text", "lessonWords", "wordMin", "wordMax", "caps", "digits", "punct", "dia", "extraRate", "progression", "inputMode", "pause"];
+  var ESSENTIALS = [
+    ["keyboard", ["lang", "layout", "inputMode"]],
+    ["goal", ["targetWpm", "targetAcc", "sessionLen"]],
+    ["typing", ["onError", "backspace", "hideErrors", "focusLevel", "wordLen", "wordLevel"]],
+    ["look", ["ui", "theme", "font", "fontSize", "caretStyle", "caretSmooth", "textWidth", "keyboard", "liveWpm", "liveAcc", "numerals"]],
+    ["zen", ["zen"]]
+  ];
+  var SHOWN = [].concat(...ESSENTIALS.map((g) => g[1]));
+  var REGEN = ["wordLevel", "digitSource", "lang", "layout", "order", "startKeys", "targetWpm", "targetAcc", "focusLevel", "text", "lessonWords", "wordLen", "caps", "digits", "punct", "dia", "progression", "inputMode"];
   function setSetting(id, v) {
     const st = S.settings;
     st[id] = v;
     if (id === "lang") st.layout = LAYOUT_BY_LANG[v][0];
     if (id === "layout") st.lang = LAYOUTS[v].lang;
-    if (id === "wordMin" && st.wordMax < v) st.wordMax = v;
-    if (id === "wordMax" && st.wordMin > v) st.wordMin = v;
     refreshDerived();
     applyChrome();
     scheduleSave();
@@ -7482,7 +8340,6 @@ details[open]:not(.adv) > summary::before {
     return t("o." + id + "." + v);
   }
   function fmtRange(r, v) {
-    if (r.id === "lineHeight") return nf(v, 1);
     if (r.id === "fontSize") return nf(v) + " px";
     return nf(v);
   }
@@ -7755,11 +8612,23 @@ details[open]:not(.adv) > summary::before {
       exportPanel,
       h("div", { class: "srow", "data-label": t("d.import").toLowerCase() }, h("div", { class: "lab" }, t("d.import"), h("span", { id: "import-msg", class: "msg" })), h("div", { class: "dataactions" }, h("button", { type: "button", class: "btn", onclick: showImport }, t("d.import")))),
       importPanel,
+      ...hasBackup() ? [h("div", { class: "srow", "data-label": t("d.restore").toLowerCase() }, h("div", { class: "lab" }, t("d.restore"), h("span", { id: "restore-msg", class: "msg" })), h(
+        "div",
+        { class: "dataactions" },
+        h("button", { type: "button", class: "btn", onclick: () => {
+          if (!restoreBackup()) return;
+          newLesson();
+          S.lastResult = null;
+          renderSettings();
+          const m = document.getElementById("restore-msg");
+          if (m) m.textContent = t("d.restored");
+        } }, t("d.restoreBt"))
+      ))] : [],
       h("div", { class: "srow", "data-label": t("d.resetStats").toLowerCase() }, h("div", { class: "lab" }, t("d.resetStats")), h("div", { class: "dataactions" }, confirmBtn(t("d.resetStats"), () => {
         S.data = { v: VERSION, layouts: {}, lessons: [], tests: [], code: [], sc: {}, days: {}, pbs: {} };
         S.lastResult = null;
         S.test = null;
-        saveNow();
+        saveNow(true);
         newLesson();
         renderSettings();
       }))),
@@ -7794,17 +8663,19 @@ details[open]:not(.adv) > summary::before {
     U.main.textContent = "";
     const wrap = h("div", { class: "settings" });
     wrap.append(h("input", { class: "search", id: "filter", type: "search", placeholder: t("d.filter"), "aria-label": t("d.filter"), value: q, oninput: (ev) => applyFilter(ev.target.value) }));
-    const main = h("section", { class: "sec" }, h("h2", null, t("sec.main")));
-    BASIC.forEach((id) => main.append(settingRow(SCHEMA_BY_ID[id])));
-    main.append(extrasRow(), startRow(), stepsRow());
-    wrap.append(main);
+    ESSENTIALS.forEach((g) => {
+      const box = h("section", { class: "sec" }, h("h2", null, t("sec." + g[0])));
+      g[1].forEach((id) => box.append(settingRow(SCHEMA_BY_ID[id])));
+      if (g[0] === "typing") box.append(extrasRow(), startRow(), stepsRow());
+      wrap.append(box);
+    });
     const adv = h("details", { class: "adv" }, h("summary", null, t("sec.adv")));
     adv.open = !!U.advOpen;
     adv.addEventListener("toggle", () => {
       U.advOpen = adv.open;
     });
     ["practice", "rules", "text", "test", "display"].forEach((sec) => {
-      const rows = SCHEMA.filter((r) => r.sec === sec && !r.hidden && BASIC.indexOf(r.id) < 0 && EXTRAS.indexOf(r.id) < 0);
+      const rows = SCHEMA.filter((r) => r.sec === sec && !r.hidden && SHOWN.indexOf(r.id) < 0 && EXTRAS.indexOf(r.id) < 0);
       if (!rows.length) return;
       const s = h("section", { class: "sec" }, h("h3", null, t("sec." + sec)));
       rows.forEach((r) => s.append(settingRow(r)));
@@ -7946,10 +8817,6 @@ details[open]:not(.adv) > summary::before {
     const strip = document.getElementById("strip");
     if (!strip) return;
     strip.textContent = "";
-    if (!S.settings.strip) {
-      strip.hidden = true;
-      return;
-    }
     strip.hidden = false;
     const lid = S.settings.layout;
     const focus = S.lesson ? S.lesson.focus : null;
@@ -8037,7 +8904,7 @@ details[open]:not(.adv) > summary::before {
     if (!el) return;
     const r = S.lastResult;
     el.textContent = "";
-    if (S.settings.result && r) el.append(...resultNodes(r));
+    if (r) el.append(...resultNodes(r));
   }
   function updateLive() {
     const el = document.getElementById("live");
@@ -8243,8 +9110,15 @@ details[open]:not(.adv) > summary::before {
     const s = stallInfo();
     if (!s) return null;
     const k = s.c ? iso(s.c) : "";
-    const text = s.kind === "speed" ? t("stall.speed") : s.kind === "key" ? t("stall.acc") : t("stall.lessons");
-    return text.replace("{k}", k).replace("{ms}", nf(s.ms)).replace("{gate}", nf(s.gate)).replace("{acc}", pct(s.acc)).replace("{target}", pct(s.target));
+    const text = s.kind === "speed" ? t("stall.speed") : s.kind === "key" ? t("stall.acc") : s.kind === "few" ? t("stall.few") : s.kind === "fatigue" ? t("stall.fatigue") : t("stall.lessons");
+    const line = text.replace("{k}", k).replace("{ms}", nf(s.ms)).replace("{gate}", nf(s.gate)).replace("{acc}", pct(s.acc)).replace("{target}", pct(s.target)).replace("{have}", nf(s.have)).replace("{need}", nf(s.need));
+    if (s.kind === "fatigue") return line;
+    return [line, " ", h("button", { type: "button", class: "btn", id: "unlockany", onclick: () => {
+      if (unlockAnyway()) {
+        newLesson();
+        render();
+      }
+    } }, t("stall.btn"))];
   }
   function renderKeys() {
     const K = S.keysUI;
@@ -8785,21 +9659,45 @@ details[open]:not(.adv) > summary::before {
     }
     return c;
   }
+  var caretWatch = null;
+  var caretBox = null;
+  function redoCaret() {
+    const box = caretBox;
+    if (!box || !box.isConnected) return;
+    const at = box._at;
+    if (!at || !at.el.isConnected) return;
+    const outer = box.parentElement;
+    if (outer && outer._after) outer._after();
+    placeCaret(box, at.el, at.rtl);
+  }
+  function watchCaret(box) {
+    if (caretBox === box) return;
+    caretBox = box;
+    if (typeof ResizeObserver === "undefined") return;
+    if (!caretWatch) caretWatch = new ResizeObserver(redoCaret);
+    caretWatch.disconnect();
+    caretWatch.observe(box);
+    if (box.parentElement) caretWatch.observe(box.parentElement);
+  }
   function placeCaret(box, el, rtl) {
     if (!box) return;
     const c = ensureCaret(box);
+    watchCaret(box);
+    box._at = el ? { el, rtl } : null;
     if (!el) {
       c.style.opacity = "0";
       return;
     }
     const b = box.getBoundingClientRect();
     const r = el.getBoundingClientRect();
-    const x = (rtl ? r.right - 3 : r.left - 1) - b.left;
-    const y = r.top - b.top;
+    const style = document.documentElement.getAttribute("data-caret") || "line";
+    const x = (style !== "line" ? r.left : rtl ? r.right - 3 : r.left - 1) - b.left;
+    const y = r.top - b.top + (style === "underline" ? r.height - 3 : 0);
     const jump = c._y != null && Math.abs(y - c._y) > 2;
     if (jump) c.style.transition = "none";
     c.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
-    c.style.height = r.height.toFixed(1) + "px";
+    c.style.height = (style === "underline" ? 3 : r.height).toFixed(1) + "px";
+    c.style.width = style === "line" ? "" : r.width.toFixed(1) + "px";
     c.style.opacity = "";
     c._y = y;
     if (jump) {
@@ -8833,7 +9731,13 @@ details[open]:not(.adv) > summary::before {
     else r.setAttribute("data-theme", st.theme);
     r.setAttribute("data-font", st.font);
     r.style.setProperty("--tsize", st.fontSize + "px");
-    r.style.setProperty("--tlh", String(st.lineHeight));
+    r.style.setProperty("--tlh", String(lineHeightFor(st.lang)));
+    r.setAttribute("data-caret", st.caretStyle);
+    r.setAttribute("data-smooth", st.caretSmooth ? "1" : "0");
+    r.setAttribute("data-tw", st.textWidth);
+    r.setAttribute("data-he", st.hideErrors ? "1" : "0");
+    r.setAttribute("data-zen", zenActive() ? "1" : "0");
+    document.title = uiLang() === "ar" ? "طَرق · مدرب الكتابة" : "Tarq · typing trainer";
   }
   function mountShell() {
     const root = document.getElementById("app");
@@ -8863,7 +9767,7 @@ details[open]:not(.adv) > summary::before {
     mark.setAttribute("viewBox", "0 0 64 64");
     mark.setAttribute("class", "mark");
     mark.setAttribute("aria-hidden", "true");
-    [["rect", { x: 3, y: 3, width: 58, height: 58, rx: 14 }], ["rect", { x: 22, y: 43, width: 20, height: 4.5, rx: 2.25 }]].forEach((q) => {
+    [["rect", { x: 3, y: 3, width: 58, height: 58, rx: 14 }], ["rect", { x: 20, y: 41, width: 24, height: 7, rx: 3.5 }]].forEach((q) => {
       const el = document.createElementNS(NS2, q[0]);
       for (const k in q[1]) el.setAttribute(k, String(q[1][k]));
       mark.append(el);
@@ -8874,7 +9778,7 @@ details[open]:not(.adv) > summary::before {
     U.brand.append(mark, h("span", { class: "wm" }, ar ? [wa, cur, wl] : [wl, cur, wa]));
     U.nav.textContent = "";
     renderTools();
-    ["practice", "free", "test", "shortcuts"].forEach((v) => {
+    ["learn", "practice", "test", "shortcuts"].forEach((v) => {
       U.nav.append(h("button", {
         type: "button",
         "aria-current": S.view === v ? "page" : null,
@@ -8884,6 +9788,7 @@ details[open]:not(.adv) > summary::before {
   }
   var ICONS = {
     sun: [["circle", { cx: 12, cy: 12, r: 4 }], ["path", { d: "M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" }]],
+    zen: [["circle", { cx: 12, cy: 12, r: 7.5 }]],
     moon: [["path", { d: "M20 14.2A8.2 8.2 0 0 1 9.8 4a8.2 8.2 0 1 0 10.2 10.2z" }]],
     stats: [["path", { d: "M5 20v-8M12 20V4M19 20v-5" }]],
     sliders: [["path", { d: "M4 7h9M19 7h1M4 17h1M11 17h9" }], ["circle", { cx: 16, cy: 7, r: 2.2 }], ["circle", { cx: 8, cy: 17, r: 2.2 }]],
@@ -8909,6 +9814,23 @@ details[open]:not(.adv) > summary::before {
     renderTools();
     if (S.view === "settings") syncRows();
   }
+  var ZEN_VIEWS = ["learn", "practice", "test", "code"];
+  function zenActive() {
+    return !!S.settings.zen && ZEN_VIEWS.indexOf(S.view) >= 0;
+  }
+  function zenEsc() {
+    const now = performance.now();
+    if (U.zenAt && now - U.zenAt < 2e3) {
+      U.zenAt = 0;
+      S.settings.zen = false;
+      scheduleSave();
+      applyChrome();
+      renderTools();
+      return;
+    }
+    U.zenAt = now;
+    quietNote("zen.escAsk");
+  }
   function renderTools() {
     U.tools.textContent = "";
     const cur = S.settings.theme;
@@ -8932,7 +9854,19 @@ details[open]:not(.adv) > summary::before {
       "aria-current": S.view === v ? "page" : null,
       onclick: () => go(v)
     }, icon(ic));
-    U.tools.append(ib("keys", "stats", "nav.stats"), grp, h("button", {
+    const zenBtn = h("button", {
+      type: "button",
+      class: "ibtn",
+      id: "zenbtn",
+      title: t("tool.zen"),
+      "aria-label": t("tool.zen"),
+      onclick: () => {
+        S.settings.zen = true;
+        scheduleSave();
+        render();
+      }
+    }, icon("zen"));
+    U.tools.append(ib("keys", "stats", "nav.stats"), grp, zenBtn, h("button", {
       type: "button",
       class: "ibtn",
       lang: other,
@@ -8953,14 +9887,15 @@ details[open]:not(.adv) > summary::before {
   function go(view) {
     stopCodeClock();
     if (view !== "settings" && view !== "keys") S.back = view;
+    const was = S.view;
     S.view = view;
     S.testOv = null;
-    if (view === "free") {
+    if (view === "practice") {
       if (!freeLessonFits()) newFreeLesson();
     } else if (view === "code" && (!S.lesson || !S.lesson.code || S.lesson.done)) newCodeLesson();
     else if (view !== "code" && S.lesson && (S.lesson.code || S.lesson.free)) newLesson();
-    if (view === "practice" && S.lesson && S.lesson.done) newLesson();
-    if (view === "test") S.test = null;
+    if (view === "learn" && S.lesson && S.lesson.done) newLesson();
+    if (view === "test" && (was === "test" || !S.test || !S.test.done || S.test.place)) S.test = null;
     render();
     window.scrollTo(0, 0);
     if (document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
@@ -8973,8 +9908,8 @@ details[open]:not(.adv) > summary::before {
     U.main.textContent = "";
     U.typer = null;
     U.kb = null;
-    if (S.view === "practice") renderPractice();
-    else if (S.view === "free") renderFree();
+    if (S.view === "learn") renderPractice();
+    else if (S.view === "practice") renderFree();
     else if (S.view === "steps") renderSteps();
     else if (S.view === "test") renderTest();
     else if (S.view === "code") renderCode();
@@ -9050,7 +9985,7 @@ details[open]:not(.adv) > summary::before {
     if (!box) return;
     box.textContent = "";
     const r = S.codeRes;
-    if (!r || !S.settings.result) return;
+    if (!r) return;
     box.append(resultCard(r, "en", null, S.settings.codeTimer !== "off"));
     const hist = historyCard(codeHistory(), t("code.hist"));
     if (hist) box.append(hist);
@@ -9187,6 +10122,7 @@ details[open]:not(.adv) > summary::before {
       if (codeClockStart(performance.now())) armCodeClock();
     },
     finished() {
+      if (endSessionIfDue(newCodeLesson)) return;
       newCodeLesson();
       if (U.typer) {
         renderTyper();
@@ -9259,7 +10195,7 @@ details[open]:not(.adv) > summary::before {
     return MIX_KEYS.every((k) => m[k].on === (k === "code"));
   }
   function codeMode() {
-    return S.view === "code" || S.view === "free" && codeOnly(practiceMix());
+    return S.view === "code" || S.view === "practice" && codeOnly(practiceMix());
   }
   function mixSig(m) {
     return MIX_KEYS.filter((k) => m[k].on).map((k) => k + ":" + m[k].weight).join("|");
@@ -9377,6 +10313,7 @@ details[open]:not(.adv) > summary::before {
       setHint();
     },
     finished() {
+      if (endSessionIfDue(newFreeLesson)) return;
       newFreeLesson();
       if (U.typer) {
         renderTyper();
@@ -9552,7 +10489,8 @@ details[open]:not(.adv) > summary::before {
   function produceChars(e) {
     U.shiftNote = null;
     if (e.code === "Space" || e.key === " ") return " ";
-    const trk = S.view === "practice" && S.lesson && !S.lesson.code ? S.lesson.track : null;
+    if (altGraph(e) && S.settings.inputMode !== "system") return "";
+    const trk = S.view === "learn" && S.lesson && !S.lesson.code ? S.lesson.track : null;
     if (trk === "digits" || trk === "numpad") {
       const pad = !!(e.code && e.code.indexOf("Numpad") === 0);
       const row = !!(e.code && (/^Digit[0-9]$/.test(e.code) || trk === "numpad" && e.code === "Period"));
@@ -9636,7 +10574,7 @@ details[open]:not(.adv) > summary::before {
     if (S.settings.backspace === "off" || codeMode() || !l || l.done || l.idx === 0 || l.mark[l.idx - 1] !== 2) return;
     l.idx--;
     l.mark[l.idx] = 0;
-    (S.view === "free" ? freeHooks : hooks).painted(l.idx, l.idx + 1);
+    (S.view === "practice" ? freeHooks : hooks).painted(l.idx, l.idx + 1);
   }
   var FINGER_OF = null;
   function fingerOf(code) {
@@ -9664,6 +10602,7 @@ details[open]:not(.adv) > summary::before {
   function boot() {
     onLessonBuilt(applyKbFade);
     loadAll();
+    onConflict(() => quietNote("note.otherTab"));
     mountShell();
     applyChrome();
     newLesson();
@@ -9677,10 +10616,13 @@ details[open]:not(.adv) > summary::before {
       U.tabbed = false;
       clearFade();
     });
+    window.addEventListener("resize", redoCaret);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(redoCaret);
     window.addEventListener("blur", () => {
       setFocused(false);
       U.shiftL = false;
       U.shiftR = false;
+      saveNow();
     });
     window.addEventListener("focus", () => setFocused(true));
     document.addEventListener("pointerdown", () => {
@@ -9693,13 +10635,16 @@ details[open]:not(.adv) > summary::before {
       }
     });
     window.addEventListener("pagehide", clearShift);
-    window.addEventListener("pagehide", saveNow);
+    window.addEventListener("pagehide", () => {
+      saveNow();
+      releaseLease();
+    });
     window.addEventListener("storage", (ev) => {
-      if (ev.key !== KEY_D && ev.key !== KEY_S || S.noSave) return;
-      if (!(ev.key === KEY_D ? adoptData(ev.newValue) : adoptSettings(ev.newValue))) return;
-      if (ev.key === KEY_S) applyChrome();
-      const typing = (S.view === "practice" || S.view === "free") && S.lesson && !S.lesson.done && S.lesson.idx > 0;
-      if (ev.key === KEY_S && !typing && S.view === "practice") newLesson();
+      const kind = onStorageEvent(ev.key, ev.newValue);
+      if (kind !== "data" && kind !== "settings") return;
+      if (kind === "settings") applyChrome();
+      const typing = (S.view === "learn" || S.view === "practice") && S.lesson && !S.lesson.done && S.lesson.idx > 0;
+      if (kind === "settings" && !typing && S.view === "learn") newLesson();
       if (!typing && !(S.view === "test" && S.test && S.test.running)) render();
       quietNote("note.otherTab");
     });

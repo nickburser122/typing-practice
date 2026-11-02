@@ -1,5 +1,6 @@
 import { rnd } from "../core/base.js";
 import { MIX_KEYS, sanitizeMix } from "../core/schema.js";
+import { EXTRA_RATE } from "../core/settings.js";
 import { S, layoutInfo, typeable } from "../core/state.js";
 import { customWords, hasCustom } from "../core/storage.js";
 import { LAYOUTS } from "../data/layouts.js";
@@ -43,7 +44,7 @@ function defaultMix() {
 function legacyMix(st) {
   const lang = LAYOUTS[st.layout].lang;
   const m = defaultMix();
-  const w = Math.max(1, Math.min(100, Math.round(st.extraRate)));
+  const w = EXTRA_RATE;
   m.letters.weight = 100;
   m.capitals = { on: !!st.caps && lang === "en", weight: w };
   m.digits = { on: !!st.digits, weight: w };
@@ -126,8 +127,7 @@ function carrierCtx(useActive) {
   const L = layoutData(lid);
   const order = currentOrder();
   let pool;
-  if (S.settings.carrier === "active") pool = activeKeys();
-  else {
+  {
     const steady = order.filter(c => statusOf(L.chars[c], c) === "steady");
     pool = steady.length >= 4 ? steady : useActive ? activeKeys() : order.slice(0, 4);
   }

@@ -62,6 +62,15 @@ function addTo(days, lid, ts, kind, wpm, acc, ms, keys) {
   d[kind] += 1;
 }
 
+function addTime(days, lid, ts, ms, keys) {
+  if (!(ts > 0)) return;
+  const key = dayKey(ts);
+  const byLid = days[lid] || (days[lid] = {});
+  const d = byLid[key] || (byLid[key] = emptyDay());
+  d.ms += Math.max(0, Math.round(ms));
+  d.k += Math.max(0, Math.round(keys));
+}
+
 function trimDays(days) {
   for (const lid of Object.keys(days)) {
     const keys = Object.keys(days[lid]).sort();
@@ -163,6 +172,12 @@ function ensureHistory() {
 function recordSession(kind, lid, wpm, acc, ms, keys, ts) {
   const d = ensureHistory();
   addTo(d.days, lid, ts || Date.now(), kind, wpm, acc, ms, keys);
+  trimDays(d.days);
+}
+
+function recordTime(lid, ms, keys, ts) {
+  const d = ensureHistory();
+  addTime(d.days, lid, ts || Date.now(), ms, keys);
   trimDays(d.days);
 }
 
@@ -278,6 +293,6 @@ function personalBests(lid) {
 
 export {
   DAY_CAP, PB_CAP, backfill, bestOf, codePbKey, dayKey, dayNum, dayRows, heatCells, lessonPbKey, notePb,
-  numToKey, pbOf, personalBests, recordSession, rolling, sanitizeDays, sanitizePbs, summary,
+  numToKey, pbOf, personalBests, recordSession, recordTime, rolling, sanitizeDays, sanitizePbs, summary,
   testPbKey
 };

@@ -135,7 +135,11 @@ test("expert fails the test when a word is submitted with an error and saves not
   assert.equal(T.res.isPb, false);
   assert.equal(S.data.tests.length, 0);
   assert.deepEqual(S.data.pbs, {});
-  assert.deepEqual(S.data.days, {});
+  const day = Object.values(S.data.days[LID])[0];
+  assert.equal(day.s, 0);
+  assert.equal(day.w, 0);
+  assert.equal(day.b, 0);
+  assert.ok(day.ms > 0);
 });
 
 test("expert tolerates a corrected mistake inside a word", () => {

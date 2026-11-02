@@ -251,7 +251,7 @@ function heatmap(lid, todayTs) {
     const r = mk(svg, "rect", { class: "hc l" + level(c.ms), x: LEFT + c.col * (CS + G), y: TOP + c.row * (CS + G), width: CS, height: CS, rx: 3 });
     const show = () => {
       tip.textContent = "";
-      tip.append(h("b", null, longDate(c.key)), h("div", null, c.s ? t("pg.heatTip").replace("{m}", dur(c.ms)) : t("pg.rest")));
+      tip.append(h("b", null, longDate(c.key)), h("div", null, (c.s || c.ms) ? t("pg.heatTip").replace("{m}", dur(c.ms)) : t("pg.rest")));
       tip.hidden = false;
       tip.style.left = Math.max(14, Math.min(86, ((LEFT + c.col * (CS + G) + CS / 2) / W) * 100)) + "%";
       tip.style.top = ((TOP + c.row * (CS + G)) / H) * 100 + "%";

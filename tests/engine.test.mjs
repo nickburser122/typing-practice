@@ -229,18 +229,17 @@ test("word generation never yields an empty lesson", () => {
 
 const tracksModule = await import("../src/engine/tracks.js");
 
-test("settings saved before strict unlocking existed keep assisted unlocking", () => {
-  fresh("en-qwerty");
-  storage.adoptSettings(JSON.stringify({ layout: "en-qwerty", targetWpm: 40 }));
-  assert.equal(S.settings.unlock, "assist");
-  storage.adoptSettings(JSON.stringify({ layout: "en-qwerty", unlock: "strict" }));
-  assert.equal(S.settings.unlock, "strict");
-  storage.adoptSettings(null);
-  assert.equal(S.settings.unlock, "strict");
+test("data saved by the assisted version is marked for the earlier unlock button", () => {
+  assert.equal(storage.needsEarly({ layouts: {} }, { layout: "en-qwerty" }), true);
+  assert.equal(storage.needsEarly({ layouts: {} }, { layout: "en-qwerty", unlock: "assist" }), true);
+  assert.equal(storage.needsEarly({ layouts: {} }, { layout: "en-qwerty", unlock: "strict" }), false);
+  assert.equal(storage.needsEarly({ layouts: {}, early: false }, { layout: "en-qwerty" }), false);
+  assert.equal(storage.needsEarly(null, { layout: "en-qwerty" }), false);
+  assert.equal(storage.needsEarly({ layouts: {} }, null), false);
 });
 
 test("strict unlocking moves a fast accurate typist forward quickly", () => {
-  fresh("en-qwerty", { unlock: "strict" });
+  fresh("en-qwerty");
   base.seedRng(11);
   tracks.newLesson();
   typeLesson(220, 0.03, 100);
@@ -249,7 +248,7 @@ test("strict unlocking moves a fast accurate typist forward quickly", () => {
 });
 
 test("strict unlocking holds an inaccurate typist and says why", () => {
-  fresh("en-qwerty", { unlock: "strict" });
+  fresh("en-qwerty");
   base.seedRng(11);
   tracks.newLesson();
   typeLesson(300, 0.15, 80);
@@ -261,7 +260,7 @@ test("strict unlocking holds an inaccurate typist and says why", () => {
 });
 
 test("strict unlocking holds a slow typist and reports the speed gap", () => {
-  fresh("en-qwerty", { unlock: "strict" });
+  fresh("en-qwerty");
   base.seedRng(11);
   tracks.newLesson();
   typeLesson(900, 0.01, 80);
@@ -272,32 +271,60 @@ test("strict unlocking holds a slow typist and reports the speed gap", () => {
 });
 
 test("no stall hint appears before enough lessons have been spent on the same keys", () => {
-  fresh("en-qwerty", { unlock: "strict" });
+  fresh("en-qwerty");
   base.seedRng(11);
   tracks.newLesson();
   typeLesson(300, 0.15, 10);
   assert.equal(tracksModule.stallInfo(), null);
 });
 
-test("assisted unlocking still moves an inaccurate typist forward", () => {
-  fresh("en-qwerty", { unlock: "assist" });
+test("a stalled typist can unlock the next key and the stuck key gets extra practice", () => {
+  fresh("en-qwerty");
   base.seedRng(11);
   tracks.newLesson();
-  typeLesson(300, 0.15, 200);
-  assert.ok(order.currentK() > 15, "k=" + order.currentK());
+  typeLesson(300, 0.15, 60);
+  const before = order.currentK();
+  const info = tracksModule.stallInfo();
+  assert.ok(info && info.c, "no stall after 60 lessons");
+  assert.equal(tracksModule.unlockAnyway(), true);
+  assert.equal(order.currentK(), before + 1);
+  const L = stats.layoutData("en-qwerty");
+  assert.equal(L.raise.c, info.c);
+  assert.ok(L.raise.until > L.tot);
+  assert.equal(L.lk, 0);
   assert.equal(tracksModule.stallInfo(), null);
 });
 
-test("a learning track waits in strict mode and moves on after patience in assist mode", () => {
-  for (const [unlock, expectMoved] of [["strict", false], ["assist", true]]) {
-    fresh("en-qwerty", { unlock, progression: "auto" });
-    S.settings.learnTracks = Object.assign({}, S.settings.learnTracks, { active: "digits" });
-    base.seedRng(2);
+test("the unlock button is offered after 30 lessons, or 15 for data from the assisted version", () => {
+  for (const [early, lessons, expected] of [[false, 20, false], [false, 40, true], [true, 20, true], [true, 10, false]]) {
+    fresh("en-qwerty");
+    S.data.early = early;
+    base.seedRng(11);
     tracks.newLesson();
-    typeLesson(1500, 0.2, 35);
-    const k = stats.layoutData("en-qwerty").tracks.digits.k;
-    assert.equal(k !== null && k > 2, expectMoved, unlock + " k=" + k);
+    typeLesson(300, 0.15, lessons);
+    assert.equal(tracksModule.stallInfo() !== null, expected, "early " + early + " lessons " + lessons);
   }
+});
+
+test("there is nothing to unlock when no stall is showing", () => {
+  fresh("en-qwerty");
+  base.seedRng(11);
+  tracks.newLesson();
+  const k = order.currentK();
+  assert.equal(tracksModule.unlockAnyway(), false);
+  assert.equal(order.currentK(), k);
+});
+
+test("a learning track waits for its keys and can be unlocked anyway", () => {
+  fresh("en-qwerty", { progression: "auto" });
+  S.settings.learnTracks = Object.assign({}, S.settings.learnTracks, { active: "digits" });
+  base.seedRng(2);
+  tracks.newLesson();
+  typeLesson(1500, 0.2, 40);
+  const k = stats.layoutData("en-qwerty").tracks.digits.k;
+  assert.ok(k === null || k <= 2, "k=" + k);
+  assert.equal(tracksModule.unlockAnyway(), true);
+  assert.ok(stats.layoutData("en-qwerty").tracks.digits.k > 2);
 });
 
 test("track counters survive saving and loading", () => {

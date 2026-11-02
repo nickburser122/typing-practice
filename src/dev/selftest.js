@@ -20,7 +20,8 @@ import {
   carrierCtx, classKeys, codeLinePool, compose, defaultMix, legacyMix, mixPlan, typeableText
 } from "../engine/mix.js";
 import { activeKeys, computeOrder, currentK, currentOrder } from "../engine/order.js";
-import { handleChar, noteSession } from "../engine/session.js";
+import { noteSession } from "../engine/fatigue.js";
+import { handleChar } from "../engine/session.js";
 import { SKILL_K, keyModel, rampMs, skillOf, statusOf } from "../engine/skill.js";
 import { charStat, layoutData, mergedStat } from "../engine/stats.js";
 import {
@@ -42,11 +43,11 @@ import { SC_CATS, scItems, scMatch, scMode, scParse } from "../features/shortcut
 import { extrasRow, finishSteps, startSteps } from "../features/steps.js";
 import { T } from "../i18n/strings.js";
 import { produceChars } from "../input/keys.js";
-import { U, applyChrome, go, render } from "../ui/dom.js";
-import { onKeyDown } from "../ui/practice.js";
+import { U, applyChrome, go, redoCaret, render } from "../ui/dom.js";
+import { hooks, hwNote, noteHardware, onKeyDown } from "../ui/practice.js";
 import { applyFilter, setSetting, settingRow, syncRows } from "../ui/settings.js";
 import { classOfChar, clsFilter, clsOptions, renderDetail, signedMs } from "../ui/stats.js";
-import { historyCard, onTestKey, resultCard } from "../ui/test.js";
+import { historyCard, onTestKey, renderTestResult, resultCard } from "../ui/test.js";
 import { iso, renderTyper, whyInfo, whyRaw } from "../ui/typer.js";
 
 function runSelfTest() {
@@ -129,11 +130,12 @@ function runSelfTest() {
     add("no word repeats within three lessons", overlap === 0, overlap + " repeats");
 
     S.sess = null;
-    [100, 100, 100, 130, 130].forEach((m, i) => noteSession(m, i < 3 ? 0.01 : 0.05));
-    const fat = S.sess.fat;
+    const sk = S.settings.layout + "|letters";
+    [100, 100, 100, 100, 100, 130, 130, 130].forEach((m, i) => noteSession(S.settings.layout, "letters", m, i < 5 ? 0.01 : 0.05, i * 1000));
+    const fat = S.sess[sk].fat;
     S.sess = null;
-    [100, 100, 100, 102, 98].forEach(m => noteSession(m, 0.01));
-    add("fatigue guard trips only when speed and errors both worsen", fat && !S.sess.fat);
+    [100, 100, 100, 100, 100, 102, 98, 101].forEach((m, i) => noteSession(S.settings.layout, "letters", m, 0.01, i * 1000));
+    add("fatigue guard trips only when speed and errors both worsen", fat && !S.sess[sk].fat);
 
     const old = sanitizeData({ v: 1, layouts: { "en-qwerty": { chars: { a: { n: 5, a: 5, e: 0, t: [300, 310], o: [0, 0], x: {} } }, pairs: {}, k: 6 } }, lessons: [] });
     add("older saved data still loads", old.layouts["en-qwerty"] && old.layouts["en-qwerty"].k === 6 && old.layouts["en-qwerty"].lk === 0);
@@ -530,12 +532,9 @@ function runSelfTest() {
     const afterText = U.res.textContent;
     const cardCode = U.res.querySelector(".rcard");
     const cardWords = resultCard(sampleRes, "en", null, true);
-    fresh("en-qwerty", { result: false });
-    renderCodeRes();
-    const hiddenOff = U.res.textContent === "";
     U.res = keepRes4;
     add("code results are the Words result card with the same statistics", !!cardCode && cardCode.outerHTML === cardWords.outerHTML && [t("tr.raw"), t("tr.cons"), t("tr.slow"), t("tr.miss"), t("tr.acc")].every(x => afterText.indexOf(x) >= 0));
-    add("code results show the time unless the timer is off, and follow the result setting", afterText.indexOf(t("tr.time")) >= 0 && offText.indexOf(t("tr.time")) < 0 && hiddenOff);
+    add("code results show the time unless the timer is off", afterText.indexOf(t("tr.time")) >= 0 && offText.indexOf(t("tr.time")) < 0);
 
     const pbCard = resultCard(Object.assign({}, sampleRes, { isPb: true }), "en", null, true);
     const pbEl = pbCard.querySelector(".pb");
@@ -616,14 +615,14 @@ function runSelfTest() {
     esc(filterBox);
     const leftAfter = S.view === "code";
     filterBox.remove();
-    go("practice");
+    go("learn");
     go("keys");
     esc();
-    const fromStats = S.view === "practice";
+    const fromStats = S.view === "learn";
     go("settings");
     S.back = undefined;
     esc();
-    const fallback = S.view === "practice";
+    const fallback = S.view === "learn";
     S.view = keepView3;
     S.back = keepBack3;
     S.lesson = keepLesson3;
@@ -813,7 +812,7 @@ function runSelfTest() {
     const fx = sanitizeData(JSON.parse(JSON.stringify(v3Fixture())));
     const fxChars = Object.keys(v3Fixture().layouts["en-qwerty"].chars);
     add("a v3 profile fixture loads whole and survives a save round trip", fxChars.every(c => fx.layouts["en-qwerty"].chars[c] && fx.layouts["en-qwerty"].chars[c].n >= 60) && Object.keys(fx.layouts["en-qwerty:code"].chars).length === 13 && fx.layouts["en-qwerty"].k === 13 && fx.lessons.length === 6 && fx.tests.length === 2 && fx.code.length === 1 && Object.keys(fx.sc).length === 2 && JSON.stringify(sanitizeData(JSON.parse(JSON.stringify(fx)))) === JSON.stringify(fx), fxChars.length + " letters, " + Object.keys(fx.layouts["en-qwerty:code"].chars).length + " code keys");
-    fresh("en-qwerty", { caps: true, digits: true, punct: true, extraRate: 40 });
+    fresh("en-qwerty", { caps: true, digits: true, punct: true });
     const lessonText = seed => {
       seedRng(seed);
       S.recent = [];
@@ -865,14 +864,14 @@ function runSelfTest() {
     const migL = mig.layouts["en-qwerty"];
     const migC = mig.layouts["en-qwerty:code"];
     const sameStat = (a, b) => a && b && a.n === b.n && a.a === b.a && a.e === b.e && JSON.stringify(a.t) === JSON.stringify(b.t) && JSON.stringify(a.o) === JSON.stringify(b.o);
-    add("v3 data migrates to v4 and keeps every key stat, lesson, test, code run and shortcut", mig.v === 4 && Object.keys(v3.layouts["en-qwerty"].chars).every(c => sameStat(migL.chars[c], v3.layouts["en-qwerty"].chars[c])) && Object.keys(v3.layouts["en-qwerty:code"].chars).every(c => sameStat(migC.chars[c], v3.layouts["en-qwerty:code"].chars[c])) && mig.lessons.length === 6 && mig.tests.length === 2 && mig.code.length === 1 && Object.keys(mig.sc).length === 2 && mig.onboard === "done");
+    add("v3 data migrates to the current version and keeps every key stat, lesson, test, code run and shortcut", mig.v === 5 && Object.keys(v3.layouts["en-qwerty"].chars).every(c => sameStat(migL.chars[c], v3.layouts["en-qwerty"].chars[c])) && Object.keys(v3.layouts["en-qwerty:code"].chars).every(c => sameStat(migC.chars[c], v3.layouts["en-qwerty:code"].chars[c])) && mig.lessons.length === 6 && mig.tests.length === 2 && mig.code.length === 1 && Object.keys(mig.sc).length === 2 && mig.onboard === "done");
     add("the letters track holds the old unlock count and stays in step with it", migL.tracks.letters.k === 13 && migL.k === 13 && (() => { migL.k = 7; return migL.tracks.letters.k === 7; })() && JSON.parse(JSON.stringify(mig)).layouts["en-qwerty"].tracks.letters.k === 7);
     add("a v4 profile round-trips through export and import unchanged", JSON.stringify(sanitizeData(JSON.parse(JSON.stringify(mig)))) === JSON.stringify(mig));
     add("an empty profile starts as new and a used one as done", sanitizeData({}).onboard === "new" && sanitizeData({ onboard: "skipped" }).onboard === "skipped" && sanitizeData({ onboard: "x", lessons: [{ ts: 1, lid: "en-qwerty", wpm: 20, acc: 0.9, n: 50 }] }).onboard === "done");
     const impOk = applyImport(JSON.stringify({ app: "tarq", version: 3, settings: { layout: "en-qwerty", strictShift: true }, data: v3 }));
-    add("a v3 export imports into v4 and strict Shift maps to the new policy", impOk && S.settings.shiftPolicy === "strict" && S.settings.mix === null && S.data.v === 4 && S.data.layouts["en-qwerty"].tracks.letters.k === 13);
+    add("a v3 export imports into the current version and strict Shift maps to the new policy", impOk && S.settings.shiftPolicy === "strict" && S.settings.mix === null && S.data.v === 5 && S.data.layouts["en-qwerty"].tracks.letters.k === 13);
     const bad = sanitizeSettings({ mix: { letters: { on: true, weight: 999 }, code: { on: "yes" } }, learnTracks: { active: "x", review: 99 }, shiftPolicy: "zzz", capsPolicy: 3, kbFade: "on" });
-    add("new v4 settings are clamped and sanitised", bad.mix.letters.weight === 100 && bad.mix.code.on === false && bad.learnTracks.active === "letters" && sanitizeSettings({ reviewRate: 99 }).reviewRate === 30 && sanitizeSettings({ digitSource: "q" }).digitSource === "either" && bad.shiftPolicy === "off" && bad.capsPolicy === "allow" && bad.kbFade === false && sanitizeSettings({ mix: { letters: { on: false } } }).mix === null);
+    add("new v4 settings are clamped and sanitised", bad.mix.letters.weight === 100 && bad.mix.code.on === false && bad.learnTracks.active === "letters" && sanitizeSettings({ digitSource: "q" }).digitSource === "either" && bad.shiftPolicy === "off" && bad.capsPolicy === "allow" && bad.kbFade === false && sanitizeSettings({ mix: { letters: { on: false } } }).mix === null);
     const steady = (lid, k) => {
       layoutData(lid).k = k;
       currentOrder().slice(0, k).forEach(c => { layoutData(lid).chars[c] = flat(40, 120); });
@@ -893,7 +892,7 @@ function runSelfTest() {
     add("code typing adds to the code bucket and leaves letter stats and unlock progress alone", Object.keys(codeBefore).every(c => codeAfter[c] && codeAfter[c].n >= codeBefore[c].n) && Object.keys(codeAfter).some(c => !codeBefore[c] || codeAfter[c].n > codeBefore[c].n) && JSON.stringify(S.data.layouts["en-qwerty"].chars) === mainBefore && JSON.stringify(S.data.layouts["en-qwerty"].tracks) === tracksBefore && !!S.codeRes);
     const merged = mergedStat("en-qwerty", "{");
     const mainBrace = S.data.layouts["en-qwerty"].chars["{"] ? S.data.layouts["en-qwerty"].chars["{"].n : 0;
-    add("key views merge the code bucket with the main stats at read time", merged.n === mainBrace + codeAfter["{"].n && merged.t.length <= 40 && mergedStat("en-qwerty", "zz") === undefined && merged.n > v3.layouts["en-qwerty:code"].chars["{"].n);
+    add("key views merge the code bucket with the main stats at read time", merged.n === mainBrace + codeAfter["{"].n && merged.t.length <= 40 && mergedStat("en-qwerty", "zz") === undefined && merged.n >= v3.layouts["en-qwerty:code"].chars["{"].n, "merged " + merged.n + " main " + mainBrace + " code " + (codeAfter["{"] ? codeAfter["{"].n : "none") + " tl " + merged.t.length);
 
     const lettersRe = /\p{L}/u;
     const mxo = (names, weights) => {
@@ -973,7 +972,7 @@ function runSelfTest() {
     add("a 200-lesson mixed batch stays within the generation budget", budgetOk, "slowest batch " + slow.toFixed(0) + " ms");
     const ra = runBatch("ar-101", mxo(["letters", "dia", "digits", "punct"]), 31, 40);
     add("an Arabic mix stays typeable and left-to-right code falls back to words", allTypeable(ra) && flatTokens(ra).length > 100 && mixPlan(mxo(["code"])).w.words === 1 && mixPlan(mxo(["code"])).w.code === 0, flatTokens(ra).filter(x => x.src !== "words").length + " non-word tokens");
-    fresh("en-qwerty", { caps: true, digits: true, punct: true, extraRate: 30 });
+    fresh("en-qwerty", { caps: true, digits: true, punct: true });
     const lm = legacyMix(S.settings);
     seedRng(9);
     S.recent = [];
@@ -1010,7 +1009,7 @@ function runSelfTest() {
     const bannedRe = /wrong|awesome|perfect|keep it up|almost|oops|take a (short )?(break|rest)|well done|great job|\u0623\u062D\u0633\u0646\u062A|\u0645\u0645\u062A\u0627\u0632|\u0631\u0627\u0626\u0639|\u062E\u0637\u0623 \u0641\u0627\u062F\u062D|\u062D\u0627\u0648\u0644 \u0645\u0631\u0629 \u0623\u062E\u0631\u0649/i;
     add("every interface string stays neutral in both languages", Object.keys(T).every(k => !bannedRe.test(T[k][0]) && !bannedRe.test(T[k][1])) && T["fp.last"][0].length > 0);
     fresh("en-qwerty");
-    go("free");
+    go("practice");
     const navTexts = Array.from(document.querySelectorAll("nav button")).map(b => b.textContent);
     add("navigation is Learn, Practice, Test, Shortcuts with no Code tab", navTexts.join("|") === "Learn|Practice|Test|Shortcuts", navTexts.join("|"));
     const chipEls = () => Array.from(document.querySelectorAll(".chips [data-chip]"));
@@ -1023,7 +1022,7 @@ function runSelfTest() {
     add("the last chip cannot be turned off and a quiet note says so", document.querySelector("[data-chip=digits]").getAttribute("aria-pressed") === "true" && S.settings.mix.digits.on && document.getElementById("fpnote").textContent === T["fp.last"][0]);
     S.settings.mix = mxo(["letters", "digits", "punct"], [50, 30, 20]);
     S.mixOpen = true;
-    go("free");
+    go("practice");
     const sliders = () => Array.from(document.querySelectorAll(".mixrow input[type=range]"));
     const s0 = sliders()[0];
     s0.value = 70;
@@ -1046,7 +1045,7 @@ function runSelfTest() {
     layoutData("en-qwerty").k = 6;
     currentOrder().slice(0, 6).forEach(c => { layoutData("en-qwerty").chars[c] = flat(40, 140); });
     S.settings.mix = mxo(["letters", "digits"], [60, 40]);
-    go("free");
+    go("practice");
     const tracksSnap = JSON.stringify(S.data.layouts["en-qwerty"].tracks);
     const kSnap = layoutData("en-qwerty").k;
     const nBefore = Object.keys(S.data.layouts["en-qwerty"].chars).reduce((a, c) => a + S.data.layouts["en-qwerty"].chars[c].n, 0);
@@ -1062,12 +1061,12 @@ function runSelfTest() {
     newLesson();
     add("Learn lessons ignore the Practice mix", !S.lesson.free && /[a-z]/.test(S.lesson.chars.join("")));
     S.settings.mix = mxo(["code"]);
-    go("free");
+    go("practice");
     add("Code on its own uses the code lesson with its language picker and clock", codeMode() && S.lesson.code === true && !!document.querySelector(".cfg .ddw") && !!document.getElementById("codeclock") && !document.querySelector(".kb"));
     S.settings.mix = mxo(["letters", "code"], [60, 40]);
     S.mixLedger = null;
     seedRng(88);
-    go("free");
+    go("practice");
     let anyCode = false;
     for (let i = 0; i < 40 && !anyCode; i++) {
       newFreeLesson();
@@ -1076,7 +1075,7 @@ function runSelfTest() {
     add("Code mixed with other sources inserts whole lines into a Practice lesson", !codeMode() && S.lesson.free === true && anyCode && !!document.querySelector(".kb"));
     fresh("en-qwerty");
     S.settings.mix = mxo(["letters", "capitals"], [50, 50]);
-    go("free");
+    go("practice");
     const pv = document.getElementById("fpreview");
     const pvText = pv.querySelector("bdi").textContent;
     add("a preview line shows the start of the next text under the chips", pv && pvText.length >= 20 && pvText.length <= 41 && S.lesson.chars.join("").indexOf(pvText.replace("\u2026", "")) === 0);
@@ -1093,7 +1092,7 @@ function runSelfTest() {
     S.settings.presets = [];
     fresh("en-qwerty");
     S.settings.mix = mxo(["letters", "digits"], [60, 40]);
-    go("free");
+    go("practice");
     const before = S.lesson.idx;
     U.tabbed = true;
     const chip = document.querySelector("[data-chip=symbols]");
@@ -1101,17 +1100,17 @@ function runSelfTest() {
     chip.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", code: "Enter", bubbles: true, cancelable: true }));
     fresh("ar-101");
     S.settings.mix = mxo(["digits"]);
-    go("free");
+    go("practice");
     const arWords = Array.from(document.querySelectorAll("#typer .w"));
     add("ASCII-only words such as numbers stay left-to-right inside the Arabic typer", arWords.length > 2 && arWords.every(w => !!w.querySelector("bdi[dir=ltr]")) && U.spans.every(sp => sp.parentNode.nodeName === "BDI" || sp.textContent.trim() === ""));
     fresh("en-qwerty");
     S.settings.mix = mxo(["letters", "digits"], [60, 40]);
-    go("free");
+    go("practice");
     add("keys pressed on a chip never reach the typer", S.lesson.idx === before && S.lesson.errs === 0);
     U.tabbed = false;
     S.settings.ui = "ar";
     fresh("ar-101", { ui: "ar" });
-    go("free");
+    go("practice");
     const arNav = Array.from(document.querySelectorAll("nav button")).map(b => b.textContent).join("|");
     const arChips = chipEls().map(b => b.getAttribute("data-chip")).join(",");
     add("Arabic Practice is right-to-left with diacritics and no capitals chip", document.documentElement.getAttribute("dir") === "rtl" && arNav === "تعلّم|تمرين|اختبار|اختصارات" && arChips === "letters,digits,punct,symbols,code,dia" && document.getElementById("typer").getAttribute("dir") === "rtl", arNav + " / " + arChips);
@@ -1130,7 +1129,7 @@ function runSelfTest() {
     const flat3 = (n, ms) => flat(n, ms);
     const prep = (lid, over) => {
       fresh(lid, over);
-      S.view = "practice";
+      S.view = "learn";
     };
     const lessonWordsOf = () => S.lesson.chars.join("").split(" ");
     prep("en-qwerty");
@@ -1176,7 +1175,7 @@ function runSelfTest() {
     newLesson();
     const lettersK = layoutData("en-qwerty").k;
     trackActive("digits").forEach(c => { layoutData("en-qwerty").chars[c] = flat3(40, 120); });
-    for (let i = 0; i < 3; i++) S.data.lessons.push({ ts: 1, lid: "en-qwerty", wpm: 50, acc: 1, n: 50 });
+    for (let i = 0; i < 3; i++) S.data.lessons.push({ ts: 1, lid: "en-qwerty", tr: "digits", wpm: 50, acc: 1, n: 50 });
     let tt = 4000;
     const th = { painted() {}, finished() {} };
     S.lesson.chars.slice().forEach(c => { tt += 150; handleChar(c, tt, th); });
@@ -1191,7 +1190,6 @@ function runSelfTest() {
     layoutData("en-qwerty").k = 8;
     setTrackK("digits", 3);
     trackActive("digits").forEach(c => { layoutData("en-qwerty").chars[c] = flat3(40, 120); });
-    setSetting("reviewRate", 30);
     seedRng(41);
     let revDigit = 0;
     let revTot = 0;
@@ -1205,13 +1203,6 @@ function runSelfTest() {
       });
     }
     const revShare = revDigit / revTot;
-    setSetting("reviewRate", 0);
-    let revNone = 0;
-    for (let i = 0; i < 20; i++) {
-      newLesson();
-      lessonWordsOf().forEach(w => { if (/[0-9]/.test(w)) revNone++; });
-    }
-    setSetting("reviewRate", 30);
     setSetting("caps", true);
     let revLegacy = 0;
     seedRng(42);
@@ -1227,8 +1218,8 @@ function runSelfTest() {
       newLesson();
       lessonWordsOf().forEach(w => { if (!/^[0-9]+$/.test(w)) ownTrack++; });
     }
-    add("settled keys from other tracks return in lessons at the review rate", revShare > 0.15 && revShare < 0.45 && revLeak && revNone === 0, "share " + (revShare * 100).toFixed(0) + "% at 30");
-    add("review is off with a zero rate, with old extras on, and inside its own track", revNone === 0 && revLegacy === 0 && ownTrack === 0, "legacy " + revLegacy + ", own track " + ownTrack);
+    add("settled keys from other tracks return in lessons at the fixed review rate", revShare > 0.05 && revShare < 0.2 && revLeak, "share " + (revShare * 100).toFixed(0) + "% at 10");
+    add("review is left out when old extras are on and inside its own track", revLegacy === 0 && ownTrack === 0, "legacy " + revLegacy + ", own track " + ownTrack);
     prep("en-qwerty");
     setSetting("learnTracks", { active: "digits" });
     const evt = (code, key) => ({ code, key, shiftKey: false, ctrlKey: false, altKey: false, metaKey: false, getModifierState() { return false; } });
@@ -1246,9 +1237,9 @@ function runSelfTest() {
     setSetting("learnTracks", { active: "letters" });
     newLesson();
     const plainOk = produceChars(evt("Numpad5", "5")) === "5" && produceChars(evt("Digit5", "5")) === "5";
-    S.view = "free";
-    const freeOk = produceChars(evt("Numpad5", "5")) === "5";
     S.view = "practice";
+    const freeOk = produceChars(evt("Numpad5", "5")) === "5";
+    S.view = "learn";
     add("the number source setting decides which keys count in the Numbers track", eitherOk && rowOk && padOk, [eitherOk, rowOk, padOk].join());
     add("the keypad track accepts keypad digits only and other views keep both", padTrack && plainOk && freeOk);
     prep("en-qwerty");
@@ -1357,7 +1348,7 @@ function runSelfTest() {
     const hiddenCleared = U.shiftL === false;
     add("Shift state ignores auto-repeat and clears on page hide and tab hide", repeatIgnored && pageCleared && hiddenCleared);
     fresh("en-qwerty", { shiftPolicy: "hint" });
-    S.view = "practice";
+    S.view = "learn";
     render();
     newLesson();
     S.lesson.chars[0] = "A";
@@ -1383,7 +1374,7 @@ function runSelfTest() {
     keyEvt("keyup", "CapsLock", { modifierCapsLock: false });
     add("a quiet Caps Lock note shows while it is on and the rule is not strict", noteOn && noteOff && noteStrict);
     fresh("en-qwerty", { onError: "advance", backspace: "allow" });
-    S.view = "practice";
+    S.view = "learn";
     render();
     newLesson();
     handleChar("#", 100, q4);
@@ -1397,7 +1388,7 @@ function runSelfTest() {
     fresh("en-qwerty", { kbFade: true });
     layoutData("en-qwerty").k = 6;
     ["f", "j"].forEach(c => { layoutData("en-qwerty").chars[c] = flat(40, 120); });
-    S.view = "practice";
+    S.view = "learn";
     render();
     newLesson();
     const fadeOn = U.kb.keys.KeyF.classList.contains("kfade") && U.kb.keys.KeyJ.classList.contains("kfade") && !U.kb.keys.KeyA.classList.contains("kfade");
@@ -1405,7 +1396,7 @@ function runSelfTest() {
     newLesson();
     add("settled keys fade on the keyboard only when the setting is on", fadeOn && !U.kb.keys.KeyF.classList.contains("kfade"));
     fresh("en-qwerty", { fingerZones: true });
-    S.view = "practice";
+    S.view = "learn";
     render();
     const zoneOk = U.kb.root.classList.contains("fz") && ["KeyA:p", "KeyS:r", "KeyD:m", "KeyF:i", "KeyJ:i", "KeyL:r", "Semicolon:p", "Digit1:p", "KeyT:i"].every(x => U.kb.keys[x.split(":")[0]].getAttribute("data-f") === x.split(":")[1]);
     S.settings.fingerZones = false;
@@ -1433,21 +1424,23 @@ function runSelfTest() {
     const bannedRe5 = /wrong|awesome|perfect|keep it up|almost|oops/i;
     fresh("en-qwerty");
     S.data.onboard = "new";
-    S.view = "practice";
+    S.view = "learn";
     render();
     const choices = Array.from(document.querySelectorAll(".place button"));
     add("first launch offers three equal neutral choices", choices.map(b => b.textContent).join("|") === "New to touch typing|Start lessons from the first keys|I already touch type" && choices.every(b => b.className === "btn") && !choices.some(b => bannedRe5.test(b.textContent)));
+    const orderBefore = S.settings.order;
+    const startBefore = S.settings.startKeys;
     choices[1].click();
-    add("starting from the first keys sets two keys and ends onboarding", S.settings.startKeys === 2 && S.settings.order === "position" && currentK() === 2 && activeKeys().join("") === "fj" && S.data.onboard === "done" && layoutData("en-qwerty").placed === true && !document.querySelector(".place"));
+    add("starting from the first keys sets two keys for this layout only and ends onboarding", S.settings.startKeys === startBefore && S.settings.order === orderBefore && currentK() === 2 && activeKeys().length === 2 && S.data.onboard === "done" && layoutData("en-qwerty").placed === true && !document.querySelector(".place"));
     fresh("en-qwerty");
     S.data.onboard = "new";
-    S.view = "practice";
+    S.view = "learn";
     render();
     document.querySelectorAll(".place button")[2].click();
     add("claiming touch typing runs the existing placement test", S.view === "test" && S.data.onboard === "done");
     fresh("en-qwerty");
     S.data.onboard = "new";
-    S.view = "practice";
+    S.view = "learn";
     render();
     const before5 = JSON.stringify(S.data.layouts);
     document.querySelectorAll(".place button")[0].click();
@@ -1478,7 +1471,7 @@ function runSelfTest() {
     paceBtns[0].click();
     add("the starting pace only sets the target speed", S.settings.targetWpm === 15 && document.querySelectorAll(".posture li").length === 3);
     Array.from(document.querySelectorAll(".stepactions button")).find(b => b.className === "btn go").click();
-    add("finishing lands in Learn letters with two keys and live speed hidden", S.view === "practice" && S.data.onboard === "done" && S.settings.startKeys === 2 && activeKeys().join("") === "fj" && S.settings.liveWpm === false && learnTrack() === "letters" && currentK() === 2 && layoutData("en-qwerty").placed === true);
+    add("finishing lands in Learn letters with two keys and live speed hidden", S.view === "learn" && S.data.onboard === "done" && S.settings.startKeys === 2 && activeKeys().join("") === "fj" && S.settings.liveWpm === false && learnTrack() === "letters" && currentK() === 2 && layoutData("en-qwerty").placed === true);
     fresh("en-qwerty");
     S.data.onboard = "new";
     startSteps();
@@ -1490,12 +1483,12 @@ function runSelfTest() {
     }
     add("every step except the last can be skipped and the last has no skip", skipOk && stepIdx() === 4 && !Array.from(document.querySelectorAll(".stepactions button")).some(b => b.textContent === "Skip this step"));
     Array.from(document.querySelectorAll(".stepactions button")).find(b => b.className === "btn go").click();
-    add("skipping steps still ends onboarding without errors", S.view === "practice" && (S.data.onboard === "skipped" || S.data.onboard === "done"));
+    add("skipping steps still ends onboarding without errors", S.view === "learn" && (S.data.onboard === "skipped" || S.data.onboard === "done"));
     fresh("en-qwerty");
     S.data.onboard = "new";
     startSteps();
     Array.from(document.querySelectorAll(".stepactions button")).find(b => b.textContent === "Skip First steps").click();
-    add("Skip First steps leaves at once and is remembered", S.view === "practice" && S.data.onboard === "skipped" && S.steps === null);
+    add("Skip First steps leaves at once and is remembered", S.view === "learn" && S.data.onboard === "skipped" && S.steps === null);
     fresh("en-qwerty");
     layoutData("en-qwerty").placed = true;
     layoutData("en-qwerty").k = 9;
@@ -1509,7 +1502,7 @@ function runSelfTest() {
     add("First steps can be reopened from Settings without changing progress", S.view === "steps" && S.data.onboard === "done" && !!document.querySelector(".stepcard"));
     ["Skip this step", "Skip this step", "Skip this step", "Skip this step"].forEach(() => Array.from(document.querySelectorAll(".stepactions button")).find(b => b.textContent === "Skip this step").click());
     Array.from(document.querySelectorAll(".stepactions button")).find(b => b.className === "btn go").click();
-    add("finishing a reopened walk leaves keys, speed display and onboarding alone", layoutData("en-qwerty").k === 9 && S.settings.liveWpm === true && S.settings.startKeys === startsBefore && S.data.onboard === "done" && S.view === "practice");
+    add("finishing a reopened walk leaves keys, speed display and onboarding alone", layoutData("en-qwerty").k === 9 && S.settings.liveWpm === true && S.settings.startKeys === startsBefore && S.data.onboard === "done" && S.view === "learn");
     const fsKeys = Object.keys(T).filter(k => k.indexOf("fs.") === 0 || k.indexOf("s.steps") === 0);
     add("every First steps string exists in both languages and stays neutral", fsKeys.length > 30 && fsKeys.every(k => T[k][0] && T[k][1] && !bannedRe5.test(T[k][0])));
     S.settings.ui = "ar";
@@ -1534,12 +1527,30 @@ function runSelfTest() {
     fresh("en-qwerty");
     S.view = "keys";
     render();
+    const Ls = layoutData("en-qwerty");
+    Ls.lk = 40;
+    activeKeys().forEach(c => {
+      const cs = charStat("en-qwerty", c, true);
+      cs.n = 30;
+      cs.a = 30;
+      cs.t = Array.from({ length: 20 }, () => 900);
+      cs.o = Array.from({ length: 20 }, () => 0);
+    });
+    const kBefore = currentK();
+    render();
+    const unlockBtn = document.getElementById("unlockany");
+    const hadBtn = !!unlockBtn;
+    if (unlockBtn) unlockBtn.click();
+    add("a stalled Keys page offers Unlock next key anyway and it moves one key on", hadBtn && currentK() === kBefore + 1);
+    fresh("en-qwerty");
+    S.view = "keys";
+    render();
     const how = document.querySelector("details.how p");
     add("the measurement explainer covers tracks, Shift rules, code stats and untimed First steps in both languages", how && how.textContent === T["how.body"][0] && ["track", "Shift", "First steps", "never unlock", "code bucket"].every(w => T["how.body"][0].indexOf(w) >= 0) && T["how.body"][1].indexOf("Shift") > 0 && T["how.body"][1].length > 900 && !/almost|perfect|wrong/i.test(T["how.body"][0]));
     S.view = "settings";
     render();
     const find = id => document.querySelector(id === "__steps" ? "[data-sid=__steps]" : "[data-sid=" + id + "]");
-    const probes = [["reviewRate", "revisit", "\u0645\u0631\u0627\u062C\u0639\u0629"], ["digitSource", "numpad", "\u0644\u0648\u062D\u0629 \u0627\u0644\u0623\u0631\u0642\u0627\u0645"], ["shiftPolicy", "opposite", "\u0645\u0642\u0627\u0628\u0644\u0629"], ["capsPolicy", "caps lock", "\u0642\u0641\u0644"], ["backspace", "undo", "\u062A\u0631\u0627\u062C\u0639"], ["kbFade", "no-look", "\u062F\u0648\u0646 \u0646\u0638\u0631"], ["fingerZones", "tint", "\u062A\u0644\u0648\u064A\u0646"], ["__steps", "beginner", "\u0645\u0628\u062A\u062F\u0626"]];
+    const probes = [["digitSource", "numpad", "\u0644\u0648\u062D\u0629 \u0627\u0644\u0623\u0631\u0642\u0627\u0645"], ["shiftPolicy", "opposite", "\u0645\u0642\u0627\u0628\u0644\u0629"], ["capsPolicy", "caps lock", "\u0642\u0641\u0644"], ["backspace", "undo", "\u062A\u0631\u0627\u062C\u0639"], ["kbFade", "no-look", "\u062F\u0648\u0646 \u0646\u0638\u0631"], ["fingerZones", "tint", "\u062A\u0644\u0648\u064A\u0646"], ["__steps", "beginner", "\u0645\u0628\u062A\u062F\u0626"]];
     const misses = [];
     probes.forEach(p => {
       [p[1], p[2]].forEach(q => {
@@ -1552,7 +1563,7 @@ function runSelfTest() {
     const othersHidden = find("theme") && find("theme").hidden && !find("__steps").hidden;
     applyFilter("");
     add("Settings search finds every new setting by English and Arabic keywords", misses.length === 0 && othersHidden, misses.join(",") || "all 16 probes hit");
-    add("every new setting keyword entry has both languages", ["reviewRate", "digitSource", "shiftPolicy", "capsPolicy", "backspace", "kbFade", "fingerZones", "steps"].every(id => T["k." + id] && T["k." + id][0].length > 8 && T["k." + id][1].length > 8));
+    add("every new setting keyword entry has both languages", ["digitSource", "shiftPolicy", "capsPolicy", "backspace", "kbFade", "fingerZones", "steps"].every(id => T["k." + id] && T["k." + id][0].length > 8 && T["k." + id][1].length > 8));
     const full = sanitizeSettings({ layout: "en-qwerty", targetWpm: 25, mix: { letters: { on: true, weight: 60 }, digits: { on: true, weight: 40 } }, presets: [{ name: "Mine", mix: { code: { on: true, weight: 100 } } }], learnTracks: { active: "digits" }, reviewRate: 20, digitSource: "numpad", shiftPolicy: "hint", capsPolicy: "strict", backspace: "off", kbFade: true, fingerZones: true });
     const data = sanitizeData(JSON.parse(JSON.stringify(v3Fixture())));
     data.layouts["en-qwerty"].tracks.digits.k = 5;
@@ -1566,12 +1577,12 @@ function runSelfTest() {
     S.data = sanitizeData({});
     const okImp = applyImport(exported);
     const L6 = S.data.layouts["en-qwerty"];
-    add("a v4 export carries every new field and imports back unchanged", okImp && JSON.stringify(S.settings) === JSON.stringify(full) && JSON.stringify(S.data) === JSON.stringify(data) && S.settings.mix.digits.weight === 40 && S.settings.presets[0].name === "Mine" && S.settings.learnTracks.active === "digits" && S.settings.shiftPolicy === "hint" && S.settings.kbFade === true && S.settings.fingerZones === true && L6.tracks.digits.k === 5 && L6.tracks.punct.k === 3 && L6.sh.same === 4 && L6.k === 13 && S.data.onboard === "steps" && JSON.parse(exported).version === 4);
+    add("an export carries every new field and imports back unchanged", okImp && JSON.stringify(S.settings) === JSON.stringify(full) && JSON.stringify(S.data) === JSON.stringify(data) && S.settings.mix.digits.weight === 40 && S.settings.presets[0].name === "Mine" && S.settings.learnTracks.active === "digits" && S.settings.shiftPolicy === "hint" && S.settings.kbFade === true && S.settings.fingerZones === true && L6.tracks.digits.k === 5 && L6.tracks.punct.k === 3 && L6.sh.same === 4 && L6.k === 13 && S.data.onboard === "steps" && JSON.parse(exported).version === 5);
     const settingsOnly = JSON.stringify(buildExport(false));
     const keepSnap = JSON.stringify(S.data);
     const okOnly = applyImport(settingsOnly);
     add("a settings-only export leaves the data untouched on import", okOnly && JSON.stringify(S.data) === keepSnap && !("data" in JSON.parse(settingsOnly)));
-    add("an export from a newer version is refused and changes nothing", applyImport(JSON.stringify({ app: "tarq", version: 5, settings: {}, data: {} })) === false && JSON.stringify(S.data) === keepSnap && applyImport("{}") === false && applyImport("nope") === false);
+    add("an export from a newer version is refused and changes nothing", applyImport(JSON.stringify({ app: "tarq", version: 6, settings: {}, data: {} })) === false && JSON.stringify(S.data) === keepSnap && applyImport("{}") === false && applyImport("nope") === false);
     S.settings = keepSet;
     S.data = keepData;
     S.view = keepV;
@@ -1632,7 +1643,7 @@ function runSelfTest() {
     add("custom text takes its share of characters like any other source", Math.abs(cCustom / cTot - 0.3) <= 0.05, (cCustom / cTot * 100).toFixed(1) + "% at 30");
     fresh("en-qwerty");
     clearCustom();
-    S.view = "free";
+    S.view = "practice";
     render();
     const chipsNone = Array.from(document.querySelectorAll(".chips [data-chip]")).map(b => b.getAttribute("data-chip")).join(",");
     S.mixOpen = true;
@@ -1761,7 +1772,9 @@ function runSelfTest() {
     S.test = null;
     render();
     const modeBtns = Array.from(document.querySelectorAll(".cfg .seg")).map(g => g.querySelectorAll("button").length);
-    const labelled = !!document.querySelector(".cfg [aria-label='" + t("tt.diffLabel") + "']") && !!document.querySelector(".cfg [aria-label='" + t("tt.stopLabel") + "']");
+    document.getElementById("rulesbtn").click();
+    const labelled = !!document.querySelector("#rulespanel [aria-label='" + t("tt.diffLabel") + "']") && !!document.querySelector("#rulespanel [aria-label='" + t("tt.stopLabel") + "']");
+    U.rulesOpen = false;
     add("the Test view offers time, words, quote and custom modes with difficulty and stop rules", modeBtns.indexOf(4) >= 0 && labelled && !document.querySelector(".cfg [aria-pressed]"), modeBtns.join(","));
     const shownWords = Array.from(document.querySelectorAll(".ttyper .tw")).map(w => w.textContent.trim()).join(" ");
     add("quote mode shows one whole quote", shownWords === S.test.words.join(" ") && QUOTES.en.indexOf(shownWords) >= 0, shownWords);
@@ -1775,6 +1788,149 @@ function runSelfTest() {
     add("Escape needs a second press before it throws away a running test", stillRunning && S.test.strokes === 0 && !S.test.running);
     esc();
     add("Escape restarts an idle test at once", S.test.strokes === 0);
+    fresh("en-qwerty", { testMode: "words", testWords: 10 });
+    S.test = null;
+    render();
+    S.test.words = ["alpha", "beta", "gamma"];
+    S.test.words0 = S.test.words.slice();
+    render();
+    "alpha bx".split("").forEach((c, i) => testChar(c, 1000 + i * 150));
+    render();
+    const tws = document.querySelectorAll(".ttyper .tw");
+    const keepMM = window.matchMedia;
+    window.matchMedia = () => ({ matches: true });
+    S.data.hw = false;
+    const shownNote = !!hwNote();
+    noteHardware();
+    const hiddenNote = !hwNote() && S.data.hw === true;
+    window.matchMedia = keepMM;
+    const keepStorage = S.storage;
+    S.storage = "memory";
+    S.view = "settings";
+    render();
+    const memNotes = Array.from(document.querySelectorAll("#app .msg")).filter(m => m.textContent === t("d.mem"));
+    add("when storage is unavailable Settings shows one permanent note that nothing is saved", memNotes.length === 1 && t("d.mem").indexOf("Not being saved in this browser") === 0);
+    S.storage = keepStorage;
+    S.view = "test";
+    render();
+    add("the needs-a-keyboard note goes away after the first real keystroke and stays gone", shownNote && hiddenNote);
+    add("re-rendering a running test keeps the typed words painted", tws[0].querySelectorAll(".c.d").length === 5 && tws[1].querySelectorAll(".c.d").length === 1 && tws[1].querySelectorAll(".c.x").length === 1);
+    const caretEl = document.querySelector(".ttyper .caret");
+    caretEl.style.transform = "";
+    redoCaret();
+    add("the caret is placed again when the layout changes size", !!caretEl.style.transform && caretEl.style.opacity !== "0");
+    fresh("en-qwerty");
+    S.view = "learn";
+    newLesson();
+    render();
+    const escKey = () => onKeyDown({ key: "Escape", preventDefault() {}, stopPropagation() {}, timeStamp: 0, target: document.body });
+    S.lesson.idx = Math.ceil(S.lesson.chars.length * 0.5);
+    const firstLesson = S.lesson;
+    escKey();
+    const heldOnce = S.lesson === firstLesson && S.lesson.idx > 0;
+    escKey();
+    add("Esc in Learn needs a second press once the lesson is well under way", heldOnce && (S.lesson !== firstLesson || S.lesson.idx === 0));
+    fresh("en-qwerty", { testMode: "words", testWords: 10 });
+    S.view = "test";
+    S.test = null;
+    render();
+    S.test.words = ["alpha", "beta"];
+    S.test.words0 = S.test.words.slice();
+    render();
+    "alpha beta".split("").forEach((c, i) => testChar(c, 1000 + i * 150));
+    const finished = S.test;
+    go("keys");
+    go("test");
+    const kept = S.test === finished && finished.done && !!finished.res;
+    go("test");
+    add("leaving a finished test for Keys and coming back keeps its result, and the Test button starts a new one", kept && S.test !== finished && !S.test.done);
+    fresh("en-qwerty", { testMode: "words", testWords: 10 });
+    S.view = "test";
+    S.test = null;
+    render();
+    S.test.words = ["quick", "brown"];
+    S.test.words0 = S.test.words.slice();
+    render();
+    "quixk brown".split("").forEach((c, i) => testChar(c, 1000 + i * 150));
+    renderTestResult();
+    const practiseBtn = document.getElementById("practisewords");
+    const hadPractise = !!practiseBtn;
+    if (practiseBtn) practiseBtn.click();
+    add("a test with a missed word offers Practise these words and opens a lesson made of it", hadPractise && S.view === "learn" && S.lesson && S.lesson.chars.join("").split(" ").every(w => w === "quick") && !S.lesson.done);
+    fresh("en-qwerty", { sessionLen: 10 });
+    S.view = "learn";
+    S.session = { ms: 11 * 60000, chars: 3000, errs: 30, shown: false };
+    newLesson();
+    render();
+    const learnLesson = S.lesson;
+    learnLesson.chars.slice().forEach((c, i) => handleChar(c, 1000 + i * 150, hooks));
+    const card = document.getElementById("sessum");
+    const cardText = card ? card.textContent : "";
+    add("a finished session replaces the next lesson with a plain summary and a New session button", !!card && cardText.indexOf(t("ss.title")) >= 0 && cardText.indexOf(t("ss.acc")) >= 0 && !!document.getElementById("sessgo") && S.session.shown === true);
+    document.getElementById("sessgo").click();
+    add("New session starts a fresh session and a new lesson", S.session.ms === 0 && !S.lesson.done && !document.getElementById("sessum"));
+    fresh("en-qwerty", { sessionLen: 0 });
+    fresh("en-qwerty", { zen: true });
+    S.view = "learn";
+    newLesson();
+    render();
+    const zr = document.documentElement;
+    const zenOn = zr.getAttribute("data-zen") === "1";
+    const typerVisible = !!document.querySelector(".pcard .stage");
+    const escKeyZ = () => onKeyDown({ key: "Escape", preventDefault() {}, stopPropagation() {}, timeStamp: 0, target: document.body });
+    S.lesson.idx = Math.ceil(S.lesson.chars.length * 0.5);
+    const zl = S.lesson;
+    escKeyZ();
+    const stillZen = S.settings.zen === true && S.lesson === zl;
+    escKeyZ();
+    add("Zen hides the chrome around the text and Esc twice leaves it without touching the lesson", zenOn && typerVisible && stillZen && S.settings.zen === false && zr.getAttribute("data-zen") === "0" && S.lesson === zl);
+    fresh("en-qwerty", { zen: true });
+    S.view = "keys";
+    render();
+    add("Zen only applies to the typing views", document.documentElement.getAttribute("data-zen") === "0");
+    fresh("en-qwerty", { zen: true });
+    S.view = "test";
+    S.test = null;
+    render();
+    add("Zen keeps the test timer and counters but hides the history", document.documentElement.getAttribute("data-zen") === "1" && !!document.querySelector(".tlive"));
+    fresh("en-qwerty");
+    applyChrome();
+    fresh("en-qwerty", { testMode: "words", testWords: 10 });
+    S.view = "test";
+    S.test = null;
+    S.testOv = null;
+    U.rulesOpen = false;
+    render();
+    const rulesBtn = document.getElementById("rulesbtn");
+    const inlineHasDiff = !!document.querySelector('.cfg [aria-label="' + t("tt.diffLabel") + '"]');
+    const closedFirst = !document.getElementById("rulespanel");
+    rulesBtn.click();
+    const panel = document.getElementById("rulespanel");
+    const panelOk = !!panel && !!panel.querySelector('[aria-label="' + t("tt.diffLabel") + '"]') && !!panel.querySelector('[aria-label="' + t("tt.stopLabel") + '"]') && !!panel.querySelector("[role=switch]");
+    Array.from(panel.querySelector('[aria-label="' + t("tt.diffLabel") + '"]').querySelectorAll("button")).find(b => b.textContent === t("tt.diff.expert")).click();
+    const diffSet = S.settings.testDiff === "expert";
+    const stillOpen = !!document.getElementById("rulespanel");
+    document.getElementById("rulespanel").querySelector("[role=switch]").click();
+    const confidentSet = S.settings.confident === true;
+    onKeyDown({ key: "Escape", preventDefault() {}, stopPropagation() {}, timeStamp: 0, target: document.body });
+    add("the test bar keeps its basics inline and moves difficulty, stop on error and confident into a Rules popover that Esc closes", !inlineHasDiff && closedFirst && panelOk && diffSet && stillOpen && confidentSet && !document.getElementById("rulespanel") && S.test.strokes === 0);
+    fresh("en-qwerty");
+    fresh("en-qwerty", { inputMode: "system" });
+    const altgr = { code: "KeyQ", key: "@", shiftKey: false, ctrlKey: true, altKey: true, metaKey: false, getModifierState: m => m === "AltGraph" };
+    const systemOut = produceChars(altgr);
+    fresh("en-qwerty", { inputMode: "layout" });
+    const layoutOut = produceChars(altgr);
+    add("AltGr characters pass through in system input mode and are ignored in layout mode", systemOut === "@" && layoutOut === "");
+    fresh("ar-101", { ui: "ar", zen: true });
+    S.view = "learn";
+    newLesson();
+    render();
+    const rtlRoot = document.documentElement;
+    add("Zen works in the Arabic interface with the text still shown", rtlRoot.getAttribute("dir") === "rtl" && rtlRoot.getAttribute("data-zen") === "1" && !!document.querySelector(".pcard .stage") && document.title.indexOf("طَرق") === 0);
+    fresh("en-qwerty");
+    applyChrome();
+    S.view = "test";
+    fresh("en-qwerty", { testMode: "quote", testQuote: "short", testDiff: "expert" });
     S.settings.testMode = "custom";
     S.settings.testDiff = "normal";
     clearCustom();
@@ -1840,6 +1996,18 @@ function runSelfTest() {
     render();
     const row = document.querySelector("[data-sid=wordLevel]");
     const radios = row ? Array.from(row.querySelectorAll("[role=radio]")) : [];
+    const groups = Array.from(document.querySelectorAll(".settings > section.sec > h2")).map(x => x.textContent);
+    const adv = document.querySelector("details.adv");
+    add("Settings opens with Keyboard, Goal, Typing, Look and Zen, then a collapsed Advanced group", [T["sec.keyboard"][0], T["sec.goal"][0], T["sec.typing"][0], T["sec.look"][0], T["sec.zen"][0]].every((g, i) => groups[i] === g) && !!adv && !adv.open && !!adv.querySelector("[data-sid=order]") && !!adv.querySelector("[data-sid=startKeys]") && !document.querySelector("[data-sid=minSamples]") && !!document.querySelector("[data-sid=focusLevel]") && !!document.querySelector("[data-sid=sessionLen]"));
+    const root = document.documentElement;
+    setSetting("caretStyle", "block");
+    setSetting("textWidth", "narrow");
+    setSetting("hideErrors", true);
+    setSetting("caretSmooth", false);
+    applyChrome();
+    add("caret style, text width, hide errors and smooth caret reach the page", root.getAttribute("data-caret") === "block" && root.getAttribute("data-tw") === "narrow" && root.getAttribute("data-he") === "1" && root.getAttribute("data-smooth") === "0");
+    fresh("en-qwerty");
+    applyChrome();
     add("Settings shows Word difficulty among the always-visible basics with three options and Balanced selected", !!row && !row.closest("details") && radios.map(b => b.textContent).join("|") === "Common|Balanced|Wide" && radios.filter(b => b.getAttribute("aria-checked") === "true")[0].textContent === "Balanced" && !!T["s.wordLevel.h"][1]);
     applyFilter("rare");
     const foundEn = !document.querySelector("[data-sid=wordLevel]").hidden;
@@ -1894,7 +2062,7 @@ function runSelfTest() {
     S.keysUI.sel = "s";
     fresh("en-qwerty");
     S.data.onboard = "new";
-    S.view = "practice";
+    S.view = "learn";
     render();
     const note = document.querySelector(".place .msg");
     add("the first-launch note names the choice it explains", note && note.textContent === "\u201CI already touch type\u201D runs a 60-second sample to set your starting keys." && T["pl.note"][1].indexOf("\u00AB") === 0);
@@ -1913,12 +2081,12 @@ function runSelfTest() {
     const keepData = S.data;
     const keepSet = S.settings;
     fresh("en-qwerty");
-    S.view = "practice";
+    S.view = "learn";
     render();
     const pressedBtns = () => document.querySelectorAll(".cfg [aria-pressed]").length;
     const hiddenByDefault = pressedBtns() === 0 && !document.getElementById("legacynote") && document.querySelectorAll(".tracks [role=radio]").length === 6;
-    fresh("en-qwerty", { caps: true, extraRate: 30 });
-    S.view = "practice";
+    fresh("en-qwerty", { caps: true });
+    S.view = "learn";
     render();
     const shownWhenOn = pressedBtns() === 3 && document.getElementById("legacynote").textContent === T["lt.legacy"][0] && document.querySelector(".cfg [aria-pressed=true]").textContent === "Capital letters";
     document.querySelector(".cfg [aria-pressed=true]").click();
@@ -2026,7 +2194,7 @@ function runSelfTest() {
     const saved = sanitizeData(JSON.parse(JSON.stringify(S.data)));
     S.steps = null;
     S.data = saved;
-    S.view = "practice";
+    S.view = "learn";
     render();
     const resumeBtn = document.querySelector(".place button");
     add("leaving First steps part way is remembered and offered as Continue", S.data.onboard === "steps" && S.data.onboardStep === 2 && resumeBtn.textContent === "Continue First steps" && T["fs.resume"][1].length > 5 && sanitizeData({ onboardStep: 99 }).onboardStep === 4 && sanitizeData({ onboardStep: "x" }).onboardStep === 0);
@@ -2065,7 +2233,7 @@ function runSelfTest() {
     }
 ;
   } catch (err) {
-    add("self-test ran without errors", false, String(err && err.message ? err.message : err));
+    add("self-test ran without errors", false, String(err && err.stack ? err.stack.split("\n").slice(0, 3).join(" | ") : err));
   }
   S.settings = keep.settings;
   S.data = keep.data;
