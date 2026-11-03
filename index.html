@@ -3186,6 +3186,7 @@ details[open]:not(.adv) > summary::before {
     "p.pair": ["Pair", "الزوج"],
     "p.n": ["Samples", "العينات"],
     "p.speed": ["Speed", "السرعة"],
+    "p.swaps": ["Swaps", "تبديلات"],
     "p.diff": ["Versus the key alone", "مقارنة بالمفتاح منفردًا"],
     "p.empty": ["Pairs appear after more practice.", "تظهر الأزواج بعد مزيد من التمرين."],
     "l.title": ["Lessons", "الدروس"],
@@ -3489,6 +3490,8 @@ details[open]:not(.adv) > summary::before {
     "code.set.names": ["Naming styles", "أنماط التسمية"],
     "code.g.data": ["Data and markup", "البيانات والترميز"],
     "why.detail": ["{k}: {ms} ms, your usual {u} ms, {acc} accurate, {n} samples", "{k}: {ms} م.ث، معتادك {u} م.ث، الدقة {acc}، {n} عينة"],
+    "why.detailGate": ["{k}: {ms} ms against {gate} ms, {acc} accurate, {n} samples", "{k}: {ms} م.ث مقابل {gate} م.ث، الدقة {acc}، {n} عينة"],
+    "why.detailSwap": ["{k}: swapped {rate} of the time", "{k}: يُبدَّل في {rate} من المرات"],
     "why.detailPair": ["{k}: {ms} ms, {n} samples", "{k}: {ms} م.ث، {n} عينة"],
     "why.detailNew": ["{k}: {n} samples so far", "{k}: {n} عينة حتى الآن"],
     "sc.browser": ["Browser", "المتصفح"],
@@ -7095,6 +7098,31 @@ details[open]:not(.adv) > summary::before {
     ["renamefile", "Rename the selected file", "إعادة تسمية الملف المحدد", ["F2"], null, "system"]
   ];
 
+  // src/engine/pairs.js
+  function pairRows(lid) {
+    const L = layoutData(lid);
+    const P = S.derived;
+    const M = model(lid);
+    const bn = ensureLex(layoutInfo().lang).bn;
+    const rec = M.recMs || 600;
+    const rows = [];
+    for (const k in L.pairs) {
+      if (k.length !== 2) continue;
+      const p = L.pairs[k];
+      const s2 = L.chars[k[1]];
+      const timed = p.n >= 8 && !!s2 && s2.n >= P.minS;
+      const swaps = p.te > 0.5 ? p.te / (p.te + (p.tc || 0) + 3) : 0;
+      if (!timed && swaps <= 0) continue;
+      const d = timed ? p.m - median(s2.t) : null;
+      const freq = bn[k] || 0;
+      const slow = timed && M.pexcess[k] ? freq * 0.83 * M.pexcess[k] : 0;
+      const impact = slow + freq * 0.83 * swaps * rec;
+      rows.push({ k, n: p.n, m: timed ? p.m : null, d, swaps, impact });
+    }
+    rows.sort((a, b) => b.impact - a.impact || (b.d || 0) - (a.d || 0));
+    return rows;
+  }
+
   // src/ui/progress.js
   var NS = "http://www.w3.org/2000/svg";
   var RANGES = [{ v: "30" }, { v: "90" }, { v: "all" }];
@@ -8863,6 +8891,8 @@ details[open]:not(.adv) > summary::before {
     const lid = S.settings.layout;
     const L = layoutData(lid);
     const fp = l.focusPair;
+    const fpp = typeof fp === "string" && fp.length === 2 ? L.pairs[fp] : null;
+    if (fpp && fpp.te > 0.5 && fpp.te / (fpp.te + (fpp.tc || 0) + 3) >= 0.15) return { kind: "pairSwap", fp, rate: fpp.te / (fpp.te + (fpp.tc || 0) + 3) };
     if (typeof fp === "string" && fp.length === 2 && L.pairs[fp] && L.pairs[fp].n >= 3) {
       const d2 = Math.round(model(lid).pexcess[fp] / 5) * 5;
       if (d2 >= 10) return { kind: "pairSlow", fp, d: d2, ms: L.pairs[fp].m, n: L.pairs[fp].n };
@@ -8874,8 +8904,9 @@ details[open]:not(.adv) > summary::before {
     const sk = skillOf(lid, ch, s);
     const usual = keyModel(lid, ch, s).expected;
     const d = Math.round((sk.ms - usual) / 5) * 5;
-    const kind = d >= 15 ? "slow" : sk.acc < S.derived.targetAcc ? "acc" : "steady";
-    return { kind, ch, d, ms: sk.ms, usual, acc: sk.acc, n: s.n };
+    const gate = gateOf(ch);
+    const kind = sk.upper > gate ? "gate" : d >= 15 ? "slow" : sk.acc < S.derived.targetAcc ? "acc" : "steady";
+    return { kind, ch, d, ms: sk.ms, usual, gate, acc: sk.acc, n: s.n };
   }
   function whyInfo() {
     const l = S.lesson;
@@ -8884,6 +8915,8 @@ details[open]:not(.adv) > summary::before {
     const r = l.whyRaw;
     if (!r) return null;
     const k = iso(r.ch || r.fp);
+    if (r.kind === "pairSwap") return { text: fill(t("why.pair"), { a: iso(r.fp[1]), b: iso(r.fp[0]) }), detail: fill(t("why.detailSwap"), { k, rate: pct(r.rate) }) };
+    if (r.kind === "gate") return { text: fill(t("why.focus"), { k }), detail: fill(t("why.detailGate"), { k, ms: nf(r.ms), gate: nf(r.gate), acc: pct(r.acc), n: nf(r.n) }) };
     if (r.kind === "pairSlow") return { text: fill(t("why.pair"), { a: iso(r.fp[1]), b: iso(r.fp[0]) }), detail: fill(t("why.detailPair"), { k, ms: nf(r.ms), n: nf(r.n) }) };
     if (r.kind === "new") return { text: fill(t("why.focus"), { k }), detail: fill(t("why.detailNew"), { k, n: nf(r.n) }) };
     return { text: fill(t("why.focus"), { k }), detail: fill(t("why.detail"), { k, ms: nf(r.ms), u: nf(r.usual), acc: pct(r.acc), n: nf(r.n) }) };
@@ -9259,31 +9292,22 @@ details[open]:not(.adv) > summary::before {
     return h("div", { class: "tablewrap" }, table);
   }
   function renderPairs() {
-    const lid = S.settings.layout;
-    const P = S.derived;
-    const L = layoutData(lid);
-    const out = [];
-    for (const k in L.pairs) {
-      const p = L.pairs[k];
-      if (k.length !== 2 || p.n < 8) continue;
-      const s2 = L.chars[k[1]];
-      if (!s2 || s2.n < P.minS) continue;
-      out.push({ k, n: p.n, m: p.m, d: p.m - median(s2.t) });
-    }
-    out.sort((a, b) => b.d - a.d);
+    const out = pairRows(S.settings.layout);
     if (!out.length) return h("p", { class: "empty" }, t("p.empty"));
     const lang = layoutInfo().lang;
+    const dash = h("td", { class: "num" }, "–");
     return h("div", { class: "tablewrap" }, h(
       "table",
       null,
-      h("thead", null, h("tr", null, h("th", null, t("p.pair")), h("th", { class: "num" }, t("p.n")), h("th", { class: "num" }, t("p.speed")), h("th", { class: "num" }, t("p.diff")))),
+      h("thead", null, h("tr", null, h("th", null, t("p.pair")), h("th", { class: "num" }, t("p.n")), h("th", { class: "num" }, t("p.speed")), h("th", { class: "num" }, t("p.diff")), h("th", { class: "num" }, t("p.swaps")))),
       h("tbody", null, out.slice(0, 30).map((r) => h(
         "tr",
         null,
         h("td", { class: "g", lang, dir: lang === "ar" ? "rtl" : "ltr" }, r.k),
         h("td", { class: "num" }, nf(r.n)),
-        h("td", { class: "num" }, nf(r.m) + " " + t("ms")),
-        h("td", { class: "num" }, (r.d > 0 ? "+" : "−") + nf(Math.abs(r.d)) + " " + t("ms"))
+        r.m === null ? dash.cloneNode(true) : h("td", { class: "num" }, nf(r.m) + " " + t("ms")),
+        r.d === null ? dash.cloneNode(true) : h("td", { class: "num" }, (r.d > 0 ? "+" : "−") + nf(Math.abs(r.d)) + " " + t("ms")),
+        r.swaps > 0 ? h("td", { class: "num" }, pct(r.swaps)) : dash.cloneNode(true)
       )))
     ));
   }
@@ -10275,7 +10299,10 @@ details[open]:not(.adv) > summary::before {
       next[k] = { on: vis.indexOf(k) >= 0 && m[k].on, weight: m[k].weight };
     });
     next[key].on = !m[key].on;
-    if (next[key].on) next[key].weight = 20;
+    if (next[key].on) {
+      const rest = MIX_KEYS.filter((k) => k !== key && next[k].on).reduce((a, k) => a + next[k].weight, 0);
+      next[key].weight = key === "code" ? Math.max(20, Math.round(rest * 2.4)) : 20;
+    }
     setMix(normalizeMix(next), '[data-chip="' + key + '"]');
   }
   function savePreset(name) {

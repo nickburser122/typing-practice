@@ -1,7 +1,7 @@
 import { S, layoutInfo, nf, t } from "../core/state.js";
 import { GEOM, LEFT_HAND } from "../data/layouts.js";
 import { model } from "../engine/model.js";
-import { keyModel, skillOf, statusOf } from "../engine/skill.js";
+import { gateOf, keyModel, skillOf, statusOf } from "../engine/skill.js";
 import { charStat, layoutData } from "../engine/stats.js";
 import {
   learnTrack, newLesson, setTrackK, trackActive, trackK, trackKeys
@@ -185,6 +185,8 @@ function whyRaw(l) {
   const lid = S.settings.layout;
   const L = layoutData(lid);
   const fp = l.focusPair;
+  const fpp = typeof fp === "string" && fp.length === 2 ? L.pairs[fp] : null;
+  if (fpp && fpp.te > 0.5 && fpp.te / (fpp.te + (fpp.tc || 0) + 3) >= 0.15) return { kind: "pairSwap", fp, rate: fpp.te / (fpp.te + (fpp.tc || 0) + 3) };
   if (typeof fp === "string" && fp.length === 2 && L.pairs[fp] && L.pairs[fp].n >= 3) {
     const d = Math.round(model(lid).pexcess[fp] / 5) * 5;
     if (d >= 10) return { kind: "pairSlow", fp, d, ms: L.pairs[fp].m, n: L.pairs[fp].n };
@@ -196,8 +198,9 @@ function whyRaw(l) {
   const sk = skillOf(lid, ch, s);
   const usual = keyModel(lid, ch, s).expected;
   const d = Math.round((sk.ms - usual) / 5) * 5;
-  const kind = d >= 15 ? "slow" : sk.acc < S.derived.targetAcc ? "acc" : "steady";
-  return { kind, ch, d, ms: sk.ms, usual, acc: sk.acc, n: s.n };
+  const gate = gateOf(ch);
+  const kind = sk.upper > gate ? "gate" : d >= 15 ? "slow" : sk.acc < S.derived.targetAcc ? "acc" : "steady";
+  return { kind, ch, d, ms: sk.ms, usual, gate, acc: sk.acc, n: s.n };
 }
 
 function whyInfo() {
@@ -207,6 +210,8 @@ function whyInfo() {
   const r = l.whyRaw;
   if (!r) return null;
   const k = iso(r.ch || r.fp);
+  if (r.kind === "pairSwap") return { text: fill(t("why.pair"), { a: iso(r.fp[1]), b: iso(r.fp[0]) }), detail: fill(t("why.detailSwap"), { k, rate: pct(r.rate) }) };
+  if (r.kind === "gate") return { text: fill(t("why.focus"), { k }), detail: fill(t("why.detailGate"), { k, ms: nf(r.ms), gate: nf(r.gate), acc: pct(r.acc), n: nf(r.n) }) };
   if (r.kind === "pairSlow") return { text: fill(t("why.pair"), { a: iso(r.fp[1]), b: iso(r.fp[0]) }), detail: fill(t("why.detailPair"), { k, ms: nf(r.ms), n: nf(r.n) }) };
   if (r.kind === "new") return { text: fill(t("why.focus"), { k }), detail: fill(t("why.detailNew"), { k, n: nf(r.n) }) };
   return { text: fill(t("why.focus"), { k }), detail: fill(t("why.detail"), { k, ms: nf(r.ms), u: nf(r.usual), acc: pct(r.acc), n: nf(r.n) }) };

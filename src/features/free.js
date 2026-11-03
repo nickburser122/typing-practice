@@ -158,7 +158,10 @@ function toggleChip(key) {
   const next = {};
   MIX_KEYS.forEach(k => { next[k] = { on: vis.indexOf(k) >= 0 && m[k].on, weight: m[k].weight }; });
   next[key].on = !m[key].on;
-  if (next[key].on) next[key].weight = 20;
+  if (next[key].on) {
+    const rest = MIX_KEYS.filter(k => k !== key && next[k].on).reduce((a, k) => a + next[k].weight, 0);
+    next[key].weight = key === "code" ? Math.max(20, Math.round(rest * 2.4)) : 20;
+  }
   setMix(normalizeMix(next), "[data-chip=\"" + key + "\"]");
 }
 

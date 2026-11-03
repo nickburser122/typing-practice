@@ -5,6 +5,7 @@ import { keyModel, needOf, statusOf } from "../engine/skill.js";
 import {
   allCharsOfLayout, charStat, errRate, layoutData, legacyChars, median, mergedStat, slowestInto
 } from "../engine/stats.js";
+import { pairRows } from "../engine/pairs.js";
 import { newLesson, stallInfo, unlockAnyway } from "../engine/tracks.js";
 import { U, bdi, clamp01, glyph, h, pct, render } from "./dom.js";
 import { renderProgress } from "./progress.js";
@@ -319,27 +320,18 @@ function renderList() {
 }
 
 function renderPairs() {
-  const lid = S.settings.layout;
-  const P = S.derived;
-  const L = layoutData(lid);
-  const out = [];
-  for (const k in L.pairs) {
-    const p = L.pairs[k];
-    if (k.length !== 2 || p.n < 8) continue;
-    const s2 = L.chars[k[1]];
-    if (!s2 || s2.n < P.minS) continue;
-    out.push({ k, n: p.n, m: p.m, d: p.m - median(s2.t) });
-  }
-  out.sort((a, b) => b.d - a.d);
+  const out = pairRows(S.settings.layout);
   if (!out.length) return h("p", { class: "empty" }, t("p.empty"));
   const lang = layoutInfo().lang;
+  const dash = h("td", { class: "num" }, "–");
   return h("div", { class: "tablewrap" }, h("table", null,
-    h("thead", null, h("tr", null, h("th", null, t("p.pair")), h("th", { class: "num" }, t("p.n")), h("th", { class: "num" }, t("p.speed")), h("th", { class: "num" }, t("p.diff")))),
+    h("thead", null, h("tr", null, h("th", null, t("p.pair")), h("th", { class: "num" }, t("p.n")), h("th", { class: "num" }, t("p.speed")), h("th", { class: "num" }, t("p.diff")), h("th", { class: "num" }, t("p.swaps")))),
     h("tbody", null, out.slice(0, 30).map(r => h("tr", null,
       h("td", { class: "g", lang, dir: lang === "ar" ? "rtl" : "ltr" }, r.k),
       h("td", { class: "num" }, nf(r.n)),
-      h("td", { class: "num" }, nf(r.m) + " " + t("ms")),
-      h("td", { class: "num" }, (r.d > 0 ? "+" : "−") + nf(Math.abs(r.d)) + " " + t("ms")))))));
+      r.m === null ? dash.cloneNode(true) : h("td", { class: "num" }, nf(r.m) + " " + t("ms")),
+      r.d === null ? dash.cloneNode(true) : h("td", { class: "num" }, (r.d > 0 ? "+" : "−") + nf(Math.abs(r.d)) + " " + t("ms")),
+      r.swaps > 0 ? h("td", { class: "num" }, pct(r.swaps)) : dash.cloneNode(true))))));
 }
 
 function renderLessons() {
