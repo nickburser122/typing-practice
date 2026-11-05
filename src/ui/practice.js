@@ -90,7 +90,7 @@ const hooks = {
     if (endSessionIfDue(newLesson)) return;
     newLesson();
     if (U.typer) {
-      renderTyper();
+      renderTyper(zenActive());
       buildStrip();
       updateMeta();
       updateWhy();
@@ -146,6 +146,14 @@ function hwNote() {
   return h("p", { class: "hwnote", role: "note" }, t("hw"));
 }
 
+function zenToggleKey(e) {
+  if ((e.key !== "z" && e.key !== "Z") || isShortcut(e) || S.focused) return false;
+  if (["learn", "practice", "test", "code"].indexOf(S.view) < 0) return false;
+  const first = S.view === "test" ? (S.test && S.test.strokes === 0 && S.test.words[0] ? S.test.words[0][0] : null) : (S.lesson && S.lesson.idx === 0 && !S.lesson.done ? S.lesson.chars[0] : null);
+  if (first == null) return false;
+  return first !== "z" && first !== "Z";
+}
+
 function onKeyDown(e) {
   if (typeof e.key !== "string") return;
   if (e.key === "Tab") U.tabbed = true;
@@ -158,6 +166,13 @@ function onKeyDown(e) {
       return;
     }
     go(S.back || "learn");
+    return;
+  }
+  if (zenToggleKey(e)) {
+    e.preventDefault();
+    S.settings.zen = !S.settings.zen;
+    scheduleSave();
+    render();
     return;
   }
   if (S.view === "shortcuts" || S.view === "steps" || S.view === "learn" || S.view === "practice" || S.view === "test" || S.view === "code") claimLease();

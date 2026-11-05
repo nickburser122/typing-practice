@@ -143,9 +143,9 @@ function applyChrome() {
   r.setAttribute("data-font", st.font);
   r.style.setProperty("--tsize", st.fontSize + "px");
   r.style.setProperty("--tlh", String(lineHeightFor(st.lang)));
-  r.setAttribute("data-caret", st.caretStyle);
+  r.setAttribute("data-caret", st.caret);
   r.setAttribute("data-smooth", st.caretSmooth ? "1" : "0");
-  r.setAttribute("data-tw", st.textWidth);
+  r.setAttribute("data-tw", st.width);
   r.setAttribute("data-he", st.hideErrors ? "1" : "0");
   r.setAttribute("data-zen", zenActive() ? "1" : "0");
   document.title = uiLang() === "ar" ? "طَرق · مدرب الكتابة" : "Tarq · typing trainer";

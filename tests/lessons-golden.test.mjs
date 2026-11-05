@@ -6,9 +6,9 @@ import { S, base, fresh, stats, tracks } from "./helpers.mjs";
 const LID = "en-qwerty";
 const LETTERS = "abcdefghijklmnopqrstuvwxyz ".split("");
 const EXPECTED = [
-  "1555ee7c81d5f63f",
-  "4774e7a1e3d0a004",
-  "ee2b05a45e024e83",
+  "d838661e034cf830",
+  "38ddb1da25d44481",
+  "caa271f43ea24923",
   "6c463ac6b34af427",
   "c18c0a9ac949b393",
   "39795ccc10f88acd",

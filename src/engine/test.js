@@ -10,7 +10,7 @@ import { recordTiming, ringPush } from "./session.js";
 import { pauseMs, rampMs, skillOf, wilsonLower } from "./skill.js";
 import { charStat, layoutData, stampPush } from "./stats.js";
 import { noteWork } from "./sessionlen.js";
-import { noteWords } from "./weak.js";
+import { noteWords, slowExcess } from "./weak.js";
 import { rand } from "./words.js";
 
 const TEST_EXTRA = 8;
@@ -144,6 +144,9 @@ function testNew(repeat) {
     wi: 0,
     typed: "",
     committed: [],
+    wt: [],
+    wfirst: null,
+    wlast: null,
     done: false,
     running: false,
     start: 0,
@@ -242,6 +245,8 @@ function testChar(ch, ts) {
     T.rawWords += T.typed.length + 1;
     if (ok) T.ccWords += w.length + 1;
     T.committed.push(T.typed);
+    T.wt.push({ f: T.wfirst, l: T.wlast, n: T.typed.length });
+    T.wfirst = null;
     T.prevCh = " ";
     T.prevOk = ok;
     T.prevTs = ts;
@@ -251,6 +256,7 @@ function testChar(ch, ts) {
     if (T.mode !== "time" && T.wi >= T.words.length) {
       T.wi = T.words.length - 1;
       T.typed = T.committed.pop();
+      T.wt.pop();
       T.rawWords -= T.typed.length + 1;
       if (ok) T.ccWords -= w.length + 1;
       testFinish(ts);
@@ -278,6 +284,8 @@ function testChar(ch, ts) {
     if (T.diff === "master") testFinish(ts, "master");
     return;
   }
+  if (!T.typed.length) T.wfirst = ts;
+  T.wlast = ts;
   T.typed += ch;
   T.prevCh = ch;
   T.prevOk = ok;
@@ -297,6 +305,7 @@ function testRewind(whole) {
   if (prev === T.words[T.wi - 1]) return false;
   T.wi--;
   T.typed = T.committed.pop();
+  T.wt.pop();
   T.rawWords -= T.typed.length + 1;
   if (whole) T.typed = "";
   T.prevOk = false;
@@ -416,7 +425,7 @@ function testFinish(ts, failed) {
       notePb(testPbKey(rec), rec.wpm, rec.acc, rec.ts);
     }
     recordSession("t", T.lid, wpm, acc, activeMs, T.strokes, rec.ts);
-    noteWords(T.lid, T.committed.map((typed, i) => ({ w: T.words[i], bad: typed !== T.words[i] })));
+    noteWords(T.lid, testWordItems(T));
     scheduleSave();
   } else if (T.strokes > 0) {
     recordTime(T.lid, activeMs, T.strokes, rec.ts);
@@ -453,16 +462,28 @@ function applyPlacement(T) {
   scheduleSave();
 }
 
-function missedWords(T) {
+function testWordItems(T) {
+  const per = T.committed.map((typed, i) => {
+    const m = T.wt[i];
+    return m && m.f != null && m.l != null && m.n >= 3 && m.l > m.f ? (m.l - m.f) / (m.n - 1) : null;
+  });
+  const clean = T.committed.map((typed, i) => typed === T.words[i]);
+  const slow = slowExcess(per, clean);
+  return T.committed.map((typed, i) => ({ w: T.words[i], bad: typed !== T.words[i], slow: slow[i] }));
+}
+
+function practiceWords(T) {
+  const items = testWordItems(T).filter(x => typeof x.w === "string" && /^\p{L}{3,24}$/u.test(x.w) && (x.bad || x.slow > 0));
+  const bad = items.filter(x => x.bad).map(x => x.w);
+  const slow = items.filter(x => !x.bad).sort((a, b) => b.slow - a.slow).map(x => x.w);
   const out = [];
-  T.committed.forEach((typed, i) => {
-    const w = T.words[i];
-    if (typeof w === "string" && typed !== w && /^\p{L}{3,24}$/u.test(w) && out.indexOf(w) < 0) out.push(w);
+  bad.concat(slow).forEach(w => {
+    if (out.indexOf(w) < 0) out.push(w);
   });
   return out.slice(0, 12);
 }
 
 export {
-  QUOTE_LENS, applyPlacement, consistency, genTestWords, missedWords, testBackspace, testChar, testExt, testFinish, testHistory,
+  QUOTE_LENS, applyPlacement, consistency, genTestWords, practiceWords, testBackspace, testChar, testExt, testFinish, testHistory,
   testNetNow, testNew, testRewind, testTick
 };

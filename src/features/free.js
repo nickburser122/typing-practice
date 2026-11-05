@@ -8,7 +8,7 @@ import { codeSid, newCodeLesson } from "../engine/code.js";
 import { compose, legacyMix } from "../engine/mix.js";
 import { codeClockLabel, codeOptions, dropdown, renderCodeRes, stopCodeClock } from "./code.js";
 import { applyKbFade } from "../input/keys.js";
-import { U, h, render } from "../ui/dom.js";
+import { U, h, render, zenActive } from "../ui/dom.js";
 import { endSessionIfDue } from "../ui/session.js";
 import { hwNote } from "../ui/practice.js";
 import { seg } from "../ui/stats.js";
@@ -207,7 +207,7 @@ const freeHooks = {
     if (endSessionIfDue(newFreeLesson)) return;
     newFreeLesson();
     if (U.typer) {
-      renderTyper();
+      renderTyper(zenActive());
       renderPreview();
       setHint();
     }

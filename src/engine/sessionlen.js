@@ -8,7 +8,7 @@ function noteWork(ms, chars, errs) {
 }
 
 function sessionDue() {
-  const m = S.settings.sessionLen;
+  const m = S.settings.session;
   return m > 0 && !S.session.shown && S.session.ms >= m * 60000;
 }
 

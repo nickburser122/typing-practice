@@ -3,7 +3,7 @@ import { S, layoutInfo } from "../core/state.js";
 
 function layoutData(lid) {
   const L = S.data.layouts;
-  if (!L[lid]) L[lid] = bindK({ chars: {}, pairs: {}, tracks: newTracks(), rec: [], sh: { ok: 0, same: 0 }, lk: 0, tot: 0, raise: null, weak: [], placed: false });
+  if (!L[lid]) L[lid] = bindK({ chars: {}, pairs: {}, tracks: newTracks(), rec: [], sh: { ok: 0, same: 0 }, lk: 0, tot: 0, raise: null, weak: [], tri: {}, placed: false });
   if (!L[lid].rec) L[lid].rec = [];
   return L[lid];
 }

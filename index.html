@@ -2535,6 +2535,17 @@ details[open]:not(.adv) > summary::before {
   color: var(--mute);
   font-size: 13px;
 }
+:root[data-zen="1"] .typer {
+  height: calc(var(--tlh) * 3 * 1em);
+  overflow: hidden;
+}
+.flow {
+  position: relative;
+  transition: transform 0.22s ease;
+}
+.flow .hist {
+  opacity: 0.35;
+}
 </style>
 </head>
 <body>
@@ -2949,7 +2960,7 @@ details[open]:not(.adv) > summary::before {
     { id: "focusLevel", help: true, sec: "practice", type: "seg", def: "normal", opts: ["gentle", "normal", "sharp"] },
     { id: "wordLen", help: true, sec: "text", type: "seg", def: "mixed", opts: ["short", "mixed", "long"] },
     { id: "hideErrors", help: true, sec: "practice", type: "switch", def: false },
-    { id: "sessionLen", help: true, sec: "practice", type: "seg", def: 0, opts: [0, 10, 15, 20, 30] },
+    { id: "session", help: true, sec: "practice", type: "seg", def: 0, opts: [0, 10, 15, 20, 30] },
     { id: "onError", help: true, sec: "practice", type: "seg", def: "stop", opts: ["stop", "advance"] },
     { id: "shiftPolicy", help: true, sec: "rules", type: "seg", def: "off", opts: ["off", "hint", "strict"] },
     { id: "capsPolicy", help: true, sec: "rules", type: "seg", def: "allow", opts: ["allow", "strict"] },
@@ -2985,9 +2996,9 @@ details[open]:not(.adv) > summary::before {
     { id: "theme", sec: "display", type: "seg", def: "system", opts: ["system", "light", "dark"] },
     { id: "font", help: true, sec: "display", type: "select", def: "sans", opts: ["sans", "mono", "naskh", "vazir", "system"] },
     { id: "fontSize", help: true, sec: "display", type: "range", def: 36, min: 20, max: 64, step: 2 },
-    { id: "caretStyle", help: true, sec: "display", type: "seg", def: "line", opts: ["line", "block", "underline"] },
+    { id: "caret", help: true, sec: "display", type: "seg", def: "line", opts: ["line", "block", "underline"] },
     { id: "caretSmooth", help: true, sec: "display", type: "switch", def: true },
-    { id: "textWidth", help: true, sec: "display", type: "seg", def: "normal", opts: ["narrow", "normal", "wide"] },
+    { id: "width", help: true, sec: "display", type: "seg", def: "normal", opts: ["narrow", "normal", "wide"] },
     { id: "zen", help: true, sec: "display", type: "switch", def: false },
     { id: "keyboard", help: true, sec: "display", type: "switch", def: true },
     { id: "liveWpm", help: true, sec: "display", type: "switch", def: false },
@@ -3289,27 +3300,27 @@ details[open]:not(.adv) > summary::before {
     "o.wordLen.long": ["Long", "طويلة"],
     "s.hideErrors": ["Hide errors while typing", "إخفاء الأخطاء أثناء الكتابة"],
     "s.hideErrors.h": ["Errors are still recorded, only the marking is hidden. Results show everything.", "تُسجَّل الأخطاء كالمعتاد ويُخفى التمييز فقط. تُظهر النتائج كل شيء."],
-    "s.sessionLen": ["Session length", "مدة الجلسة"],
-    "s.sessionLen.h": ["After this much practice, the current lesson finishes and a plain summary shows.", "بعد هذه المدة ينتهي الدرس الحالي ويظهر ملخص بسيط."],
-    "o.sessionLen.0": ["Off", "إيقاف"],
-    "o.sessionLen.10": ["10 min", "10 د"],
-    "o.sessionLen.15": ["15 min", "15 د"],
-    "o.sessionLen.20": ["20 min", "20 د"],
-    "o.sessionLen.30": ["30 min", "30 د"],
-    "s.caretStyle": ["Caret", "المؤشر"],
-    "s.caretStyle.h": ["The shape of the typing marker.", "شكل مؤشر الكتابة."],
-    "o.caretStyle.line": ["Line", "خط"],
-    "o.caretStyle.block": ["Block", "كتلة"],
-    "o.caretStyle.underline": ["Underline", "تسطير"],
+    "s.session": ["Session length", "مدة الجلسة"],
+    "s.session.h": ["After this much practice, the current lesson finishes and a plain summary shows.", "بعد هذه المدة ينتهي الدرس الحالي ويظهر ملخص بسيط."],
+    "o.session.0": ["Off", "إيقاف"],
+    "o.session.10": ["10 min", "10 د"],
+    "o.session.15": ["15 min", "15 د"],
+    "o.session.20": ["20 min", "20 د"],
+    "o.session.30": ["30 min", "30 د"],
+    "s.caret": ["Caret", "المؤشر"],
+    "s.caret.h": ["The shape of the typing marker.", "شكل مؤشر الكتابة."],
+    "o.caret.line": ["Line", "خط"],
+    "o.caret.block": ["Block", "كتلة"],
+    "o.caret.underline": ["Underline", "تسطير"],
     "s.caretSmooth": ["Smooth caret", "مؤشر سلس"],
     "s.caretSmooth.h": ["Glide between letters. Off when the system asks for reduced motion.", "ينزلق بين الحروف. يتوقف عند طلب النظام تقليل الحركة."],
-    "s.textWidth": ["Text width", "عرض النص"],
-    "s.textWidth.h": ["Narrower columns are easier on long sessions and on Arabic.", "الأعمدة الأضيق أريح في الجلسات الطويلة وللعربية."],
-    "o.textWidth.narrow": ["Narrow", "ضيق"],
-    "o.textWidth.normal": ["Normal", "عادي"],
-    "o.textWidth.wide": ["Wide", "واسع"],
+    "s.width": ["Text width", "عرض النص"],
+    "s.width.h": ["Narrower columns are easier on long sessions and on Arabic.", "الأعمدة الأضيق أريح في الجلسات الطويلة وللعربية."],
+    "o.width.narrow": ["Narrow", "ضيق"],
+    "o.width.normal": ["Normal", "عادي"],
+    "o.width.wide": ["Wide", "واسع"],
     "s.zen": ["Zen mode", "وضع التركيز"],
-    "s.zen.h": ["Only the text and the caret. Press Esc twice to leave.", "النص والمؤشر فقط. اضغط Esc مرتين للخروج."],
+    "s.zen.h": ["Only the text and the caret. Press Z before you start typing to switch, and Esc twice to leave.", "النص والمؤشر فقط. اضغط Z قبل أن تبدأ الكتابة للتبديل، وEsc مرتين للخروج."],
     "sec.keyboard": ["Keyboard", "لوحة المفاتيح"],
     "sec.goal": ["Goal", "الهدف"],
     "sec.typing": ["Typing", "الكتابة"],
@@ -4210,7 +4221,16 @@ details[open]:not(.adv) > summary::before {
       const src = layouts[lid];
       if (!src || typeof src !== "object") continue;
       const dst = { chars: {}, pairs: {}, k: null, rec: [], sh: { ok: num(src.sh && src.sh.ok, 0, 1e9, 0), same: num(src.sh && src.sh.same, 0, 1e9, 0) }, lk: num(src.lk, 0, 1e6, 0), tot: num(src.tot, 0, 1e9, 0), raise: null, placed: src.placed === true };
-      dst.weak = Array.isArray(src.weak) ? src.weak.filter((x) => x && typeof x.w === "string" && x.w.length >= 1 && x.w.length <= 24 && typeof x.s === "number" && isFinite(x.s) && x.s > 0).map((x) => ({ w: x.w, s: Math.min(20, x.s) })).sort((a, b) => b.s - a.s).slice(0, 60) : [];
+      dst.tri = {};
+      if (src.tri && typeof src.tri === "object") {
+        Object.keys(src.tri).filter((k) => k.length === 3 && src.tri[k] && typeof src.tri[k].n === "number" && src.tri[k].n >= 1).sort((a, b) => src.tri[b].n - src.tri[a].n).slice(0, 400).forEach((k) => {
+          dst.tri[k] = { n: num(src.tri[k].n, 1, 1e9, 1), m: num(src.tri[k].m, 1, 6e4, 500) };
+        });
+      }
+      dst.weak = Array.isArray(src.weak) ? src.weak.filter((x) => x && typeof x.w === "string" && x.w.length >= 1 && x.w.length <= 24).map((x) => {
+        const legacy = typeof x.s === "number" && isFinite(x.s);
+        return { w: x.w, misses: Math.min(20, legacy ? Math.max(0, x.s) : num(x.misses, 0, 20, 0)), slowMs: num(x.slowMs, 0, 3e3, 0), ls: num(x.ls, 0, 864e13, 0) };
+      }).filter((x) => x.misses > 0 || x.slowMs > 0).sort((a, b) => b.misses + Math.min(3, b.slowMs / 150) - (a.misses + Math.min(3, a.slowMs / 150))).slice(0, 300) : [];
       if (src.raise && typeof src.raise === "object" && typeof src.raise.c === "string" && src.raise.c.length <= 2) {
         dst.raise = { c: src.raise.c, until: num(src.raise.until, 0, 1e9, 0) };
       }
@@ -4408,7 +4428,7 @@ details[open]:not(.adv) > summary::before {
   // src/engine/stats.js
   function layoutData(lid) {
     const L = S.data.layouts;
-    if (!L[lid]) L[lid] = bindK({ chars: {}, pairs: {}, tracks: newTracks(), rec: [], sh: { ok: 0, same: 0 }, lk: 0, tot: 0, raise: null, weak: [], placed: false });
+    if (!L[lid]) L[lid] = bindK({ chars: {}, pairs: {}, tracks: newTracks(), rec: [], sh: { ok: 0, same: 0 }, lk: 0, tot: 0, raise: null, weak: [], tri: {}, placed: false });
     if (!L[lid].rec) L[lid].rec = [];
     return L[lid];
   }
@@ -5046,7 +5066,7 @@ details[open]:not(.adv) > summary::before {
     s.errs += Math.max(0, errs);
   }
   function sessionDue() {
-    const m = S.settings.sessionLen;
+    const m = S.settings.session;
     return m > 0 && !S.session.shown && S.session.ms >= m * 6e4;
   }
   function sessionSummary() {
@@ -5059,49 +5079,71 @@ details[open]:not(.adv) > summary::before {
   }
 
   // src/engine/weak.js
-  var WEAK_CAP = 60;
+  var WEAK_CAP = 300;
   function isRealWord(lex, w) {
     if (!lex.wset) lex.wset = new Set(lex.entries.map((e) => e.w));
     return lex.wset.has(w);
   }
-  function noteWords(lid, items) {
+  function weakScore(e) {
+    return e.misses + Math.min(3, e.slowMs / 150);
+  }
+  function noteWords(lid, items, now) {
     const L = layoutData(lid);
     const lex = ensureLex(layoutInfo().lang);
     const weak = L.weak || (L.weak = []);
+    const at = now == null ? Date.now() : now;
     items.forEach((it) => {
       const w = it.w;
       if (typeof w !== "string" || w.length < 3 || !isRealWord(lex, w)) return;
+      const slow = it.slow > 0 ? it.slow : 0;
       const i = weak.findIndex((x) => x.w === w);
-      if (it.bad) {
-        if (i >= 0) weak[i].s = weak[i].s * 0.8 + 1;
-        else weak.push({ w, s: 1 });
-      } else if (i >= 0) {
-        weak[i].s *= 0.7;
-        if (weak[i].s < 0.2) weak.splice(i, 1);
+      if (i < 0) {
+        if (it.bad || slow > 0) weak.push({ w, misses: it.bad ? 1 : 0, slowMs: slow, ls: at });
+        return;
       }
+      const e = weak[i];
+      e.misses = it.bad ? e.misses * 0.8 + 1 : e.misses * 0.7;
+      e.slowMs = slow > 0 ? e.slowMs * 0.8 + slow : e.slowMs * 0.7;
+      e.ls = at;
+      if (weakScore(e) < 0.2) weak.splice(i, 1);
     });
-    weak.sort((a, b) => b.s - a.s);
+    weak.sort((a, b) => weakScore(b) - weakScore(a));
     if (weak.length > WEAK_CAP) weak.length = WEAK_CAP;
   }
+  function slowExcess(per, clean) {
+    const base = [];
+    per.forEach((v, i) => {
+      if (v != null && clean[i]) base.push(v);
+    });
+    const out = per.map(() => 0);
+    if (base.length < 6) return out;
+    const med = median(base);
+    per.forEach((v, i) => {
+      if (v != null && clean[i] && v > 1.5 * med && v - med >= 60) out[i] = v - med;
+    });
+    return out;
+  }
   function lessonWordItems(lesson) {
-    const items = [];
+    const spans = [];
     let start = 0;
     const n = lesson.chars.length;
     for (let i = 0; i <= n; i++) {
       if (i === n || lesson.chars[i] === " ") {
-        if (i > start) {
-          let bad = false;
-          for (let j = start; j < i; j++) if (lesson.flag[j]) bad = true;
-          items.push({ w: lesson.chars.slice(start, i).join(""), bad });
-        }
+        if (i > start) spans.push([start, i]);
         start = i + 1;
       }
     }
-    return items;
+    const bad = spans.map(([a, b]) => {
+      for (let j = a; j < b; j++) if (lesson.flag[j]) return true;
+      return false;
+    });
+    const per = spans.map(([a, b]) => lesson.cts && b - a >= 3 && lesson.cts[b - 1] > lesson.cts[a] && lesson.cts[a] > 0 ? (lesson.cts[b - 1] - lesson.cts[a]) / (b - a - 1) : null);
+    const slow = slowExcess(per, bad.map((b) => !b));
+    return spans.map(([a, b], i) => ({ w: lesson.chars.slice(a, b).join(""), bad: bad[i], slow: slow[i] }));
   }
   function weakWords(lid, aset) {
     const L = layoutData(lid);
-    return (L.weak || []).filter((x) => x.w.split("").every((c) => aset.has(c)));
+    return (L.weak || []).filter((x) => x.w.split("").every((c) => aset.has(c))).map((x) => ({ w: x.w, s: weakScore(x) }));
   }
 
   // src/engine/session.js
@@ -5116,7 +5158,22 @@ details[open]:not(.adv) > summary::before {
     p.tc = (p.tc || 0) * 0.97 + (wrong ? 0 : 1);
     p.te = (p.te || 0) * 0.97 + (wrong ? 1 : 0);
   }
-  function recordTiming(lid, lesson, expected, prevCh, delta) {
+  function noteTri(lid, key, delta) {
+    const L = layoutData(lid);
+    const tri = L.tri || (L.tri = {});
+    let p = tri[key];
+    if (!p) {
+      p = tri[key] = { n: 0, m: delta };
+      if (Object.keys(tri).length > 450) {
+        Object.keys(tri).sort((a, b) => tri[b].n - tri[a].n).slice(400).forEach((k) => {
+          delete tri[k];
+        });
+      }
+    }
+    p.m = p.n === 0 ? delta : p.m * 0.8 + delta * 0.2;
+    p.n++;
+  }
+  function recordTiming(lid, lesson, expected, prevCh, delta, prev2) {
     const P = S.settings;
     const st = charStat(lid, expected, true);
     if (delta >= 15 && delta <= pauseMs()) {
@@ -5131,6 +5188,7 @@ details[open]:not(.adv) > summary::before {
         p.m = p.n === 0 ? delta : p.m * 0.8 + delta * 0.2;
         p.n++;
         notePair(lid, key, false);
+        if (prev2 && prev2 !== " " && prevCh !== " " && expected !== " " && expected.length === 1) noteTri(lid, prev2 + prevCh + expected, delta);
       }
     }
   }
@@ -5163,10 +5221,11 @@ details[open]:not(.adv) > summary::before {
         ringPush(st.o, 0, 40);
         stampPush(st, "od", false);
         if (lesson.prevTs != null && i > 0 && !lesson.flag[i - 1]) {
-          recordTiming(lid, lesson, expected, lesson.chars[i - 1], ts - lesson.prevTs);
+          recordTiming(lid, lesson, expected, lesson.chars[i - 1], ts - lesson.prevTs, i > 1 && !lesson.flag[i - 2] && !lesson.code ? lesson.chars[i - 2] : null);
         }
       }
       lesson.mark[i] = 1;
+      if (lesson.cts) lesson.cts[i] = ts;
       if (lesson.code) lesson.net++;
       lesson.prevTs = ts;
       lesson.idx++;
@@ -5512,16 +5571,25 @@ details[open]:not(.adv) > summary::before {
       if (!(p.te > 0.5) || !aset.has(k[0]) || !aset.has(k[1])) continue;
       pairNeed[k] = Math.min(2, (pairNeed[k] || 0) + 6 * (p.te / (p.te + (p.tc || 0) + 3)));
     }
+    const triNeed = {};
+    for (const k in L.tri) {
+      const p = L.tri[k];
+      const pp = L.pairs[k.slice(1)];
+      if (!(p.n >= 8) || !pp || !(pp.n >= 6) || !aset.has(k[0]) || !aset.has(k[1]) || !aset.has(k[2])) continue;
+      const need = Math.min(2, Math.max(0, p.m - pp.m) / scale);
+      if (need > 0) triNeed[k] = need;
+    }
+    const focusTris = Object.keys(triNeed).filter((k) => triNeed[k] >= 0.5).sort((a, b) => triNeed[b] - triNeed[a]).slice(0, 2);
     const focusPairs = Object.keys(pairNeed).filter((k) => pairNeed[k] >= 0.35).sort((a, b) => pairNeed[b] - pairNeed[a]).slice(0, 3);
     const minL = WORD_LEN[st.wordLen][0];
     const maxL = WORD_LEN[st.wordLen][1];
     const s = FOCUS_S[st.focusLevel];
-    return { lex, aset, activeArr, focus, fluency: blockers.length === 0, focusPair: focusPairs[0] || null, focusPairs, pairNeed, pscore: pairNeed, s, T: focusTemp(s), needs, minL, maxL };
+    return { lex, aset, activeArr, focus, fluency: blockers.length === 0, focusPair: focusPairs[0] || null, focusPairs, triNeed, focusTris, pairNeed, pscore: pairNeed, s, T: focusTemp(s), needs, minL, maxL };
   }
   function buildWords() {
     const st = S.settings;
     const ctx = buildContext();
-    const { lex, aset, activeArr, focus, focusPair, focusPairs, pairNeed, needs, minL, maxL, T: T2 } = ctx;
+    const { lex, aset, activeArr, focus, focusPair, focusPairs, pairNeed, triNeed, focusTris, needs, minL, maxL, T: T2 } = ctx;
     const lid = st.layout;
     const N = st.lessonWords;
     const pool = poolFor(lex, aset, activeArr, minL, maxL, st.text !== "generated");
@@ -5545,6 +5613,7 @@ details[open]:not(.adv) > summary::before {
         const cc = codesOf(e);
         let hit = cc.indexOf(focusCode) >= 0;
         for (let q = 0; q < fpCodes.length && !hit; q++) if (e.pc.indexOf(fpCodes[q]) >= 0) hit = true;
+        for (let q = 0; q < focusTris.length && !hit; q++) if (e.w.indexOf(focusTris[q]) >= 0) hit = true;
         if (hit) keep[i] = 1;
       }
       avail = avail.filter((e, i) => keep[i] === 1);
@@ -5557,6 +5626,7 @@ details[open]:not(.adv) > summary::before {
     const exp = LEVEL_EXP[st.wordLevel] || 1.25;
     const pairKeys = Object.keys(pairNeed);
     const anyPair = pairKeys.length > 0;
+    const anyTri = Object.keys(triNeed).length > 0;
     const pairMap = /* @__PURE__ */ new Map();
     pairKeys.forEach((k) => pairMap.set(k.charCodeAt(0) * 65536 + k.charCodeAt(1), pairNeed[k]));
     activeArr.forEach((c) => {
@@ -5604,11 +5674,27 @@ details[open]:not(.adv) > summary::before {
         }
         pv = len > 1 ? pv / (len - 1) : 0;
       }
+      let tv = 0;
+      if (anyTri && len > 2) {
+        for (let j = 0; j + 3 <= len; j++) {
+          const v = triNeed[e.w.substr(j, 3)];
+          if (v !== void 0) tv += v;
+        }
+        tv /= len - 2;
+      }
+      if (!hasPair) {
+        for (let q = 0; q < focusTris.length; q++) {
+          if (e.w.indexOf(focusTris[q]) >= 0) {
+            hasPair = true;
+            break;
+          }
+        }
+      }
       if (e.bwe !== exp) {
         e.bwe = exp;
         e.bwv = Math.pow(e.base, exp);
       }
-      wS[i] = e.bwv * Math.exp((nv + 1.5 * pv) / T2);
+      wS[i] = e.bwv * Math.exp((nv + 1.5 * pv + 1.2 * tv) / T2);
       if (hasFocus) fIdx.push(i);
       if (hasPair) pIdx.push(i);
       if (allSteady) {
@@ -5617,10 +5703,10 @@ details[open]:not(.adv) > summary::before {
       }
     }
     const weakAvail = ctx.fluency ? weakWords(lid, aset) : [];
-    const nW = weakAvail.length ? Math.min(Math.round(N * 0.3), weakAvail.length) : 0;
+    const nW = weakAvail.length ? Math.min(Math.round(N * 0.2), weakAvail.length) : 0;
     const nR = steady.size >= 3 && anyR ? Math.round(N * 0.1) : 0;
-    const nF = focus ? Math.round(N * (ctx.fluency ? 0.3 : 0.6)) : 0;
-    const nP = focusPairs.length ? Math.min(Math.round(N * (ctx.fluency ? 0.4 : 0.25)), Math.max(0, N - nF - nR - nW)) : 0;
+    const nF = focus ? Math.round(N * (ctx.fluency ? 0.2 : 0.6)) : 0;
+    const nP = focusPairs.length || focusTris.length ? Math.min(Math.round(N * (ctx.fluency ? 0.3 : 0.25)), Math.max(0, N - nF - nR - nW)) : 0;
     const roles = [];
     for (let i = 0; i < nW; i++) roles.push("w");
     for (let i = 0; i < nF; i++) roles.push("f");
@@ -5846,6 +5932,9 @@ details[open]:not(.adv) > summary::before {
       wi: 0,
       typed: "",
       committed: [],
+      wt: [],
+      wfirst: null,
+      wlast: null,
       done: false,
       running: false,
       start: 0,
@@ -5939,6 +6028,8 @@ details[open]:not(.adv) > summary::before {
       T2.rawWords += T2.typed.length + 1;
       if (ok2) T2.ccWords += w.length + 1;
       T2.committed.push(T2.typed);
+      T2.wt.push({ f: T2.wfirst, l: T2.wlast, n: T2.typed.length });
+      T2.wfirst = null;
       T2.prevCh = " ";
       T2.prevOk = ok2;
       T2.prevTs = ts;
@@ -5948,6 +6039,7 @@ details[open]:not(.adv) > summary::before {
       if (T2.mode !== "time" && T2.wi >= T2.words.length) {
         T2.wi = T2.words.length - 1;
         T2.typed = T2.committed.pop();
+        T2.wt.pop();
         T2.rawWords -= T2.typed.length + 1;
         if (ok2) T2.ccWords -= w.length + 1;
         testFinish(ts);
@@ -5975,6 +6067,8 @@ details[open]:not(.adv) > summary::before {
       if (T2.diff === "master") testFinish(ts, "master");
       return;
     }
+    if (!T2.typed.length) T2.wfirst = ts;
+    T2.wlast = ts;
     T2.typed += ch;
     T2.prevCh = ch;
     T2.prevOk = ok;
@@ -5993,6 +6087,7 @@ details[open]:not(.adv) > summary::before {
     if (prev === T2.words[T2.wi - 1]) return false;
     T2.wi--;
     T2.typed = T2.committed.pop();
+    T2.wt.pop();
     T2.rawWords -= T2.typed.length + 1;
     if (whole) T2.typed = "";
     T2.prevOk = false;
@@ -6115,7 +6210,7 @@ details[open]:not(.adv) > summary::before {
         notePb(testPbKey(rec), rec.wpm, rec.acc, rec.ts);
       }
       recordSession("t", T2.lid, wpm, acc, activeMs, T2.strokes, rec.ts);
-      noteWords(T2.lid, T2.committed.map((typed, i) => ({ w: T2.words[i], bad: typed !== T2.words[i] })));
+      noteWords(T2.lid, testWordItems(T2));
       scheduleSave();
     } else if (T2.strokes > 0) {
       recordTime(T2.lid, activeMs, T2.strokes, rec.ts);
@@ -6149,11 +6244,22 @@ details[open]:not(.adv) > summary::before {
     T2.res.placed = L.k;
     scheduleSave();
   }
-  function missedWords(T2) {
+  function testWordItems(T2) {
+    const per = T2.committed.map((typed, i) => {
+      const m = T2.wt[i];
+      return m && m.f != null && m.l != null && m.n >= 3 && m.l > m.f ? (m.l - m.f) / (m.n - 1) : null;
+    });
+    const clean = T2.committed.map((typed, i) => typed === T2.words[i]);
+    const slow = slowExcess(per, clean);
+    return T2.committed.map((typed, i) => ({ w: T2.words[i], bad: typed !== T2.words[i], slow: slow[i] }));
+  }
+  function practiceWords(T2) {
+    const items = testWordItems(T2).filter((x) => typeof x.w === "string" && /^\p{L}{3,24}$/u.test(x.w) && (x.bad || x.slow > 0));
+    const bad = items.filter((x) => x.bad).map((x) => x.w);
+    const slow = items.filter((x) => !x.bad).sort((a, b) => b.slow - a.slow).map((x) => x.w);
     const out = [];
-    T2.committed.forEach((typed, i) => {
-      const w = T2.words[i];
-      if (typeof w === "string" && typed !== w && /^\p{L}{3,24}$/u.test(w) && out.indexOf(w) < 0) out.push(w);
+    bad.concat(slow).forEach((w) => {
+      if (out.indexOf(w) < 0) out.push(w);
     });
     return out.slice(0, 12);
   }
@@ -6874,6 +6980,7 @@ details[open]:not(.adv) > summary::before {
       flag: new Uint8Array(chars.length),
       mark: new Uint8Array(chars.length),
       errTs: new Float64Array(chars.length),
+      cts: new Float64Array(chars.length),
       start: 0,
       prevTs: null,
       errs: 0,
@@ -7839,8 +7946,8 @@ details[open]:not(.adv) > summary::before {
       { class: "acts" },
       h("button", { type: "button", class: "btn go", onclick: () => newTest(false) }, t("tr.next")),
       h("button", { type: "button", class: "btn", onclick: () => newTest(true) }, t("tr.repeat")),
-      missedWords(T2).length ? h("button", { type: "button", class: "btn", id: "practisewords", onclick: () => {
-        if (newWordsLesson(missedWords(T2))) go("learn");
+      practiceWords(T2).length ? h("button", { type: "button", class: "btn", id: "practisewords", onclick: () => {
+        if (newWordsLesson(practiceWords(T2))) go("learn");
       } }, t("tr.practise")) : null,
       r.custom ? h("span", { class: "msg" }, t("tr.customNote")) : r.fed ? h("span", { class: "msg" }, t("tr.fed")) : null
     );
@@ -7993,7 +8100,7 @@ details[open]:not(.adv) > summary::before {
       if (endSessionIfDue(newLesson)) return;
       newLesson();
       if (U.typer) {
-        renderTyper();
+        renderTyper(zenActive());
         buildStrip();
         updateMeta();
         updateWhy();
@@ -8044,6 +8151,13 @@ details[open]:not(.adv) > summary::before {
     if (!window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(max-width: 520px)").matches) return null;
     return h("p", { class: "hwnote", role: "note" }, t("hw"));
   }
+  function zenToggleKey(e) {
+    if (e.key !== "z" && e.key !== "Z" || isShortcut(e) || S.focused) return false;
+    if (["learn", "practice", "test", "code"].indexOf(S.view) < 0) return false;
+    const first = S.view === "test" ? S.test && S.test.strokes === 0 && S.test.words[0] ? S.test.words[0][0] : null : S.lesson && S.lesson.idx === 0 && !S.lesson.done ? S.lesson.chars[0] : null;
+    if (first == null) return false;
+    return first !== "z" && first !== "Z";
+  }
   function onKeyDown(e) {
     if (typeof e.key !== "string") return;
     if (e.key === "Tab") U.tabbed = true;
@@ -8056,6 +8170,13 @@ details[open]:not(.adv) > summary::before {
         return;
       }
       go(S.back || "learn");
+      return;
+    }
+    if (zenToggleKey(e)) {
+      e.preventDefault();
+      S.settings.zen = !S.settings.zen;
+      scheduleSave();
+      render();
       return;
     }
     if (S.view === "shortcuts" || S.view === "steps" || S.view === "learn" || S.view === "practice" || S.view === "test" || S.view === "code") claimLease();
@@ -8343,9 +8464,9 @@ details[open]:not(.adv) > summary::before {
   // src/ui/settings.js
   var ESSENTIALS = [
     ["keyboard", ["lang", "layout", "inputMode"]],
-    ["goal", ["targetWpm", "targetAcc", "sessionLen"]],
+    ["goal", ["targetWpm", "targetAcc", "session"]],
     ["typing", ["onError", "backspace", "hideErrors", "focusLevel", "wordLen", "wordLevel"]],
-    ["look", ["ui", "theme", "font", "fontSize", "caretStyle", "caretSmooth", "textWidth", "keyboard", "liveWpm", "liveAcc", "numerals"]],
+    ["look", ["ui", "theme", "font", "fontSize", "caret", "caretSmooth", "width", "keyboard", "liveWpm", "liveAcc", "numerals"]],
     ["zen", ["zen"]]
   ];
   var SHOWN = [].concat(...ESSENTIALS.map((g) => g[1]));
@@ -8790,28 +8911,48 @@ details[open]:not(.adv) > summary::before {
     kb.keys[r.code].classList.add("hint");
     if (r.shift) kb.shifts[LEFT_HAND.has(r.code) ? 1 : 0].classList.add("hint");
   }
-  function renderTyper() {
+  function flowOn() {
+    return zenActive() && !!S.lesson && !S.lesson.code;
+  }
+  function renderTyper(append) {
     const box = U.typer;
     const lay = layoutInfo();
-    box.textContent = "";
     const code = !!S.lesson.code;
+    const flow = flowOn();
+    const keep = !!append && flow && U.flow && U.flow.parentNode === box;
+    if (keep) {
+      Array.from(U.flow.children).forEach((k) => k.classList.add("hist"));
+    } else {
+      box.textContent = "";
+      U.flow = null;
+    }
     box.setAttribute("dir", !code && lay.lang === "ar" ? "rtl" : "ltr");
     box.setAttribute("lang", code ? "en" : lay.lang);
+    let host = box;
+    if (flow) {
+      if (!U.flow) {
+        U.flow = h("div", { class: "flow" });
+        box.append(U.flow);
+      }
+      host = U.flow;
+    }
     U.spans = [];
+    const fresh = [];
     let w = null;
     S.lesson.chars.forEach((ch) => {
       if (!w) {
         w = h("span", { class: "w" });
-        box.append(w);
+        host.append(w);
+        fresh.push(w);
       }
       const sp = document.createElement("span");
-      sp.textContent = ch === " " ? " " : ch;
+      sp.textContent = ch === " " ? " " : ch;
       U.spans.push(sp);
       w.append(sp);
       if (ch === " ") w = null;
     });
     if (!code && lay.lang === "ar") {
-      Array.from(box.children).forEach((word) => {
+      fresh.forEach((word) => {
         const kids = Array.from(word.children);
         const body = kids.length && kids[kids.length - 1].textContent.trim() === "" ? kids.slice(0, -1) : kids;
         if (!body.length || !body.every((k) => /^[!-~]$/.test(k.textContent))) return;
@@ -8822,11 +8963,41 @@ details[open]:not(.adv) > summary::before {
       });
     }
     for (let i = 0; i < U.spans.length; i++) paint(i);
+    flowScroll();
     caretLearn();
+  }
+  function flowScroll() {
+    const f = U.flow;
+    const l = S.lesson;
+    if (!f || !l || !f.isConnected) return;
+    const el = U.spans[Math.min(l.idx, U.spans.length - 1)];
+    if (!el) return;
+    const word = el.closest(".w") || el;
+    const lh = parseFloat(getComputedStyle(U.typer).lineHeight);
+    if (!(lh > 0)) return;
+    const fr = f.getBoundingClientRect();
+    let y = Math.max(0, word.getBoundingClientRect().top - fr.top - lh);
+    const hist = Array.from(f.querySelectorAll(".w.hist"));
+    const doomed = hist.filter((x) => x.getBoundingClientRect().bottom - fr.top <= y - lh);
+    if (doomed.length || hist.length > 400) {
+      const stay = Array.from(f.children).find((k) => doomed.indexOf(k) < 0 && hist.slice(0, Math.max(0, hist.length - 400)).indexOf(k) < 0);
+      const before = stay ? stay.getBoundingClientRect().top : 0;
+      doomed.forEach((x) => x.remove());
+      hist.slice(0, Math.max(0, hist.length - 400)).forEach((x) => x.remove());
+      const after = stay ? stay.getBoundingClientRect().top : 0;
+      y = Math.max(0, y - (before - after));
+      f.style.transition = "none";
+      f.style.transform = "translateY(" + (-y).toFixed(1) + "px)";
+      void f.offsetHeight;
+      f.style.transition = "";
+      return;
+    }
+    f.style.transform = "translateY(" + (-y).toFixed(1) + "px)";
   }
   function caretLearn() {
     const l = S.lesson;
     if (!U.typer || !l) return;
+    if (U.flow) flowScroll();
     const el = l.done ? null : U.spans[l.idx];
     const inRun = !!(el && el.parentNode && el.parentNode.nodeName === "BDI");
     placeCaret(U.typer, el, !l.code && layoutInfo().lang === "ar" && !inRun);
@@ -9756,9 +9927,9 @@ details[open]:not(.adv) > summary::before {
     r.setAttribute("data-font", st.font);
     r.style.setProperty("--tsize", st.fontSize + "px");
     r.style.setProperty("--tlh", String(lineHeightFor(st.lang)));
-    r.setAttribute("data-caret", st.caretStyle);
+    r.setAttribute("data-caret", st.caret);
     r.setAttribute("data-smooth", st.caretSmooth ? "1" : "0");
-    r.setAttribute("data-tw", st.textWidth);
+    r.setAttribute("data-tw", st.width);
     r.setAttribute("data-he", st.hideErrors ? "1" : "0");
     r.setAttribute("data-zen", zenActive() ? "1" : "0");
     document.title = uiLang() === "ar" ? "طَرق · مدرب الكتابة" : "Tarq · typing trainer";
@@ -10343,7 +10514,7 @@ details[open]:not(.adv) > summary::before {
       if (endSessionIfDue(newFreeLesson)) return;
       newFreeLesson();
       if (U.typer) {
-        renderTyper();
+        renderTyper(zenActive());
         renderPreview();
         setHint();
       }

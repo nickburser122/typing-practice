@@ -14,9 +14,9 @@ import { U, applyChrome, h, quietNote, render, renderNav } from "./dom.js";
 
 const ESSENTIALS = [
   ["keyboard", ["lang", "layout", "inputMode"]],
-  ["goal", ["targetWpm", "targetAcc", "sessionLen"]],
+  ["goal", ["targetWpm", "targetAcc", "session"]],
   ["typing", ["onError", "backspace", "hideErrors", "focusLevel", "wordLen", "wordLevel"]],
-  ["look", ["ui", "theme", "font", "fontSize", "caretStyle", "caretSmooth", "textWidth", "keyboard", "liveWpm", "liveAcc", "numerals"]],
+  ["look", ["ui", "theme", "font", "fontSize", "caret", "caretSmooth", "width", "keyboard", "liveWpm", "liveAcc", "numerals"]],
   ["zen", ["zen"]]
 ];
 const SHOWN = [].concat(...ESSENTIALS.map(g => g[1]));

@@ -8,7 +8,7 @@ import {
 } from "../engine/tracks.js";
 import { resultNodes } from "../features/code.js";
 import { fingerOf } from "../input/keys.js";
-import { U, glyph, go, h, pct, placeCaret, render } from "./dom.js";
+import { U, glyph, go, h, pct, placeCaret, render, zenActive } from "./dom.js";
 import { setSetting } from "./settings.js";
 
 function buildKeyboard(opts) {
@@ -78,28 +78,49 @@ function setHint() {
   if (r.shift) kb.shifts[LEFT_HAND.has(r.code) ? 1 : 0].classList.add("hint");
 }
 
-function renderTyper() {
+function flowOn() {
+  return zenActive() && !!S.lesson && !S.lesson.code;
+}
+
+function renderTyper(append) {
   const box = U.typer;
   const lay = layoutInfo();
-  box.textContent = "";
   const code = !!S.lesson.code;
+  const flow = flowOn();
+  const keep = !!append && flow && U.flow && U.flow.parentNode === box;
+  if (keep) {
+    Array.from(U.flow.children).forEach(k => k.classList.add("hist"));
+  } else {
+    box.textContent = "";
+    U.flow = null;
+  }
   box.setAttribute("dir", !code && lay.lang === "ar" ? "rtl" : "ltr");
   box.setAttribute("lang", code ? "en" : lay.lang);
+  let host = box;
+  if (flow) {
+    if (!U.flow) {
+      U.flow = h("div", { class: "flow" });
+      box.append(U.flow);
+    }
+    host = U.flow;
+  }
   U.spans = [];
+  const fresh = [];
   let w = null;
   S.lesson.chars.forEach(ch => {
     if (!w) {
       w = h("span", { class: "w" });
-      box.append(w);
+      host.append(w);
+      fresh.push(w);
     }
     const sp = document.createElement("span");
-    sp.textContent = ch === " " ? " " : ch;
+    sp.textContent = ch === " " ? " " : ch;
     U.spans.push(sp);
     w.append(sp);
     if (ch === " ") w = null;
   });
   if (!code && lay.lang === "ar") {
-    Array.from(box.children).forEach(word => {
+    fresh.forEach(word => {
       const kids = Array.from(word.children);
       const body = kids.length && kids[kids.length - 1].textContent.trim() === "" ? kids.slice(0, -1) : kids;
       if (!body.length || !body.every(k => /^[!-~]$/.test(k.textContent))) return;
@@ -110,12 +131,43 @@ function renderTyper() {
     });
   }
   for (let i = 0; i < U.spans.length; i++) paint(i);
+  flowScroll();
   caretLearn();
+}
+
+function flowScroll() {
+  const f = U.flow;
+  const l = S.lesson;
+  if (!f || !l || !f.isConnected) return;
+  const el = U.spans[Math.min(l.idx, U.spans.length - 1)];
+  if (!el) return;
+  const word = el.closest(".w") || el;
+  const lh = parseFloat(getComputedStyle(U.typer).lineHeight);
+  if (!(lh > 0)) return;
+  const fr = f.getBoundingClientRect();
+  let y = Math.max(0, word.getBoundingClientRect().top - fr.top - lh);
+  const hist = Array.from(f.querySelectorAll(".w.hist"));
+  const doomed = hist.filter(x => x.getBoundingClientRect().bottom - fr.top <= y - lh);
+  if (doomed.length || hist.length > 400) {
+    const stay = Array.from(f.children).find(k => doomed.indexOf(k) < 0 && hist.slice(0, Math.max(0, hist.length - 400)).indexOf(k) < 0);
+    const before = stay ? stay.getBoundingClientRect().top : 0;
+    doomed.forEach(x => x.remove());
+    hist.slice(0, Math.max(0, hist.length - 400)).forEach(x => x.remove());
+    const after = stay ? stay.getBoundingClientRect().top : 0;
+    y = Math.max(0, y - (before - after));
+    f.style.transition = "none";
+    f.style.transform = "translateY(" + (-y).toFixed(1) + "px)";
+    void f.offsetHeight;
+    f.style.transition = "";
+    return;
+  }
+  f.style.transform = "translateY(" + (-y).toFixed(1) + "px)";
 }
 
 function caretLearn() {
   const l = S.lesson;
   if (!U.typer || !l) return;
+  if (U.flow) flowScroll();
   const el = l.done ? null : U.spans[l.idx];
   const inRun = !!(el && el.parentNode && el.parentNode.nodeName === "BDI");
   placeCaret(U.typer, el, !l.code && layoutInfo().lang === "ar" && !inRun);

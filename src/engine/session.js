@@ -23,7 +23,21 @@ function notePair(lid, key, wrong) {
   p.te = (p.te || 0) * 0.97 + (wrong ? 1 : 0);
 }
 
-function recordTiming(lid, lesson, expected, prevCh, delta) {
+function noteTri(lid, key, delta) {
+  const L = layoutData(lid);
+  const tri = L.tri || (L.tri = {});
+  let p = tri[key];
+  if (!p) {
+    p = tri[key] = { n: 0, m: delta };
+    if (Object.keys(tri).length > 450) {
+      Object.keys(tri).sort((a, b) => tri[b].n - tri[a].n).slice(400).forEach(k => { delete tri[k]; });
+    }
+  }
+  p.m = p.n === 0 ? delta : p.m * 0.8 + delta * 0.2;
+  p.n++;
+}
+
+function recordTiming(lid, lesson, expected, prevCh, delta, prev2) {
   const P = S.settings;
   const st = charStat(lid, expected, true);
   if (delta >= 15 && delta <= pauseMs()) {
@@ -38,6 +52,7 @@ function recordTiming(lid, lesson, expected, prevCh, delta) {
       p.m = p.n === 0 ? delta : p.m * 0.8 + delta * 0.2;
       p.n++;
       notePair(lid, key, false);
+      if (prev2 && prev2 !== " " && prevCh !== " " && expected !== " " && expected.length === 1) noteTri(lid, prev2 + prevCh + expected, delta);
     }
   }
 }
@@ -71,10 +86,11 @@ function handleChar(ch, ts, hooks) {
       ringPush(st.o, 0, 40);
       stampPush(st, "od", false);
       if (lesson.prevTs != null && i > 0 && !lesson.flag[i - 1]) {
-        recordTiming(lid, lesson, expected, lesson.chars[i - 1], ts - lesson.prevTs);
+        recordTiming(lid, lesson, expected, lesson.chars[i - 1], ts - lesson.prevTs, i > 1 && !lesson.flag[i - 2] && !lesson.code ? lesson.chars[i - 2] : null);
       }
     }
     lesson.mark[i] = 1;
+    if (lesson.cts) lesson.cts[i] = ts;
     if (lesson.code) lesson.net++;
     lesson.prevTs = ts;
     lesson.idx++;

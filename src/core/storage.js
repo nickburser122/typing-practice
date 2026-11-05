@@ -328,8 +328,17 @@ function sanitizeData(input) {
     const src = layouts[lid];
     if (!src || typeof src !== "object") continue;
     const dst = { chars: {}, pairs: {}, k: null, rec: [], sh: { ok: num(src.sh && src.sh.ok, 0, 1e9, 0), same: num(src.sh && src.sh.same, 0, 1e9, 0) }, lk: num(src.lk, 0, 1e6, 0), tot: num(src.tot, 0, 1e9, 0), raise: null, placed: src.placed === true };
+    dst.tri = {};
+    if (src.tri && typeof src.tri === "object") {
+      Object.keys(src.tri).filter(k => k.length === 3 && src.tri[k] && typeof src.tri[k].n === "number" && src.tri[k].n >= 1).sort((a, b) => src.tri[b].n - src.tri[a].n).slice(0, 400).forEach(k => {
+        dst.tri[k] = { n: num(src.tri[k].n, 1, 1e9, 1), m: num(src.tri[k].m, 1, 60000, 500) };
+      });
+    }
     dst.weak = Array.isArray(src.weak)
-      ? src.weak.filter(x => x && typeof x.w === "string" && x.w.length >= 1 && x.w.length <= 24 && typeof x.s === "number" && isFinite(x.s) && x.s > 0).map(x => ({ w: x.w, s: Math.min(20, x.s) })).sort((a, b) => b.s - a.s).slice(0, 60)
+      ? src.weak.filter(x => x && typeof x.w === "string" && x.w.length >= 1 && x.w.length <= 24).map(x => {
+        const legacy = typeof x.s === "number" && isFinite(x.s);
+        return { w: x.w, misses: Math.min(20, legacy ? Math.max(0, x.s) : num(x.misses, 0, 20, 0)), slowMs: num(x.slowMs, 0, 3000, 0), ls: num(x.ls, 0, 8.64e15, 0) };
+      }).filter(x => x.misses > 0 || x.slowMs > 0).sort((a, b) => b.misses + Math.min(3, b.slowMs / 150) - (a.misses + Math.min(3, a.slowMs / 150))).slice(0, 300)
       : [];
     if (src.raise && typeof src.raise === "object" && typeof src.raise.c === "string" && src.raise.c.length <= 2) {
       dst.raise = { c: src.raise.c, until: num(src.raise.until, 0, 1e9, 0) };

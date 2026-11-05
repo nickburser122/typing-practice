@@ -111,25 +111,25 @@ test("word length changes how long the practice words are", () => {
 
 test("the new comfort and flow settings exist with safe defaults and clamp bad values", () => {
   const d = settingsMod.defaultSettings();
-  assert.equal(d.caretStyle, "line");
+  assert.equal(d.caret, "line");
   assert.equal(d.caretSmooth, true);
-  assert.equal(d.textWidth, "normal");
+  assert.equal(d.width, "normal");
   assert.equal(d.hideErrors, false);
-  assert.equal(d.sessionLen, 0);
+  assert.equal(d.session, 0);
   assert.equal(d.zen, false);
-  const bad = settingsMod.sanitizeSettings({ caretStyle: "star", caretSmooth: "yes", textWidth: "huge", hideErrors: 1, sessionLen: 17, zen: "on" });
-  assert.equal(bad.caretStyle, "line");
+  const bad = settingsMod.sanitizeSettings({ caret: "star", caretSmooth: "yes", width: "huge", hideErrors: 1, session: 17, zen: "on" });
+  assert.equal(bad.caret, "line");
   assert.equal(bad.caretSmooth, true);
-  assert.equal(bad.textWidth, "normal");
+  assert.equal(bad.width, "normal");
   assert.equal(bad.hideErrors, false);
-  assert.equal(bad.sessionLen, 0);
+  assert.equal(bad.session, 0);
   assert.equal(bad.zen, false);
-  const good = settingsMod.sanitizeSettings({ caretStyle: "block", caretSmooth: false, textWidth: "narrow", hideErrors: true, sessionLen: 20, zen: true });
-  assert.equal(good.caretStyle, "block");
+  const good = settingsMod.sanitizeSettings({ caret: "block", caretSmooth: false, width: "narrow", hideErrors: true, session: 20, zen: true });
+  assert.equal(good.caret, "block");
   assert.equal(good.caretSmooth, false);
-  assert.equal(good.textWidth, "narrow");
+  assert.equal(good.width, "narrow");
   assert.equal(good.hideErrors, true);
-  assert.equal(good.sessionLen, 20);
+  assert.equal(good.session, 20);
   assert.equal(good.zen, true);
 });
 

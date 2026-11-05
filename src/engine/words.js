@@ -210,17 +210,26 @@ function buildContext() {
     if (!(p.te > 0.5) || !aset.has(k[0]) || !aset.has(k[1])) continue;
     pairNeed[k] = Math.min(2, (pairNeed[k] || 0) + 6 * (p.te / (p.te + (p.tc || 0) + 3)));
   }
+  const triNeed = {};
+  for (const k in L.tri) {
+    const p = L.tri[k];
+    const pp = L.pairs[k.slice(1)];
+    if (!(p.n >= 8) || !pp || !(pp.n >= 6) || !aset.has(k[0]) || !aset.has(k[1]) || !aset.has(k[2])) continue;
+    const need = Math.min(2, Math.max(0, p.m - pp.m) / scale);
+    if (need > 0) triNeed[k] = need;
+  }
+  const focusTris = Object.keys(triNeed).filter(k => triNeed[k] >= 0.5).sort((a, b) => triNeed[b] - triNeed[a]).slice(0, 2);
   const focusPairs = Object.keys(pairNeed).filter(k => pairNeed[k] >= 0.35).sort((a, b) => pairNeed[b] - pairNeed[a]).slice(0, 3);
   const minL = WORD_LEN[st.wordLen][0];
   const maxL = WORD_LEN[st.wordLen][1];
   const s = FOCUS_S[st.focusLevel];
-  return { lex, aset, activeArr, focus, fluency: blockers.length === 0, focusPair: focusPairs[0] || null, focusPairs, pairNeed, pscore: pairNeed, s, T: focusTemp(s), needs, minL, maxL };
+  return { lex, aset, activeArr, focus, fluency: blockers.length === 0, focusPair: focusPairs[0] || null, focusPairs, triNeed, focusTris, pairNeed, pscore: pairNeed, s, T: focusTemp(s), needs, minL, maxL };
 }
 
 function buildWords() {
   const st = S.settings;
   const ctx = buildContext();
-  const { lex, aset, activeArr, focus, focusPair, focusPairs, pairNeed, needs, minL, maxL, T } = ctx;
+  const { lex, aset, activeArr, focus, focusPair, focusPairs, pairNeed, triNeed, focusTris, needs, minL, maxL, T } = ctx;
   const lid = st.layout;
   const N = st.lessonWords;
   const pool = poolFor(lex, aset, activeArr, minL, maxL, st.text !== "generated");
@@ -244,6 +253,7 @@ function buildWords() {
       const cc = codesOf(e);
       let hit = cc.indexOf(focusCode) >= 0;
       for (let q = 0; q < fpCodes.length && !hit; q++) if (e.pc.indexOf(fpCodes[q]) >= 0) hit = true;
+      for (let q = 0; q < focusTris.length && !hit; q++) if (e.w.indexOf(focusTris[q]) >= 0) hit = true;
       if (hit) keep[i] = 1;
     }
     avail = avail.filter((e, i) => keep[i] === 1);
@@ -254,6 +264,7 @@ function buildWords() {
   const exp = LEVEL_EXP[st.wordLevel] || 1.25;
   const pairKeys = Object.keys(pairNeed);
   const anyPair = pairKeys.length > 0;
+  const anyTri = Object.keys(triNeed).length > 0;
   const pairMap = new Map();
   pairKeys.forEach(k => pairMap.set(k.charCodeAt(0) * 65536 + k.charCodeAt(1), pairNeed[k]));
   activeArr.forEach(c => {
@@ -301,11 +312,27 @@ function buildWords() {
       }
       pv = len > 1 ? pv / (len - 1) : 0;
     }
+    let tv = 0;
+    if (anyTri && len > 2) {
+      for (let j = 0; j + 3 <= len; j++) {
+        const v = triNeed[e.w.substr(j, 3)];
+        if (v !== undefined) tv += v;
+      }
+      tv /= len - 2;
+    }
+    if (!hasPair) {
+      for (let q = 0; q < focusTris.length; q++) {
+        if (e.w.indexOf(focusTris[q]) >= 0) {
+          hasPair = true;
+          break;
+        }
+      }
+    }
     if (e.bwe !== exp) {
       e.bwe = exp;
       e.bwv = Math.pow(e.base, exp);
     }
-    wS[i] = e.bwv * Math.exp((nv + 1.5 * pv) / T);
+    wS[i] = e.bwv * Math.exp((nv + 1.5 * pv + 1.2 * tv) / T);
     if (hasFocus) fIdx.push(i);
     if (hasPair) pIdx.push(i);
     if (allSteady) {
@@ -314,10 +341,10 @@ function buildWords() {
     }
   }
   const weakAvail = ctx.fluency ? weakWords(lid, aset) : [];
-  const nW = weakAvail.length ? Math.min(Math.round(N * 0.3), weakAvail.length) : 0;
+  const nW = weakAvail.length ? Math.min(Math.round(N * 0.2), weakAvail.length) : 0;
   const nR = steady.size >= 3 && anyR ? Math.round(N * 0.1) : 0;
-  const nF = focus ? Math.round(N * (ctx.fluency ? 0.3 : 0.6)) : 0;
-  const nP = focusPairs.length ? Math.min(Math.round(N * (ctx.fluency ? 0.4 : 0.25)), Math.max(0, N - nF - nR - nW)) : 0;
+  const nF = focus ? Math.round(N * (ctx.fluency ? 0.2 : 0.6)) : 0;
+  const nP = focusPairs.length || focusTris.length ? Math.min(Math.round(N * (ctx.fluency ? 0.3 : 0.25)), Math.max(0, N - nF - nR - nW)) : 0;
   const roles = [];
   for (let i = 0; i < nW; i++) roles.push("w");
   for (let i = 0; i < nF; i++) roles.push("f");

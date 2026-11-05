@@ -6,14 +6,14 @@ const LID = "en-qwerty";
 const sl = await import("../src/engine/sessionlen.js");
 
 test("nothing is due when the session length is off", () => {
-  fresh(LID, { sessionLen: 0 });
+  fresh(LID, { session: 0 });
   sl.resetSession();
   sl.noteWork(10 * 3600000, 5000, 10);
   assert.equal(sl.sessionDue(), false);
 });
 
 test("a session becomes due once its practice time reaches the limit", () => {
-  fresh(LID, { sessionLen: 10 });
+  fresh(LID, { session: 10 });
   sl.resetSession();
   sl.noteWork(9 * 60000, 3000, 30);
   assert.equal(sl.sessionDue(), false);
@@ -22,7 +22,7 @@ test("a session becomes due once its practice time reaches the limit", () => {
 });
 
 test("the summary reports time, characters, speed and accuracy", () => {
-  fresh(LID, { sessionLen: 10 });
+  fresh(LID, { session: 10 });
   sl.resetSession();
   sl.noteWork(5 * 60000, 1500, 15);
   sl.noteWork(5 * 60000, 1500, 15);
@@ -34,7 +34,7 @@ test("the summary reports time, characters, speed and accuracy", () => {
 });
 
 test("once shown a session is not due again until it is reset", () => {
-  fresh(LID, { sessionLen: 10 });
+  fresh(LID, { session: 10 });
   sl.resetSession();
   sl.noteWork(11 * 60000, 3000, 30);
   assert.equal(sl.sessionDue(), true);
@@ -47,7 +47,7 @@ test("once shown a session is not due again until it is reset", () => {
 });
 
 test("finished lessons and tests add their active time and keystrokes", () => {
-  fresh(LID, { sessionLen: 20, testMode: "words", testWords: 10 });
+  fresh(LID, { session: 20, testMode: "words", testWords: 10 });
   sl.resetSession();
   base.seedRng(6);
   tracks.newLesson();
@@ -66,7 +66,7 @@ test("finished lessons and tests add their active time and keystrokes", () => {
 });
 
 test("a length that is not on the list is ignored", () => {
-  fresh(LID, { sessionLen: 17 });
+  fresh(LID, { session: 17 });
   sl.resetSession();
   sl.noteWork(60 * 60000, 100, 0);
   assert.equal(sl.sessionDue(), false);

@@ -278,6 +278,7 @@ function makeLesson(chars, b, tr) {
     flag: new Uint8Array(chars.length),
     mark: new Uint8Array(chars.length),
     errTs: new Float64Array(chars.length),
+    cts: new Float64Array(chars.length),
     start: 0,
     prevTs: null,
     errs: 0,

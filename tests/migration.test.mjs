@@ -43,7 +43,7 @@ function v4Data() {
 }
 
 function v4Settings() {
-  return { layout: LID, lang: "en", unlock: "assist", focus: 90, wordMin: 5, wordMax: 9, pause: 3500, minSamples: 25, reviewRate: 20, extraRate: 30, lineHeight: 2.2, strip: true, result: true, algo: "impact", carrier: "steady", targetWpm: 40 };
+  return { layout: LID, lang: "en", unlock: "assist", focus: 90, wordMin: 5, wordMax: 9, pause: 3500, minSamples: 25, reviewRate: 20, extraRate: 30, lineHeight: 2.2, strip: true, result: true, algo: "impact", carrier: "steady", targetWpm: 40, mix: { letters: { on: true, weight: 40 }, code: { on: true, weight: 60 } }, presets: [{ name: "Work", mix: { letters: { on: true, weight: 30 }, code: { on: true, weight: 70 } } }] };
 }
 
 function install(store) {
@@ -109,6 +109,9 @@ test("old settings are mapped or ignored", () => {
   assert.equal(S.settings.focusLevel, "sharp");
   assert.equal(S.settings.wordLen, "long");
   assert.equal(S.settings.targetWpm, 40);
+  assert.equal(S.settings.presets.length, 1);
+  assert.equal(S.settings.presets[0].name, "Work");
+  assert.ok(S.settings.mix && S.settings.mix.code.on);
   ["unlock", "focus", "wordMin", "wordMax", "pause", "minSamples", "reviewRate", "extraRate", "lineHeight", "strip", "result", "algo", "carrier"].forEach(k => assert.equal(k in S.settings, false, k));
   done();
 });

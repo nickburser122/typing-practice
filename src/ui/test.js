@@ -2,7 +2,7 @@ import { S, layoutInfo, nf, t } from "../core/state.js";
 import { scheduleSave } from "../core/storage.js";
 import { LAYOUT_BY_LANG } from "../data/layouts.js";
 import { median } from "../engine/stats.js";
-import { QUOTE_LENS, missedWords, testBackspace, testChar, testHistory, testNetNow, testNew, testTick } from "../engine/test.js";
+import { QUOTE_LENS, practiceWords, testBackspace, testChar, testHistory, testNetNow, testNew, testTick } from "../engine/test.js";
 import { sessionDue } from "../engine/sessionlen.js";
 import { newWordsLesson } from "../engine/tracks.js";
 import { produceChars } from "../input/keys.js";
@@ -368,7 +368,7 @@ function renderTestResult() {
     : h("div", { class: "acts" },
       h("button", { type: "button", class: "btn go", onclick: () => newTest(false) }, t("tr.next")),
       h("button", { type: "button", class: "btn", onclick: () => newTest(true) }, t("tr.repeat")),
-      missedWords(T).length ? h("button", { type: "button", class: "btn", id: "practisewords", onclick: () => { if (newWordsLesson(missedWords(T))) go("learn"); } }, t("tr.practise")) : null,
+      practiceWords(T).length ? h("button", { type: "button", class: "btn", id: "practisewords", onclick: () => { if (newWordsLesson(practiceWords(T))) go("learn"); } }, t("tr.practise")) : null,
       r.custom ? h("span", { class: "msg" }, t("tr.customNote")) : r.fed ? h("span", { class: "msg" }, t("tr.fed")) : null);
   U.tbody.append(resultCard(r, layoutInfo().lang, acts, true));
   if (sessionDue()) U.tbody.append(sessionCard(() => testNew(false)));
